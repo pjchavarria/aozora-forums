@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="#616161"
+    tools:context=".activities.SignUpFormActivity"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btnChooseAvatar"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:textColor="#0000FF"
+            android:text="@string/activity_signUpForm_ivAvatar_Text"
+            android:visibility="visible"
+            />
+
+        <com.everfox.aozoraforums.controls.RoundedImageView
+            android:id="@+id/ivChooseAvatar"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:scaleType="centerCrop"
+            android:visibility="invisible"
+            android:adjustViewBounds="true"
+            />
+
+        <EditText
+            android:id="@+id/etPickUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_toRightOf="@+id/btnChooseAvatar"
+            android:hint="@string/activity_signUpForm_etPickUsername_Text"
+            android:layout_centerVertical="true"
+            android:background="@drawable/edittext_rounded_corners"
+            android:padding="8dp"
+            android:textColorHint="#878787"
+            android:inputType="text"
+            />
+    </RelativeLayout>
+
+
+    <EditText
+        android:id="@+id/etEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/activity_signUpForm_etEmail_Text"
+        android:background="@drawable/edittext_rounded_corners"
+        android:padding="8dp"
+        android:textColorHint="#878787"
+        android:layout_marginTop="15dp"
+        android:inputType="textEmailAddress"
+        />
+
+
+    <EditText
+        android:id="@+id/etPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/activity_signUpForm_etPassword_Text"
+        android:background="@drawable/edittext_rounded_corners"
+        android:padding="8dp"
+        android:textColorHint="#878787"
+        android:layout_marginTop="15dp"
+        android:inputType="textPassword"
+        />
+
+
+    <Button
+        android:id="@+id/btnSignUp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_white_rounded_corner"
+        android:textAllCaps="false"
+        android:layout_marginTop="20dp"
+        android:textColor="#000000"
+        android:text="@string/activity_signUpForm_btnSignUp_Text"/>
+
+</LinearLayout>

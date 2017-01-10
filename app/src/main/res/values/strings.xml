@@ -1,3 +1,50 @@
 <resources>
-    <string name="app_name">AozoraForums</string>
+  <string name="facebook_app_id">1467094533604194</string>
+    <string name="app_name">Aozora Forums</string>
+    <string name="activity_login_app_name">Aozora Forums</string>
+       <string name="activity_login_tvAppMessage_Text">
+  <![CDATA[
+  The largest anime comunity for <b>sharing</b> and <b>discovering</b> anime with friends.
+    ]]>
+    </string>
+    <string name="desc_list_item_icon">Item Icon</string>
+    <string name="jap_name">青空</string>
+    <string name="activity_first_btnMailSignUp_Text">Register with email</string>
+    <string name="activity_first_btnLogin_Text">Already have an account? Log in</string>
+    <string name="activity_first_btnSkipLogin_Text">Skip sign up</string>
+    <string name="activity_loginForm_tvTitle_Text">Login Aozora</string>
+    <string name="activity_first_btnFacebook_Text">Sign up or Login with Facebook</string>
+    <string name="activity_loginForm_etUsername_Hint">Username</string>
+    <string name="activity_loginForm_etPassword_Hint">Password</string>
+    <string name="activity_loginForm_tvForgotPassword_Text">Forgot password?</string>
+    <string name="activity_loginForm_btnLogin_Text">Log in</string>
+
+    <string name="activity_signUpForm_tvTitle_Text">Sign up Aozora</string>
+    <string name="activity_signUpForm_ivAvatar_Text">Select</string>
+    <string name="activity_signUpForm_etPickUsername_Text">Pick a username</string>
+    <string name="activity_signUpForm_etEmail_Text">Email</string>
+    <string name="activity_signUpForm_etPassword_Text">Password</string>
+    <string name="activity_signUpForm_btnSignUp_Text">Sign Up</string>
+    <string name="activity_signUpForm_emptyUsername">Please write a username</string>
+    <string name="activity_signUpForm_emptyPassword">Please write a password</string>
+    <string name="activity_signUpForm_emptyEmail">Please write an email</string>
+    <string name="activity_signUpForm_badFormatEmail">Please write a valid email</string>
+    <string name="activity_resetPassword_tvTitle_Text">Reset password</string>
+    <string name="activity_resetPassword_btnReset_Text">Reset password</string>
+    <string name="activity_resetPassword_etEmail_Hint">Email of the account</string>
+    <string name="activity_resetPassword_validationMessage">An email was sent with reset instructions.</string>
+  <string name="message_no_internet">This operation is not possible without internet</string>
+
+  <string name="fa_icon_animeInfo">&#xf05a;</string>
+  <string name="fa_icon_animeEpisodes">&#xf152;</string>
+
+  <string name="fa_icon_angledown">&#xf107;</string>
+  <string name="fa_icon_starhalfull">&#xf123;</string>
+
+  <string name="fragment_season_rating_icon">&#xf1fe;</string>
+  <string name="fragment_season_members_icon">&#xf007;</string>
+
+  <string name="fa_icon_timescircle">&#xf057;</string>
+  <string name="appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
+
 </resources>

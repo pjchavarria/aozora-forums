@@ -1,0 +1,11 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+    <dimen name="activity_first_tvAppName_fontSize">30dp</dimen>
+    <dimen name="activity_first_tvJapName_fontSize">20dp</dimen>
+    <dimen name="activity_first_tvMessage_fontSize">15sp</dimen>
+    <dimen name="activity_first_ivJapaneseName_marginTop">80dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="navigation_drawer_width">240dp</dimen>
+</resources>
