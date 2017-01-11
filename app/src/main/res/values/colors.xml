@@ -7,4 +7,50 @@
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorBlack">#000000</color>
     <color name="grayC5">#C5C5C5</color>
+
+    <color name="grayE5">#E5E5E5</color>
+    <!-- Paul Colors -->
+    <color name="list_item_title">#fff</color>
+    <color name="list_background">#ff303030</color>
+    <color name="list_background_pressed">#ff326eaa</color>
+    <color name="list_background_pressed_darker">#ff2c588d</color>
+    <color name="blue_dark">#ff22345d</color>
+    <color name="list_divider">#272727</color>
+    <color name="counter_text_bg">#626262</color>
+    <color name="counter_text_color">#c5c4c4</color>
+    <color name="background_1">#ff1d2022</color>
+    <color name="background_2">#ff2e3236</color>
+    <color name="background_3">#ff3d4247</color>
+    <color name="text_blue">#ffa6f5f5</color>
+    <color name="black_50">#7f000000</color>
+    <color name="black_70">#9f000000</color>
+    <color name="red">#ffff070f</color>
+    <color name="transparent">#00ffffff</color>
+
+
+    <color name="red_airing">#ffc10e0e</color>
+    <color name="green_airing">#ff85b100</color>
+    <color name="blue_airing">#ff326eaa</color>
+
+
+    <color name="inapp_blue">#ff1b88ef</color>
+    <color name="inapp_blue_darker">#ff1470c3</color>
+    <color name="inapp_green">#ff74c224</color>
+    <color name="inapp_green_darker">#ff5ba229</color>
+    <color name="inapp_background">#ffe3f3fc</color>
+
+
+    <color name="colorBelizeHole">#2980BB</color>
+    <color name="colorNephritis">#27AE60</color>
+    <color name="colorPumpkin">#FF7619</color>
+
+    <color name="colorAnimeCellWatching">#9BE182</color>
+    <color name="colorAnimeCellOnHold">#D35400</color>
+    <color name="colorAnimeCellPlanning">#E1D77C</color>
+    <color name="colorAnimeCellCompleted">#709AE1</color>
+    <color name="colorAnimeCellDropped">#646464</color>
+
+
+    <color name="filter_list_item_selected">#626262</color>
+    <color name="filter_list_item_notselected">#c5c4c4</color>
 </resources>

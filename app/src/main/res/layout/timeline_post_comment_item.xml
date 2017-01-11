@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="5dp"
+    android:paddingTop="5dp">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RelativeLayout
+                android:layout_width="45dp"
+                android:layout_height="45dp">
+                <com.everfox.aozoraforums.controls.RoundedImageView
+                    android:id="@+id/ivCommentAvatar"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@mipmap/ic_launcher"
+                    android:scaleType="fitXY"
+                    android:adjustViewBounds="true" />
+
+
+                <View
+                    android:id="@+id/tvCommentUserActive"
+                    android:layout_width="10dp"
+                    android:layout_height="10dp"
+                    android:background="@drawable/green_circle"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    ></View>
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/tvCommentText"
+                android:text=""
+                android:layout_marginLeft="5dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorBlack"
+                />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="50dp">
+
+            <TextView
+                android:id="@+id/tvCommentWhen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2 hrs"
+                />
+
+            <TextView
+                android:id="@+id/tvCommentLikes"
+                android:text="&#xf123;"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorBlack"
+                android:layout_marginLeft="10dp"
+                />
+
+            <TextView
+                android:id="@+id/tvCommentNumberLikes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorBlack"
+                android:textStyle="bold"
+                android:text="1 - likes"
+                android:layout_marginLeft="5dp"
+                />
+
+        </LinearLayout>
+
+</LinearLayout>

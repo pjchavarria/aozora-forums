@@ -80,4 +80,11 @@ public class AozoraUtils {
         return result;
     }
 
+    public static String numberToStringOrZero (Number number) {
+        if(number == null || number == (Number)0)
+            return "0";
+        else
+            return String.valueOf(number);
+    }
+
 }

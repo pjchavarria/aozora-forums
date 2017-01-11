@@ -7,8 +7,19 @@
     android:background="@color/colorWhite"
     android:fitsSystemWindows="true">
 
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/Base.Widget.AppCompat.ProgressBar"
+        android:indeterminate="true"
+        android:visibility="gone"
+        android:layout_gravity="center"
+        />
+
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
+        android:visibility="visible"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
@@ -40,7 +51,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="5dp"
                 android:layout_marginRight="5dp"
-                android:layout_marginTop="150dp"
+                android:layout_marginTop="160dp"
                 >
                 <LinearLayout
                     android:orientation="horizontal"
@@ -48,8 +59,8 @@
                     android:layout_height="wrap_content">
                     <com.everfox.aozoraforums.controls.RoundedImageView
                         android:id="@+id/ivAvatar"
-                        android:layout_width="70dp"
-                        android:layout_height="70dp"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
                         android:src="@mipmap/ic_launcher"
                         android:scaleType="fitXY"
                         android:adjustViewBounds="true"
@@ -92,15 +103,34 @@
                             android:padding="5dp"
                             />
 
-                        <ImageView
-                            android:id="@+id/ivMoreOptions"
-                            android:layout_width="30dp"
-                            android:layout_height="30dp"
-                            android:src="@drawable/ic_more_filled"
-                            android:layout_centerInParent="true"
-                            android:layout_alignParentRight="true"
-                            />
+                        <LinearLayout
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:layout_alignParentRight="true">
 
+                                <ImageView
+                                    android:id="@+id/ivMoreOptions"
+                                    android:layout_width="30dp"
+                                    android:layout_height="30dp"
+                                    android:src="@drawable/ic_more_filled"
+                                    android:layout_toLeftOf="@id/ivMoreOptions"
+                                    android:layout_gravity="center_vertical"
+
+                                    />
+
+                                <TextView
+                                    android:id="@+id/tvFollow"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:background="@color/grayE5"
+                                    android:text="&#xf05a; Following"
+                                    android:layout_gravity="center_vertical"
+                                    android:padding="5dp"
+                                    android:textColor="#626262"
+                                    android:visibility="gone"
+                                    />
+                        </LinearLayout>
                     </RelativeLayout>
                 </LinearLayout>
 
@@ -180,6 +210,8 @@
 
 
     <android.support.v4.widget.NestedScrollView
+        android:id="@+id/profileContent"
+        android:visibility="visible"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
@@ -192,12 +224,93 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <TextView
-                android:text="PRUEBA QUE SCROLLEA BIEN"
-                android:layout_width="wrap_content"
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
-                />
+                android:background="@color/colorWhite"
+                android:paddingTop="10dp"
+                >
+
+                <LinearLayout
+                    android:id="@+id/tvFollowingTab"
+                    android:orientation="vertical"
+                    android:layout_weight="0.33"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Following"
+                        android:gravity="center_horizontal"
+                        android:textColor="@color/inapp_blue"
+                        />
+
+                    <View
+                        android:layout_gravity="bottom"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="@color/inapp_blue"
+                        android:layout_marginTop="10dp"
+                        android:visibility="visible"
+                        ></View>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tvAozoraTab"
+                    android:orientation="vertical"
+                    android:layout_weight="0.33"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_weight="0.33"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Aozora"
+                        android:gravity="center_horizontal"
+                        android:textColor="@color/inapp_blue" />
+
+                    <View
+                        android:layout_gravity="bottom"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="@color/inapp_blue"
+                        android:layout_marginTop="10dp"
+                        android:visibility="invisible"
+                        ></View>
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/tvProfileTab"
+                    android:orientation="vertical"
+                    android:layout_weight="0.33"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_weight="0.33"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Profile"
+                        android:gravity="center_horizontal"
+                        android:textColor="@color/inapp_blue" />
+
+                    <View
+                        android:layout_gravity="bottom"
+                        android:layout_width="match_parent"
+                        android:layout_height="2dp"
+                        android:background="@color/inapp_blue"
+                        android:layout_marginTop="10dp"
+                        android:visibility="invisible"
+                        ></View>
+                    </LinearLayout>
+
+            </LinearLayout>
+
+
+
+
         <android.support.v7.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="match_parent"

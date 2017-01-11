@@ -80,7 +80,7 @@ public class MainActivity extends AppCompatActivity {
         if(!AozoraUtils.isActivityInvalid(MainActivity.this)) {
 
             if (pf == null)
-                pf = ProfileFragment.newInstance();
+                pf = ProfileFragment.newInstance(ParseUser.getCurrentUser());
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.flContent, pf).commitAllowingStateLoss();

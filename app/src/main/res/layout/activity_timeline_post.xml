@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="10dp"
+    android:paddingLeft="5dp"
+    android:paddingRight="10dp"
+    >
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_above="@+id/llAddComment"
+        android:layout_alignParentTop="true">
+        <LinearLayout
+            android:id="@+id/llFirstPost"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <RelativeLayout
+                    android:layout_width="55dp"
+                    android:layout_height="55dp">
+
+                    <com.everfox.aozoraforums.controls.RoundedImageView
+                        android:id="@+id/ivAvatar"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@mipmap/ic_launcher"
+                        android:scaleType="fitXY"
+                        android:adjustViewBounds="true"
+                        android:visibility="visible"/>
+
+                    <View
+                        android:id="@+id/tvUserActive"
+                        android:layout_width="15dp"
+                        android:layout_height="15dp"
+                        android:background="@drawable/green_circle"
+                        android:layout_alignParentBottom="true"
+                        android:layout_alignParentRight="true"
+                        ></View>
+
+
+                </RelativeLayout>
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="10dp"
+
+                    >
+
+                    <TextView
+                        android:id="@+id/tvRepostedBy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="&#xf05a; Shaz Reposted"
+                        />
+
+                    <TextView
+                        android:id="@+id/tvPostedBy"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Beth4324"
+                        android:textColor="@color/inapp_blue_darker"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        android:layout_marginTop="2dp"
+                        />
+
+                    <TextView
+                        android:id="@+id/tvPostedWhen"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="2 hrs"
+                        android:layout_marginTop="2dp"
+                        />
+
+                </LinearLayout>
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <ImageView
+                    android:id="@+id/ivMoreOptions"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:src="@drawable/ic_more_filled"
+                    android:layout_gravity="center_vertical"
+                    />
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tvPostText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp"
+                />
+
+            <ImageView
+                android:id="@+id/ivPostImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp">
+
+                <TextView
+                    android:id="@+id/tvLikes"
+                    android:text="&#xf123; 4"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="16sp"
+                    />
+
+
+                <TextView
+                    android:id="@+id/tvComments"
+                    android:text="&#xf123; 2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="16sp"
+                    />
+
+                <TextView
+                    android:id="@+id/tvRepost"
+                    android:text="&#xf1fe;"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="40dp"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="16sp"
+                    />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <TextView
+                    android:id="@+id/tvAddReply"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="&#xf05a;"
+                    android:textColor="@color/colorBlack"
+                    android:textSize="16sp"
+                    />
+            </LinearLayout>
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/grayC5"
+                android:layout_marginTop="5dp"
+                ></View>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rvComments"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:nestedScrollingEnabled="false"
+                >
+
+            </android.support.v7.widget.RecyclerView>
+        </LinearLayout>
+    </ScrollView>
+
+
+    <LinearLayout
+        android:id="@+id/llAddComment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical"
+        android:background="@color/colorWhite"
+        android:paddingBottom="5dp"
+        >
+        <EditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Write a comment"
+            android:paddingLeft="10dp"
+            android:paddingBottom="3dp"
+            android:paddingTop="3dp"
+            />
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp">
+            
+            <TextView
+                android:id="@+id/tvAddPhotoGallery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fa_icon_animeInfo"
+                android:textSize="16sp"
+                />
+            <TextView
+                android:id="@+id/tvAddPhotoInternet"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fa_icon_animeInfo"
+                android:layout_marginLeft="20dp"
+                android:textSize="16sp"
+                />
+
+            <TextView
+                android:id="@+id/tvAddVideo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/fa_icon_animeInfo"
+                android:layout_marginLeft="20dp"
+                android:textSize="16sp"
+                />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/btnSendComment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Send"
+                android:textAllCaps="false"
+                android:background="@drawable/button_send"
+                android:textColor="@color/colorWhite"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="7dp"
+                android:paddingBottom="7dp"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+
+                />
+
+        </LinearLayout>
+    </LinearLayout>
+</RelativeLayout>
