@@ -10,4 +10,7 @@ public class ParseUserColumns {
     public static String BANNER = "banner";
     public static String AOZORA_USERNAME = "aozoraUsername";
     public static String REPUTATION = "reputation";
+    public static String BADGES = "badges";
+    public static String DETAILS = "details";
+    public static String ACTIVE = "active";
 }

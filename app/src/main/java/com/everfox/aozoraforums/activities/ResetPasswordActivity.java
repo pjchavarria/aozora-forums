@@ -8,7 +8,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.everfox.aozoraforums.R;
-import com.everfox.aozoraforums.utils.AozoraUtils;
+import com.everfox.aozoraforums.utils.AoUtils;
 import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.RequestPasswordResetCallback;
@@ -51,7 +51,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
         if(etEmail.getText().length() == 0 ) {
             Toast.makeText(this, getResources().getString(R.string.activity_signUpForm_emptyUsername), Toast.LENGTH_SHORT).show();
         }
-        else if(!AozoraUtils.isNetworkAvailable(getApplicationContext())) {
+        else if(!AoUtils.isNetworkAvailable(getApplicationContext())) {
 
             Toast.makeText(this, getResources().getString(R.string.message_no_internet), Toast.LENGTH_SHORT).show();
         }

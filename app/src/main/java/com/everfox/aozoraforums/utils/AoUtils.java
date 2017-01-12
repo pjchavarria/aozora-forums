@@ -21,7 +21,7 @@ import com.parse.ParseUser;
  * Created by daniel.soto on 1/10/2017.
  */
 
-public class AozoraUtils {
+public class AoUtils {
 
     public static boolean canAddSimpleLoadingDialog(DialogFragment simpleLoading, FragmentManager fragmentManager) {
         Dialog dialogFrg=simpleLoading.getDialog();

@@ -2,18 +2,11 @@ package com.everfox.aozoraforums;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.Signature;
 import android.graphics.Typeface;
 import android.media.MediaPlayer;
 import android.net.Uri;
-import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.text.Html;
-import android.util.Base64;
-import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -23,14 +16,12 @@ import android.widget.VideoView;
 import com.everfox.aozoraforums.activities.LoginFormActivity;
 import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.activities.SignUpFormActivity;
-import com.everfox.aozoraforums.utils.AozoraUtils;
+import com.everfox.aozoraforums.utils.AoUtils;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -131,7 +122,7 @@ public class FirstActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        tvAppMessage.setText(AozoraUtils.fromHtml(getResources().getString(R.string.activity_login_tvAppMessage_Text)));
+        tvAppMessage.setText(AoUtils.fromHtml(getResources().getString(R.string.activity_login_tvAppMessage_Text)));
 
         if(ParseUser.getCurrentUser() != null) {
             Intent i = new Intent(FirstActivity.this, MainActivity.class);

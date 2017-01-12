@@ -2,6 +2,7 @@ package com.everfox.aozoraforums;
 
 import android.app.Application;
 
+import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.models.UserDetails;
 import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
@@ -22,6 +23,7 @@ public class AozoraForumsApp extends Application {
         super.onCreate();
         //Registrar subclases
         ParseObject.registerSubclass(UserDetails.class);
+        ParseObject.registerSubclass(TimelinePost.class);
 
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId("AneKeKPLygTGmVmqWsY6totXXTQfk8")

@@ -11,8 +11,8 @@
             android:layout_height="wrap_content">
 
             <RelativeLayout
-                android:layout_width="45dp"
-                android:layout_height="45dp">
+                android:layout_width="35dp"
+                android:layout_height="35dp">
                 <com.everfox.aozoraforums.controls.RoundedImageView
                     android:id="@+id/ivCommentAvatar"
                     android:layout_width="match_parent"
@@ -29,9 +29,15 @@
                     android:background="@drawable/green_circle"
                     android:layout_alignParentBottom="true"
                     android:layout_alignParentRight="true"
+                    android:visibility="gone"
                     ></View>
 
             </RelativeLayout>
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
             <TextView
                 android:id="@+id/tvCommentText"
@@ -39,30 +45,37 @@
                 android:layout_marginLeft="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/colorBlack"
+                android:textColor="@color/gray32"
                 />
 
+                <ImageView
+                    android:id="@+id/ivLastCommentImage"
+                    android:layout_marginLeft="5dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+                </LinearLayout>
         </LinearLayout>
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp">
+            android:layout_marginLeft="50dp"
+            android:layout_marginTop="5dp">
 
             <TextView
                 android:id="@+id/tvCommentWhen"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="2 hrs"
+                android:layout_gravity="center_vertical"
                 />
 
-            <TextView
+            <ImageView
                 android:id="@+id/tvCommentLikes"
-                android:text="&#xf123;"
+                android:src="@drawable/icon_like_small"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/colorBlack"
                 android:layout_marginLeft="10dp"
                 />
 
@@ -74,6 +87,7 @@
                 android:textStyle="bold"
                 android:text="1 - likes"
                 android:layout_marginLeft="5dp"
+                android:layout_gravity="center_vertical"
                 />
 
         </LinearLayout>

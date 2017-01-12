@@ -2,9 +2,11 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginTop="10dp"
-    android:paddingLeft="5dp"
-    android:paddingRight="10dp"
+    android:layout_marginTop="15dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="15dp"
+    android:background="@color/colorWhite"
+    android:paddingBottom="5dp"
     >
 
     <LinearLayout
@@ -16,20 +18,24 @@
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            >
 
             <RelativeLayout
                 android:layout_width="45dp"
-                android:layout_height="45dp">
+                android:layout_height="55dp">
 
                 <com.everfox.aozoraforums.controls.RoundedImageView
                     android:id="@+id/ivAvatar"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
                     android:src="@mipmap/ic_launcher"
                     android:scaleType="fitXY"
                     android:adjustViewBounds="true"
-                    android:visibility="visible"/>
+                    android:visibility="visible"
+                    android:layout_marginTop="10dp"
+                    />
 
                 <View
                     android:id="@+id/tvUserActive"
@@ -38,24 +44,24 @@
                     android:background="@drawable/green_circle"
                     android:layout_alignParentBottom="true"
                     android:layout_alignParentRight="true"
+                    android:visibility="gone"
                     ></View>
 
-
             </RelativeLayout>
+
 
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp"
-
                 >
 
                 <TextView
                     android:id="@+id/tvRepostedBy"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="&#xf05a; Shaz Reposted"
+                    android:text=""
                     />
 
                 <TextView
@@ -97,7 +103,7 @@
             android:id="@+id/tvPostText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textColor="@color/colorBlack"
+            android:textColor="@color/gray32"
             android:textSize="16sp"
            />
 
@@ -110,36 +116,65 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="10dp">
+            android:paddingLeft="10dp"
+            android:layout_marginTop="10dp"
+            >
 
-            <TextView
-                android:id="@+id/tvLikes"
-                android:text="&#xf123; 4"
+            <ImageView
+                android:id="@+id/ivLikes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/colorBlack"
-                android:textSize="16sp"
+                android:src="@drawable/icon_like_small"
                 />
 
 
             <TextView
-                android:id="@+id/tvComments"
-                android:text="&#xf123; 2"
+                android:id="@+id/tvLikes"
+                android:text="4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="40dp"
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="3dp"
+                />
+
+            <ImageView
+                android:id="@+id/ivComments"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_like_small"
+                android:layout_marginLeft="40dp"
+                />
+
+            <TextView
+                android:id="@+id/tvComments"
+                android:text="2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp"
+                android:layout_marginLeft="3dp"
+                android:layout_gravity="center_vertical"
+                />
+
+            <ImageView
+                android:id="@+id/ivRepost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_like_small"
+                android:layout_marginLeft="40dp"
                 />
 
             <TextView
                 android:id="@+id/tvRepost"
-                android:text="&#xf1fe;"
+                android:text="2"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="40dp"
                 android:textColor="@color/colorBlack"
                 android:textSize="16sp"
+                android:layout_marginLeft="3dp"
+                android:layout_gravity="center_vertical"
                 />
 
             <Space
@@ -147,31 +182,31 @@
                 android:layout_height="0dp"
                 android:layout_weight="1" />
 
-            <TextView
-                android:id="@+id/tvAddReply"
+            <ImageView
+                android:id="@+id/ivAddReply"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="&#xf05a;"
-                android:textColor="@color/colorBlack"
-                android:textSize="16sp"
+                android:src="@drawable/icon_like_small"
                 />
+
         </LinearLayout>
     </LinearLayout>
+
     <LinearLayout
-        android:orientation="vertical"
         android:id="@+id/llLastComment"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="@color/grayC5"
+            android:background="@color/grayE5"
             android:layout_marginTop="5dp"
             ></View>
 
         <TextView
             android:text="View previous comments"
-            android:layout_marginLeft="50dp"
+            android:layout_marginLeft="40dp"
             android:paddingTop="10dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
@@ -179,7 +214,9 @@
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            >
 
             <RelativeLayout
                 android:layout_width="35dp"
@@ -200,18 +237,31 @@
                     android:background="@drawable/green_circle"
                     android:layout_alignParentBottom="true"
                     android:layout_alignParentRight="true"
+                    android:visibility="gone"
                     ></View>
 
             </RelativeLayout>
 
-            <TextView
-                android:id="@+id/tvLastCommentText"
-                android:text=""
-                android:layout_marginLeft="5dp"
+            <LinearLayout
+                android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/colorBlack"
-                />
+                android:layout_height="wrap_content">
+                <TextView
+                    android:id="@+id/tvLastCommentText"
+                    android:text=""
+                    android:layout_marginLeft="5dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/gray32"
+
+                    />
+
+                <ImageView
+                    android:id="@+id/ivLastCommentImage"
+                    android:layout_marginLeft="5dp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
 
         </LinearLayout>
 
@@ -219,22 +269,35 @@
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp">
+            android:layout_marginLeft="50dp"
+            android:layout_marginTop="5dp"
+            >
 
             <TextView
                 android:id="@+id/tvLastCommentWhen"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="2 hrs"
+                android:layout_gravity="center_vertical"
+                />
+
+            <ImageView
+                android:id="@+id/ivLastCommentLikes"
+                android:src="@drawable/icon_like_small"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
                 />
 
             <TextView
-                android:id="@+id/tvLastCommentLikes"
-                android:text="&#xf123;"
+                android:id="@+id/tvLastCommentNumberLikes"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:textColor="@color/colorBlack"
-                android:layout_marginLeft="10dp"
+                android:textStyle="bold"
+                android:text="1 - likes"
+                android:layout_marginLeft="5dp"
+                android:layout_gravity="center_vertical"
                 />
 
         </LinearLayout>

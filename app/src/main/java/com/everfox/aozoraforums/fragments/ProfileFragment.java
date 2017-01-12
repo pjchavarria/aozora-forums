@@ -4,27 +4,37 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.adapters.ProfileTimelineAdapter;
+import com.everfox.aozoraforums.controllers.ProfileParseHelper;
 import com.everfox.aozoraforums.models.ParseUserColumns;
-import com.everfox.aozoraforums.utils.AozoraUtils;
+import com.everfox.aozoraforums.models.TimelinePost;
+import com.everfox.aozoraforums.models.UserDetails;
+import com.everfox.aozoraforums.utils.AoUtils;
+import com.everfox.aozoraforums.utils.ProfileUtils;
+import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.GetDataCallback;
+import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -33,22 +43,38 @@ import butterknife.ButterKnife;
  * Created by daniel.soto on 1/10/2017.
  */
 
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGetProfilePostsListener {
 
     ParseUser user;
+    UserDetails userDetails;
+    Boolean isProfile;
+    Boolean isCurrentUser;
+    ProfileTimelineAdapter timelineAdapter;
 
     @BindView(R.id.pbLoading) ProgressBar pbLoading;
-    @BindView(R.id.appbar) android.support.design.widget.AppBarLayout appbar;
-    @BindView(R.id.profileContent) NestedScrollView profileContent;
-    @BindView(R.id.ivAnimeBanner)
-    ImageView ivAnimeBanner;
+    @BindView(R.id.llProfileContent)
+    LinearLayout llProfileContent;
+    @BindView(R.id.ivProfileBanner)
+    ImageView ivProfileBanner;
     @BindView(R.id.ivAvatar) ImageView ivAvatar;
     @BindView(R.id.tvPopularity)
     TextView tvPopularity;
+    @BindView(R.id.tvPro) TextView tvPro;
+    @BindView(R.id.tvBadge) TextView tvBadge;
+    @BindView(R.id.tvUsername) TextView tvUsername;
+    @BindView(R.id.tvLastActive) TextView tvLastActive;
+    @BindView(R.id.tvFollowing) TextView tvFollowing;
+    @BindView(R.id.tvFollowers) TextView tvFollowers;
+    @BindView(R.id.llFeed) LinearLayout llFeed;
+    @BindView(R.id.tvIntroduction) TextView tvIntroduction;
+    @BindView(R.id.rvTimeline)
+    RecyclerView rvTimeline;
 
-    public static ProfileFragment newInstance(ParseUser user) {
+    public static ProfileFragment newInstance(ParseUser user,Boolean isProfile, Boolean isCurrentUser) {
         ProfileFragment fragment = new ProfileFragment();
         fragment.user = user;
+        fragment.isProfile = isProfile;
+        fragment.isCurrentUser = isCurrentUser;
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -61,9 +87,10 @@ public class ProfileFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(user.getString(ParseUserColumns.AOZORA_USERNAME));
         ButterKnife.bind(this,view);
+        rvTimeline.setLayoutManager(new LinearLayoutManager(getActivity()));
         pbLoading.setVisibility(View.VISIBLE);
-        appbar.setVisibility(View.GONE);
-        profileContent.setVisibility(View.GONE);
+        llProfileContent.setVisibility(View.GONE);
+        ivProfileBanner.setVisibility(View.GONE);
         return view;
     }
 
@@ -73,11 +100,65 @@ public class ProfileFragment extends Fragment {
         ParseFile profilePic = user.getParseFile(ParseUserColumns.AVATAR_THUMB);
         ParseFile bannerPic = user.getParseFile(ParseUserColumns.BANNER);
         loadAvatarAndBanner(profilePic,bannerPic);
-        tvPopularity.setText(AozoraUtils.numberToStringOrZero(user.getNumber(ParseUserColumns.REPUTATION)));
+        tvPopularity.setText(AoUtils.numberToStringOrZero(user.getNumber(ParseUserColumns.REPUTATION)));
+        String badgePro = ProfileUtils.badgesArrayToPro(user.getJSONArray(ParseUserColumns.BADGES));
+        if(badgePro == "")
+            tvPro.setVisibility(View.INVISIBLE);
+        else
+            tvPro.setText(badgePro);
+        String badge = ProfileUtils.badgesArrayToBadge(user.getJSONArray(ParseUserColumns.BADGES));
+        if(badge == "")
+            tvBadge.setVisibility(View.INVISIBLE);
+        else
+            tvBadge.setText(badge);
+        tvUsername.setText(user.getString(ParseUserColumns.AOZORA_USERNAME));
+        if(isCurrentUser)
+            tvLastActive.setText(getResources().getString(R.string.active_now));
+        else
+            tvLastActive.setText(ProfileUtils.lastActiveFromUser(user));
 
-        pbLoading.setVisibility(View.GONE);
-        appbar.setVisibility(View.VISIBLE);
-        profileContent.setVisibility(View.VISIBLE);
+        user.getParseObject(ParseUserColumns.DETAILS).fetchIfNeededInBackground(new GetCallback<UserDetails>() {
+            @Override
+            public void done(UserDetails object, ParseException e) {
+
+                if(object == null) {
+                    ParseQuery<UserDetails> queryDetails = ParseQuery.getQuery(UserDetails.class);
+                    queryDetails.setLimit(1);
+                    queryDetails.whereEqualTo(UserDetails.DETAILS_USER,user);
+                    queryDetails.findInBackground(new FindCallback<UserDetails>() {
+                        @Override
+                        public void done(List<UserDetails> objects, ParseException e) {
+                            if(objects != null && e != null && objects.size()>0) {
+                                userDetails = objects.get(0);
+                                loadUserDetails();
+                            }
+                        }
+                    });
+                } else {
+                    userDetails = object;
+                    loadUserDetails();
+                }
+            }
+        });
+
+
+        if(!isProfile) {
+            llFeed.setVisibility(View.VISIBLE);
+            //Load Following
+
+        } else {
+            //LoadProfile
+            new ProfileParseHelper(getActivity(),ProfileFragment.this)
+                    .GetProfilePosts(user,0,ProfileParseHelper.PROFILE_FETCH_LIMIT,ProfileParseHelper.PROFILE_LIST);
+
+        }
+
+    }
+
+    private void loadUserDetails() {
+        tvFollowers.setText(AoUtils.numberToStringOrZero(userDetails.getNumber(UserDetails.FOLLOWERS)));
+        tvFollowing.setText(AoUtils.numberToStringOrZero(userDetails.getNumber(UserDetails.FOLLOWING)));
+        tvIntroduction.setText(userDetails.getString(UserDetails.ABOUT));
     }
 
     private void loadAvatarAndBanner(ParseFile profilePic, ParseFile bannerPic) {
@@ -102,10 +183,23 @@ public class ProfileFragment extends Fragment {
                     if (e == null) {
                         Bitmap bmp = BitmapFactory
                                 .decodeByteArray(data, 0, data.length);
-                        ivAnimeBanner.setImageBitmap(bmp);
+                        ivProfileBanner.setImageBitmap(bmp);
                     }
                 }
             });
         }
+    }
+
+    @Override
+    public void onGetProfilePosts(List<TimelinePost> timelinePosts) {
+
+        if(timelineAdapter == null) {
+            timelineAdapter = new ProfileTimelineAdapter(getActivity(),timelinePosts,ProfileFragment.this,user);
+            rvTimeline.setAdapter(timelineAdapter);
+            pbLoading.setVisibility(View.GONE);
+            llProfileContent.setVisibility(View.VISIBLE);
+            ivProfileBanner.setVisibility(View.VISIBLE);
+        }
+
     }
 }

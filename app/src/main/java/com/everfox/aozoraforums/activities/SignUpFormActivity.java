@@ -26,10 +26,9 @@ import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.controls.RoundedImageView;
 import com.everfox.aozoraforums.dialogfragments.SimpleLoadingDialogFragment;
 import com.everfox.aozoraforums.models.UserDetails;
-import com.everfox.aozoraforums.utils.AozoraUtils;
+import com.everfox.aozoraforums.utils.AoUtils;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
-import com.parse.ParseFacebookUtils;
 import com.parse.ParseFile;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
@@ -79,7 +78,7 @@ public class SignUpFormActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if( CheckFields()) {
 
-                    if(AozoraUtils.canAddSimpleLoadingDialog(simpleLoading,getSupportFragmentManager()))
+                    if(AoUtils.canAddSimpleLoadingDialog(simpleLoading,getSupportFragmentManager()))
                         simpleLoading.show(getSupportFragmentManager(),"loading");
                     SignUp();
                 }
@@ -335,7 +334,7 @@ public class SignUpFormActivity extends AppCompatActivity {
         }
         else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(etEmail.getText()).matches()) {
             Toast.makeText(this,getResources().getString(R.string.activity_signUpForm_badFormatEmail),Toast.LENGTH_SHORT).show();
-        } else  if (!AozoraUtils.isNetworkAvailable(getApplicationContext()) ) {
+        } else  if (!AoUtils.isNetworkAvailable(getApplicationContext()) ) {
             Toast.makeText(this,getResources().getString(R.string.message_no_internet),Toast.LENGTH_SHORT).show();
         }
         else {

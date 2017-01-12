@@ -11,7 +11,7 @@ import android.widget.Toast;
 
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.dialogfragments.SimpleLoadingDialogFragment;
-import com.everfox.aozoraforums.utils.AozoraUtils;
+import com.everfox.aozoraforums.utils.AoUtils;
 import com.everfox.aozoraforums.utils.PurchaseUtils;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
@@ -46,10 +46,10 @@ public class LoginFormActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if(CheckFields()) {
-                    if(AozoraUtils.canAddSimpleLoadingDialog(simpleLoading,getSupportFragmentManager()))
+                    if(AoUtils.canAddSimpleLoadingDialog(simpleLoading,getSupportFragmentManager()))
                         simpleLoading.show(getSupportFragmentManager(),"loading");
 
-                    if(!AozoraUtils.isNetworkAvailable(getApplicationContext())) {
+                    if(!AoUtils.isNetworkAvailable(getApplicationContext())) {
                         Toast.makeText(LoginFormActivity.this, getResources().getString(R.string.message_no_internet), Toast.LENGTH_SHORT).show();
                         simpleLoading.dismissAllowingStateLoss();
                     } else {

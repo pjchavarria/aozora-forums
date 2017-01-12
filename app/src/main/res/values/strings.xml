@@ -47,4 +47,7 @@
   <string name="fa_icon_timescircle">&#xf057;</string>
   <string name="appbar_scrolling_view_behavior" translatable="false">android.support.design.widget.AppBarLayout$ScrollingViewBehavior</string>
 
+  <string name="active_now" >ACTIVE NOW</string>
+
+  <string name="fa_icon_reposted_by">&#xf0ec;</string>
 </resources>

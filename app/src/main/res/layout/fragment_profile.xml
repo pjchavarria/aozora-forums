@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/main_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorWhite"
-    android:fitsSystemWindows="true">
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    >
 
     <ProgressBar
         android:id="@+id/pbLoading"
@@ -14,312 +14,290 @@
         style="@style/Base.Widget.AppCompat.ProgressBar"
         android:indeterminate="true"
         android:visibility="gone"
-        android:layout_gravity="center"
+        android:layout_centerInParent="true"
+
         />
 
-    <android.support.design.widget.AppBarLayout
-        android:id="@+id/appbar"
-        android:visibility="visible"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-        android:fitsSystemWindows="true">
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentStart="true">
 
-
-        <android.support.design.widget.CollapsingToolbarLayout
-            android:id="@+id/collapsing_toolbar"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:fitsSystemWindows="true"
-            app:expandedTitleMarginEnd="64dp"
-            app:expandedTitleMarginStart="48dp"
-            android:background="@color/colorWhite"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed">
-
+            android:layout_height="wrap_content">
 
             <ImageView
-                android:id="@+id/ivAnimeBanner"
+                android:id="@+id/ivProfileBanner"
                 android:src="@drawable/placeholder_banner"
                 android:layout_width="match_parent"
                 android:layout_height="100dp"
                 android:scaleType="centerCrop"
+                android:visibility="visible"
                 />
 
             <LinearLayout
-                android:orientation="vertical"
+                android:id="@+id/llProfileContent"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="5dp"
-                android:layout_marginRight="5dp"
-                android:layout_marginTop="160dp"
+                android:layout_height="match_parent"
+                android:layout_marginTop="90dp"
+                android:orientation="vertical"
+                android:visibility="visible"
                 >
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <com.everfox.aozoraforums.controls.RoundedImageView
-                        android:id="@+id/ivAvatar"
-                        android:layout_width="60dp"
-                        android:layout_height="60dp"
-                        android:src="@mipmap/ic_launcher"
-                        android:scaleType="fitXY"
-                        android:adjustViewBounds="true"
-                        android:layout_marginLeft="10dp"
-                        />
-
-                    <RelativeLayout
-                        android:layout_toRightOf="@+id/ivAvatar"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        >
-                        <TextView
-                            android:id="@+id/tvPopularity"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="4.0k"
-                            android:background="@drawable/text_blue_rounded_corner"
-                            android:padding="5dp"
-                            />
-                        <TextView
-                            android:id="@+id/tvPro"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="PRO+"
-                            android:layout_toRightOf="@+id/tvPopularity"
-                            android:background="@drawable/text_yellow_rounded_corner"
-                            android:layout_marginLeft="5dp"
-                            android:padding="5dp"
-                            />
-                        <TextView
-                            android:id="@+id/tvRank"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="Manager"
-                            android:layout_below="@id/tvPopularity"
-                            android:layout_alignLeft="@id/tvPopularity"
-                            android:background="@drawable/text_purple_rounded_corner"
-                            android:layout_marginTop="5dp"
-                            android:padding="5dp"
-                            />
-
-                        <LinearLayout
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="5dp"
-                            android:layout_alignParentRight="true">
-
-                                <ImageView
-                                    android:id="@+id/ivMoreOptions"
-                                    android:layout_width="30dp"
-                                    android:layout_height="30dp"
-                                    android:src="@drawable/ic_more_filled"
-                                    android:layout_toLeftOf="@id/ivMoreOptions"
-                                    android:layout_gravity="center_vertical"
-
-                                    />
-
-                                <TextView
-                                    android:id="@+id/tvFollow"
-                                    android:layout_width="wrap_content"
-                                    android:layout_height="wrap_content"
-                                    android:background="@color/grayE5"
-                                    android:text="&#xf05a; Following"
-                                    android:layout_gravity="center_vertical"
-                                    android:padding="5dp"
-                                    android:textColor="#626262"
-                                    android:visibility="gone"
-                                    />
-                        </LinearLayout>
-                    </RelativeLayout>
-                </LinearLayout>
 
                 <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content">
-                    <TextView
-                        android:id="@+id/tvUsername"
-                        android:text="Shaz"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textSize="18sp"
-                        android:textColor="@color/colorBlack"
-                        />
-                    <TextView
-                        android:id="@+id/tvLastActive"
-                        android:text="ACTIVE NOW"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginLeft="10dp"
-                        android:textColor="@color/grayC5"
-                        />
-                </LinearLayout>
-                
-                <TextView
-                    android:id="@+id/tvIntroduction"
+                    android:id="@+id/llProfileInfo"
+                    android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@color/colorBlack"
-                    android:text="All but a memory"
-                    />
-                
-                <LinearLayout
-                    android:orientation="horizontal"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:id="@+id/tvFollowing"
-                        android:textColor="@color/colorBlack"
-                        android:text="999"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
-                    <TextView
-                        android:text="FOLLOWING"
-                        android:layout_marginLeft="2dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/grayC5" />
-
-
-                    <TextView
-                        android:layout_marginLeft="20dp"
-                        android:id="@+id/tvFollowers"
-                        android:textColor="@color/colorBlack"
-                        android:text="999"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content" />
-
-                    <TextView
-                        android:text="FOLLOWERS"
-                        android:layout_marginLeft="2dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:textColor="@color/grayC5"
-                        />
-                </LinearLayout>
-
-            </LinearLayout>
-
-
-        </android.support.design.widget.CollapsingToolbarLayout>
-
-    </android.support.design.widget.AppBarLayout>
-
-
-    <android.support.v4.widget.NestedScrollView
-        android:id="@+id/profileContent"
-        android:visibility="visible"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:fillViewport="true"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        >
-
-        <LinearLayout
-            android:nestedScrollingEnabled="false"
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@color/colorWhite"
-                android:paddingTop="10dp"
-                >
-
-                <LinearLayout
-                    android:id="@+id/tvFollowingTab"
-                    android:orientation="vertical"
-                    android:layout_weight="0.33"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content">
-
-                    <TextView
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    >
+                    <LinearLayout
+                        android:orientation="horizontal"
                         android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Following"
-                        android:gravity="center_horizontal"
-                        android:textColor="@color/inapp_blue"
-                        />
+                        android:layout_height="wrap_content">
 
-                    <View
-                        android:layout_gravity="bottom"
-                        android:layout_width="match_parent"
-                        android:layout_height="2dp"
-                        android:background="@color/inapp_blue"
-                        android:layout_marginTop="10dp"
-                        android:visibility="visible"
-                        ></View>
-                </LinearLayout>
+                        <com.everfox.aozoraforums.controls.RoundedImageView
+                            android:id="@+id/ivAvatar"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:src="@mipmap/ic_launcher"
+                            android:scaleType="fitXY"
+                            android:adjustViewBounds="true"
+                            android:layout_gravity="start"
+                            android:layout_marginLeft="5dp"
+                            />
 
-                <LinearLayout
-                    android:id="@+id/tvAozoraTab"
-                    android:orientation="vertical"
-                    android:layout_weight="0.33"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content">
-                    <TextView
-                        android:layout_weight="0.33"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Aozora"
-                        android:gravity="center_horizontal"
-                        android:textColor="@color/inapp_blue" />
+                        <RelativeLayout
+                            android:layout_toRightOf="@+id/ivAvatar"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginLeft="5dp"
+                            >
+                            <TextView
+                                android:id="@+id/tvPopularity"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="4.0k"
+                                android:background="@drawable/text_blue_rounded_corner"
+                                android:padding="5dp"
+                                android:textColor="@color/colorWhite"
+                                />
+                            <TextView
+                                android:id="@+id/tvPro"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="PRO+"
+                                android:layout_toRightOf="@+id/tvPopularity"
+                                android:background="@drawable/text_yellow_rounded_corner"
+                                android:layout_marginLeft="5dp"
+                                android:padding="5dp"
+                                android:textColor="@color/colorWhite"
+                                />
+                            <TextView
+                                android:id="@+id/tvBadge"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Manager"
+                                android:layout_below="@id/tvPopularity"
+                                android:layout_alignLeft="@id/tvPopularity"
+                                android:background="@drawable/text_purple_rounded_corner"
+                                android:layout_marginTop="5dp"
+                                android:padding="5dp"
+                                android:textColor="@color/colorWhite"
+                                />
 
-                    <View
-                        android:layout_gravity="bottom"
-                        android:layout_width="match_parent"
-                        android:layout_height="2dp"
-                        android:background="@color/inapp_blue"
-                        android:layout_marginTop="10dp"
-                        android:visibility="invisible"
-                        ></View>
-                </LinearLayout>
+                            <LinearLayout
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="5dp"
+                                android:layout_alignParentRight="true">
 
+                                    <ImageView
+                                        android:id="@+id/ivMoreOptions"
+                                        android:layout_width="30dp"
+                                        android:layout_height="30dp"
+                                        android:src="@drawable/ic_more_filled"
+                                        android:layout_toLeftOf="@id/ivMoreOptions"
+                                        android:layout_gravity="center_vertical"
 
-                <LinearLayout
-                    android:id="@+id/tvProfileTab"
-                    android:orientation="vertical"
-                    android:layout_weight="0.33"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content">
-                    <TextView
-                        android:layout_weight="0.33"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Profile"
-                        android:gravity="center_horizontal"
-                        android:textColor="@color/inapp_blue" />
+                                        />
 
-                    <View
-                        android:layout_gravity="bottom"
-                        android:layout_width="match_parent"
-                        android:layout_height="2dp"
-                        android:background="@color/inapp_blue"
-                        android:layout_marginTop="10dp"
-                        android:visibility="invisible"
-                        ></View>
+                                    <TextView
+                                        android:id="@+id/tvFollow"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:background="@color/grayE5"
+                                        android:text="&#xf05a; Following"
+                                        android:layout_gravity="center_vertical"
+                                        android:padding="5dp"
+                                        android:textColor="#626262"
+                                        android:visibility="gone"
+                                        />
+                            </LinearLayout>
+                        </RelativeLayout>
                     </LinearLayout>
 
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp">
+                        <TextView
+                            android:id="@+id/tvUsername"
+                            android:text="Shaz"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="18sp"
+                            android:textColor="@color/colorBlack"
+                            />
+                        <TextView
+                            android:id="@+id/tvLastActive"
+                            android:text="ACTIVE NOW"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginLeft="10dp"
+                            android:textColor="@color/grayC5"
+                            android:textSize="12sp"
+                            />
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/tvIntroduction"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/gray32"
+                        android:text="All but a memory"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginTop="5dp"
+                        />
+
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="5dp"
+                        android:layout_marginLeft="5dp">
+
+                        <TextView
+                            android:id="@+id/tvFollowing"
+                            android:textColor="@color/colorBlack"
+                            android:text="999"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                        <TextView
+                            android:text="FOLLOWING"
+                            android:layout_marginLeft="2dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/grayC5" />
+
+
+                        <TextView
+                            android:layout_marginLeft="20dp"
+                            android:id="@+id/tvFollowers"
+                            android:textColor="@color/colorBlack"
+                            android:text="999"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content" />
+
+                        <TextView
+                            android:text="FOLLOWERS"
+                            android:layout_marginLeft="2dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textColor="@color/grayC5"
+                            />
+                    </LinearLayout>
+
+                </LinearLayout>
+
+
+                <LinearLayout
+                    android:id="@+id/llProfileTimeline"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    >
+
+
+                    <LinearLayout
+                        android:id="@+id/llFeed"
+                        android:orientation="horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:background="@color/colorWhite"
+                        android:paddingTop="10dp"
+                        android:visibility="gone"
+                        android:paddingLeft="5dp"
+                        android:layout_marginTop="5dp"
+                        >
+
+                        <LinearLayout
+                            android:id="@+id/tvFollowingTab"
+                            android:orientation="vertical"
+                            android:layout_weight="0.5"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Following"
+                                android:gravity="center_horizontal"
+                                android:textColor="@color/inapp_blue"
+                                />
+
+                            <View
+                                android:layout_gravity="bottom"
+                                android:layout_width="match_parent"
+                                android:layout_height="2dp"
+                                android:background="@color/inapp_blue"
+                                android:layout_marginTop="10dp"
+                                android:visibility="visible"
+                                ></View>
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/tvAozoraTab"
+                            android:orientation="vertical"
+                            android:layout_weight="0.5"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content">
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:text="Aozora"
+                                android:gravity="center_horizontal"
+                                android:textColor="@color/inapp_blue" />
+
+                            <View
+                                android:layout_gravity="bottom"
+                                android:layout_width="match_parent"
+                                android:layout_height="2dp"
+                                android:background="@color/inapp_blue"
+                                android:layout_marginTop="10dp"
+                                android:visibility="invisible"
+                                ></View>
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <android.support.v7.widget.RecyclerView
+                        android:id="@+id/rvTimeline"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:background="@color/grayF6"
+                        android:nestedScrollingEnabled="false"
+
+                        ></android.support.v7.widget.RecyclerView>
+                </LinearLayout>
             </LinearLayout>
+        </RelativeLayout>
+    </ScrollView>
 
 
-
-
-        <android.support.v7.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="#FF0000"
-            android:nestedScrollingEnabled="false"
-            ></android.support.v7.widget.RecyclerView>
-        </LinearLayout>
-    </android.support.v4.widget.NestedScrollView>
-
-
-
-</android.support.design.widget.CoordinatorLayout>
+</RelativeLayout>

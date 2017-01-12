@@ -1,8 +1,5 @@
 package com.everfox.aozoraforums.activities;
 
-import android.content.Context;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -12,14 +9,10 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 
-import com.everfox.aozoraforums.AozoraForumsApp;
-import com.everfox.aozoraforums.FirstActivity;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.fragments.ForumsFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
-import com.everfox.aozoraforums.utils.AozoraUtils;
-import com.parse.ParseException;
-import com.parse.ParseObject;
+import com.everfox.aozoraforums.utils.AoUtils;
 import com.parse.ParseUser;
 
 public class MainActivity extends AppCompatActivity {
@@ -66,7 +59,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void OpenForumFragment() {
-        if(!AozoraUtils.isActivityInvalid(MainActivity.this)) {
+        if(!AoUtils.isActivityInvalid(MainActivity.this)) {
 
             if (ff == null)
                 ff = ForumsFragment.newInstance();
@@ -77,10 +70,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void OpenProfileFragment() {
-        if(!AozoraUtils.isActivityInvalid(MainActivity.this)) {
+        if(!AoUtils.isActivityInvalid(MainActivity.this)) {
 
             if (pf == null)
-                pf = ProfileFragment.newInstance(ParseUser.getCurrentUser());
+                pf = ProfileFragment.newInstance(ParseUser.getCurrentUser(),true,true);
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.flContent, pf).commitAllowingStateLoss();
