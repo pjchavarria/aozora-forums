@@ -13,4 +13,5 @@ public class ParseUserColumns {
     public static String BADGES = "badges";
     public static String DETAILS = "details";
     public static String ACTIVE = "active";
+    public static String ACTIVE_END = "activeEnd";
 }

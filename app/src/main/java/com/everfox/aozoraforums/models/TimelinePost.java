@@ -13,7 +13,7 @@ public class TimelinePost extends ParseObject {
     public static String NON_SPOILER_CONTENT = "nonSpoilerContent";
     public static String LIKED_BY = "likedBy";
     public static String REPLY_COUNT = "replyCount";
-    public static String EDITED = "boolean";
+    public static String EDITED = "edited";
     public static String REPOSTED_BY = "repostedBy";
     public static String PARENT_POST = "parentPost";
     public static String REPORTED_BY = "reportedBy";

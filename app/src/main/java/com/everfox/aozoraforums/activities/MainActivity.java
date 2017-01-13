@@ -13,6 +13,7 @@ import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.fragments.ForumsFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.utils.AoUtils;
+import com.facebook.drawee.backends.pipeline.Fresco;
 import com.parse.ParseUser;
 
 public class MainActivity extends AppCompatActivity {
@@ -27,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fresco.initialize(MainActivity.this);
         setContentView(R.layout.activity_main);
         btnForum = (TextView) findViewById(R.id.btnForum);
         btnNotifications = (TextView) findViewById(R.id.btnNotifications);

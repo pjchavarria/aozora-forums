@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+    <LinearLayout
+        android:id="@+id/llFirstPost"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        >
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="15dp"
+            >
+
+            <RelativeLayout
+                android:layout_width="45dp"
+                android:layout_height="55dp">
+
+                <com.everfox.aozoraforums.controls.RoundedImageView
+                    android:id="@+id/ivAvatar"
+                    android:layout_width="45dp"
+                    android:layout_height="45dp"
+                    android:src="@mipmap/ic_launcher"
+                    android:scaleType="fitXY"
+                    android:adjustViewBounds="true"
+                    android:visibility="visible"
+                    android:layout_marginTop="10dp"
+                    />
+
+                <View
+                    android:id="@+id/tvUserActive"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:background="@drawable/green_circle"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:visibility="gone"
+                    ></View>
+
+            </RelativeLayout>
+
+
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="10dp"
+                >
+
+                <TextView
+                    android:id="@+id/tvRepostedBy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=""
+                    />
+
+                <TextView
+                    android:id="@+id/tvPostedBy"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Beth4324"
+                    android:textColor="@color/inapp_blue_darker"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginTop="2dp"
+                    />
+
+                <TextView
+                    android:id="@+id/tvPostedWhen"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="2 hrs"
+                    android:layout_marginTop="2dp"
+                    />
+
+            </LinearLayout>
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/ivMoreOptions"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:src="@drawable/ic_more_filled"
+                android:layout_gravity="center_vertical"
+                />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tvPostText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/gray3C"
+            android:textSize="16sp"
+            android:paddingLeft="10dp"
+            android:paddingRight="15dp"
+            />
+
+        <TextView
+            android:id="@+id/tvSpoilerOpen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/gray3C"
+            android:textSize="16sp"
+            android:visibility="gone"
+            android:text="[Show Spoilers]"
+            android:layout_marginTop="5dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="15dp"
+            />
+
+
+        <TextView
+            android:id="@+id/tvSpoilerText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/gray3C"
+            android:textSize="16sp"
+            android:visibility="gone"
+            android:text=""
+            android:layout_marginTop="5dp"
+            android:paddingLeft="10dp"
+            android:paddingRight="15dp"
+            />
+
+        <include android:layout_width="match_parent" android:layout_height="wrap_content" layout="@layout/layout_link"></include>
+
+        <RelativeLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/sdvPostImageGif"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                fresco:viewAspectRatio="1.2"
+                fresco:actualImageScaleType="fitCenter"
+                />
+
+            <ImageView
+                android:id="@+id/ivPostImage"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:scaleType="centerCrop"
+                />
+
+            <ImageView
+                android:id="@+id/ivPlayYoutube"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_more_filled"
+                android:visibility="gone"
+                />
+        </RelativeLayout>
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:layout_marginTop="10dp"
+            android:paddingRight="15dp"
+            >
+
+            <ImageView
+                android:id="@+id/ivLikes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_like_small"
+                />
+
+
+            <TextView
+                android:id="@+id/tvLikes"
+                android:text="4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginLeft="3dp"
+                />
+
+            <ImageView
+                android:id="@+id/ivComments"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_like_small"
+                android:layout_marginLeft="40dp"
+                />
+
+            <TextView
+                android:id="@+id/tvComments"
+                android:text="2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp"
+                android:layout_marginLeft="3dp"
+                android:layout_gravity="center_vertical"
+                />
+
+            <ImageView
+                android:id="@+id/ivRepost"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_like_small"
+                android:layout_marginLeft="40dp"
+                />
+
+            <TextView
+                android:id="@+id/tvRepost"
+                android:text="2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorBlack"
+                android:textSize="16sp"
+                android:layout_marginLeft="3dp"
+                android:layout_gravity="center_vertical"
+                />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <ImageView
+                android:id="@+id/ivAddReply"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_like_small"
+                />
+
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>

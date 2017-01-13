@@ -44,6 +44,7 @@
                 android:layout_marginTop="90dp"
                 android:orientation="vertical"
                 android:visibility="visible"
+                android:background="@color/colorWhite"
                 >
 
                 <LinearLayout
@@ -169,7 +170,7 @@
                         android:id="@+id/tvIntroduction"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/gray32"
+                        android:textColor="@color/gray3C"
                         android:text="All but a memory"
                         android:layout_marginLeft="5dp"
                         android:layout_marginTop="5dp"
@@ -289,7 +290,7 @@
                     <android.support.v7.widget.RecyclerView
                         android:id="@+id/rvTimeline"
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:background="@color/grayF6"
                         android:nestedScrollingEnabled="false"
 

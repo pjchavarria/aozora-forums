@@ -87,7 +87,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
         }
     }
 
-    private void loadTimelinePostInfo(TimelinePost post,ViewHolder holder) {
+    private void loadTimelinePostInfo(TimelinePost post, final ViewHolder holder) {
         if(!post.getParseObject(TimelinePost.USER_TIMELINE).equals(post.getParseObject(TimelinePost.POSTED_BY))) {
             // Es un post en el muro de otra persona
             holder.tvPostedBy.setText(post.getParseObject(TimelinePost.POSTED_BY).getString(ParseUserColumns.AOZORA_USERNAME) +" " + context.getString(R.string.fa_icon_reposted_by) + " " + post.getParseObject(TimelinePost.USER_TIMELINE).getString(ParseUserColumns.AOZORA_USERNAME));
@@ -95,9 +95,34 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
             //Post propio
             holder.tvPostedBy.setText(post.getParseObject(TimelinePost.POSTED_BY).getString(ParseUserColumns.AOZORA_USERNAME));
         }
-        holder.tvPostedWhen.setText(PostUtils.getWhenWasPosted(post));
+        String edited = "";
+        if (post.getBoolean(TimelinePost.EDITED))
+            edited = " - Edited";
+        holder.tvPostedWhen.setText(PostUtils.getWhenWasPosted(post) + edited);
         holder.tvPostText.setText(post.getString(TimelinePost.CONTENT));
-        //LOAD VIDEO/LINK/IMAGE
+        //SPOILERS
+        if(post.getBoolean(TimelinePost.HAS_SPOILERS)) {
+            holder.ivPostImage.setVisibility(View.GONE);
+            holder.tvSpoilerText.setText(post.getString(TimelinePost.SPOILER_CONTENT));
+            holder.tvSpoilerOpen.setVisibility(View.VISIBLE);
+            holder.tvSpoilerOpen.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    holder.tvSpoilerOpen.setVisibility(View.GONE);
+                    holder.tvSpoilerText.setVisibility(View.VISIBLE);
+                    holder.ivPostImage.setVisibility(View.VISIBLE);
+                }
+            });
+        }
+        //LOAD VIDEO/LINK/IMAGE FOR POST
+        if(post.getParseFile(TimelinePost.IMAGE) != null) {
+            //File
+            PostUtils.loadTimelinePostImageFileToImageView(context,post,holder.ivPostImage);
+        } else if(post.getJSONArray(TimelinePost.IMAGES) != null  && post.getJSONArray(TimelinePost.IMAGES) .length()>0 ) {
+            PostUtils.loadTimelinePostImageURLToImageView(context,post,holder.sdvPostImageGif,holder.ivPostImage);
+        } else if(post.getString(TimelinePost.YOUTUBE_ID) != null) {
+            PostUtils.loadYoutubeImageIntoImageView(context,post,holder.ivPostImage,holder.ivPlayYoutube);
+        }
 
         //Like/Share/Comment
         List<ParseUser> listLiked = post.getList(TimelinePost.LIKED_BY);
@@ -112,28 +137,40 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
         }
         holder.tvRepost.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.REPOST_COUNT)));
 
+
         //LastReply
         if(post.getParseObject(TimelinePost.LAST_REPLY) != null) {
             TimelinePost lastReply = (TimelinePost) post.getParseObject(TimelinePost.LAST_REPLY);
             ParseUser userLastComment = (ParseUser)lastReply.getParseObject(TimelinePost.POSTED_BY);
-            loadAvatarPic(userLastComment.getParseFile(ParseUserColumns.AVATAR_THUMB), holder.ivLastCommentAvatar);
+            loadAvatarPic(userLastComment.getParseFile(ParseUserColumns.AVATAR_THUMB), holder.ivCommentAvatar);
             if (userLastComment.getBoolean(ParseUserColumns.ACTIVE)) {
-                holder.tvLastCommentUserActive.setVisibility(View.VISIBLE);
+                holder.tvCommentUserActive.setVisibility(View.VISIBLE);
             }
             Spannable username = new SpannableString(userLastComment.getString(ParseUserColumns.AOZORA_USERNAME));
             username.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context,R.color.inapp_blue)), 0, username.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            holder.tvLastCommentText.setText(username);
+            holder.tvCommentText.setText(username);
             Spannable content = new SpannableString(" " + lastReply.getString(TimelinePost.CONTENT));
             content.setSpan(new ForegroundColorSpan(Color.BLACK), 0, content.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            holder.tvLastCommentText.append(content);
-            //LOAD VIDEO/IMAGE
+            holder.tvCommentText.append(content);
+
+
+            //SPOILERS NO ABREN EN COMMENTS
+            if(lastReply.getBoolean(TimelinePost.HAS_SPOILERS)) {
+                holder.ivPostImage.setVisibility(View.GONE);
+                holder.tvCommentSpoilerText.setText(lastReply.getString(TimelinePost.SPOILER_CONTENT));
+                holder.tvCommentSpoilerOpen.setVisibility(View.VISIBLE);
+            }
+            //LOAD VIDEO/IMAGE / LINK FOR COMMENT
 
             //LIKES
-            holder.tvLastCommentWhen.setText(PostUtils.getWhenWasPosted(lastReply));
-            holder.tvLastCommentNumberLikes.setText(AoUtils.numberToStringOrZero(lastReply.getNumber(TimelinePost.LIKE_COUNT)));
+            String editedComment = "";
+            if (post.getBoolean(TimelinePost.EDITED))
+                editedComment = " - Edited";
+            holder.tvCommentWhen.setText(PostUtils.getWhenWasPosted(lastReply) + editedComment);
+            holder.tvCommentNumberLikes.setText(AoUtils.numberToStringOrZero(lastReply.getNumber(TimelinePost.LIKE_COUNT)));
             List<ParseUser> listLastCommentLiked = lastReply.getList(TimelinePost.LIKED_BY);
             if(listLastCommentLiked != null && listLastCommentLiked.contains(currentUser)) {
-                holder.ivLastCommentLikes.setImageResource(R.drawable.green_circle);
+                holder.ivCommentLikes.setImageResource(R.drawable.green_circle);
             }
 
 
@@ -173,6 +210,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
         @BindView(R.id.tvPostedWhen) TextView tvPostedWhen;
         @BindView(R.id.ivMoreOptions) ImageView ivMoreOptions;
         @BindView(R.id.tvPostText) TextView tvPostText;
+        @BindView(R.id.sdvPostImageGif) com.facebook.drawee.view.SimpleDraweeView sdvPostImageGif;
         @BindView(R.id.ivPostImage) ImageView ivPostImage;
         @BindView(R.id.ivLikes) ImageView ivLikes;
         @BindView(R.id.tvLikes) TextView tvLikes;
@@ -183,14 +221,19 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
 
         @BindView(R.id.llLastComment)
         LinearLayout llLastComment;
-        @BindView(R.id.ivLastCommentAvatar) ImageView ivLastCommentAvatar;
-        @BindView(R.id.tvLastCommentUserActive) View tvLastCommentUserActive;
-        @BindView(R.id.tvLastCommentText) TextView tvLastCommentText;
-        @BindView(R.id.ivLastCommentImage) ImageView ivLastCommentImage;
-        @BindView(R.id.tvLastCommentWhen) TextView tvLastCommentWhen;
-        @BindView(R.id.ivLastCommentLikes) ImageView ivLastCommentLikes;
-        @BindView(R.id.tvLastCommentNumberLikes) TextView tvLastCommentNumberLikes;
+        @BindView(R.id.ivCommentAvatar) ImageView ivCommentAvatar;
+        @BindView(R.id.tvCommentUserActive) View tvCommentUserActive;
+        @BindView(R.id.tvCommentText) TextView tvCommentText;
+        @BindView(R.id.ivCommentImage) ImageView ivCommentImage;
+        @BindView(R.id.tvCommentWhen) TextView tvCommentWhen;
+        @BindView(R.id.ivCommentLikes) ImageView ivCommentLikes;
+        @BindView(R.id.tvCommentNumberLikes) TextView tvCommentNumberLikes;
         @BindView(R.id.tvRepost) TextView tvRepost;
+        @BindView(R.id.tvSpoilerOpen) TextView tvSpoilerOpen;
+        @BindView(R.id.tvSpoilerText) TextView tvSpoilerText;
+        @BindView(R.id.tvCommentSpoilerOpen) TextView tvCommentSpoilerOpen;
+        @BindView(R.id.tvCommentSpoilerText) TextView tvCommentSpoilerText;
+        @BindView(R.id.ivPlayYoutube) ImageView ivPlayYoutube;
 
 
         public ViewHolder(View view) {

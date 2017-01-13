@@ -32,10 +32,11 @@ dependencies {
     compile 'com.parse:parsefacebookutils-v4-android:1.10.4@aar'
     compile 'com.android.support:recyclerview-v7:25.0.1'
     compile 'net.danlew:android.joda:2.9.0'
-    compile 'com.github.bumptech.glide:glide:3.6.1'
-    compile 'com.squareup.picasso:picasso:2.5.2'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.loopj.android:android-async-http:1.4.9'
     compile 'com.android.support:design:25.0.1'
     compile 'com.jakewharton:butterknife:8.4.0'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.4.0'
+    compile 'com.facebook.fresco:fresco:1.0.0'
+    compile 'com.facebook.fresco:animated-gif:1.0.0'
 }

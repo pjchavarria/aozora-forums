@@ -5,91 +5,10 @@
     android:paddingLeft="5dp"
     android:paddingTop="5dp">
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+    <include
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        layout="@layout/layout_comment"></include>
 
-            <RelativeLayout
-                android:layout_width="35dp"
-                android:layout_height="35dp">
-                <com.everfox.aozoraforums.controls.RoundedImageView
-                    android:id="@+id/ivCommentAvatar"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:src="@mipmap/ic_launcher"
-                    android:scaleType="fitXY"
-                    android:adjustViewBounds="true" />
-
-
-                <View
-                    android:id="@+id/tvCommentUserActive"
-                    android:layout_width="10dp"
-                    android:layout_height="10dp"
-                    android:background="@drawable/green_circle"
-                    android:layout_alignParentBottom="true"
-                    android:layout_alignParentRight="true"
-                    android:visibility="gone"
-                    ></View>
-
-            </RelativeLayout>
-
-            <LinearLayout
-                android:orientation="vertical"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-            <TextView
-                android:id="@+id/tvCommentText"
-                android:text=""
-                android:layout_marginLeft="5dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/gray32"
-                />
-
-                <ImageView
-                    android:id="@+id/ivLastCommentImage"
-                    android:layout_marginLeft="5dp"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
-                </LinearLayout>
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginLeft="50dp"
-            android:layout_marginTop="5dp">
-
-            <TextView
-                android:id="@+id/tvCommentWhen"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="2 hrs"
-                android:layout_gravity="center_vertical"
-                />
-
-            <ImageView
-                android:id="@+id/tvCommentLikes"
-                android:src="@drawable/icon_like_small"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="10dp"
-                />
-
-            <TextView
-                android:id="@+id/tvCommentNumberLikes"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="@color/colorBlack"
-                android:textStyle="bold"
-                android:text="1 - likes"
-                android:layout_marginLeft="5dp"
-                android:layout_gravity="center_vertical"
-                />
-
-        </LinearLayout>
 
 </LinearLayout>
