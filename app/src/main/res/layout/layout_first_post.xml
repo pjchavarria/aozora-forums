@@ -142,7 +142,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
-                fresco:viewAspectRatio="1.2"
+                fresco:viewAspectRatio="2"
                 fresco:actualImageScaleType="fitCenter"
                 />
 

@@ -2,13 +2,20 @@ package com.everfox.aozoraforums;
 
 import android.app.Application;
 
+import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.models.UserDetails;
+import com.everfox.aozoraforums.utils.AoUtils;
+import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.imagepipeline.backends.okhttp3.OkHttpImagePipelineConfigFactory;
+import com.facebook.imagepipeline.core.ImagePipelineConfig;
 import com.parse.Parse;
 import com.parse.ParseFacebookUtils;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
+
+import okhttp3.OkHttpClient;
 
 /**
  * Created by daniel.soto on 1/10/2017.
@@ -34,6 +41,12 @@ public class AozoraForumsApp extends Application {
 
         ParseFacebookUtils.initialize(this,FacebookRequestCode);
         ParseInstallation.getCurrentInstallation().saveInBackground();
+        OkHttpClient okHttpClient = AoUtils.getUnsafeOkHttpClient();
+
+        ImagePipelineConfig config = OkHttpImagePipelineConfigFactory
+                .newBuilder(getApplicationContext(), okHttpClient)
+        .build();
+        Fresco.initialize(getApplicationContext(), config);
     }
 
     private static ParseUser parseFacebookNewUser;

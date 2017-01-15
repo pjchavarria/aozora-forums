@@ -28,7 +28,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Fresco.initialize(MainActivity.this);
         setContentView(R.layout.activity_main);
         btnForum = (TextView) findViewById(R.id.btnForum);
         btnNotifications = (TextView) findViewById(R.id.btnNotifications);

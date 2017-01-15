@@ -2,6 +2,7 @@ package com.everfox.aozoraforums.fragments;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -10,6 +11,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -20,6 +22,7 @@ import android.widget.TextView;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.adapters.ProfileTimelineAdapter;
 import com.everfox.aozoraforums.controllers.ProfileParseHelper;
+import com.everfox.aozoraforums.controls.EndlessScrollView;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.models.UserDetails;
@@ -34,6 +37,7 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -43,7 +47,7 @@ import butterknife.ButterKnife;
  * Created by daniel.soto on 1/10/2017.
  */
 
-public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGetProfilePostsListener {
+public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGetProfilePostsListener, EndlessScrollView.EndlessScrollListener {
 
     ParseUser user;
     UserDetails userDetails;
@@ -69,6 +73,8 @@ public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGe
     @BindView(R.id.tvIntroduction) TextView tvIntroduction;
     @BindView(R.id.rvTimeline)
     RecyclerView rvTimeline;
+    @BindView(R.id.scrollView)
+    EndlessScrollView scrollView;
 
     public static ProfileFragment newInstance(ParseUser user,Boolean isProfile, Boolean isCurrentUser) {
         ProfileFragment fragment = new ProfileFragment();
@@ -80,14 +86,18 @@ public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGe
         return fragment;
     }
 
-
+    LinearLayoutManager llm;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(user.getString(ParseUserColumns.AOZORA_USERNAME));
         ButterKnife.bind(this,view);
-        rvTimeline.setLayoutManager(new LinearLayoutManager(getActivity()));
+        llm = new LinearLayoutManager(getActivity());
+        rvTimeline.setLayoutManager(llm);
+        timelineAdapter = new ProfileTimelineAdapter(getActivity(),new ArrayList<TimelinePost>(),ProfileFragment.this,user);
+        rvTimeline.setAdapter(timelineAdapter);
+        scrollView.setScrollViewListener(this);
         pbLoading.setVisibility(View.VISIBLE);
         llProfileContent.setVisibility(View.GONE);
         ivProfileBanner.setVisibility(View.GONE);
@@ -191,15 +201,49 @@ public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGe
     }
 
     @Override
-    public void onGetProfilePosts(List<TimelinePost> timelinePosts) {
+    public void onGetProfilePosts(final List<TimelinePost> timelinePosts) {
 
-        if(timelineAdapter == null) {
-            timelineAdapter = new ProfileTimelineAdapter(getActivity(),timelinePosts,ProfileFragment.this,user);
-            rvTimeline.setAdapter(timelineAdapter);
-            pbLoading.setVisibility(View.GONE);
-            llProfileContent.setVisibility(View.VISIBLE);
-            ivProfileBanner.setVisibility(View.VISIBLE);
+        timelineAdapter = new ProfileTimelineAdapter(getActivity(),timelinePosts,ProfileFragment.this,user);
+        rvTimeline.setAdapter(timelineAdapter);
+
+        rvTimeline.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                int visibleItemCount = llm.getChildCount();
+                int totalItemCount = llm.getItemCount();
+                int firstVisibleItems;
+                firstVisibleItems = llm.findFirstVisibleItemPosition()  ;
+                int pastVisibleItems = 0;
+                pastVisibleItems = firstVisibleItems;
+
+
+                    if ((visibleItemCount + pastVisibleItems) >= totalItemCount
+                            && pastVisibleItems >= 0) {
+                       AoUtils.fromHtml("ass");
+                    }
+            }
+        });
+
+        pbLoading.setVisibility(View.GONE);
+        llProfileContent.setVisibility(View.VISIBLE);
+        ivProfileBanner.setVisibility(View.VISIBLE);
+
+
+    }
+
+    @Override
+    public void onScrollChanged(EndlessScrollView scrollView, int x, int y, int oldx, int oldy) {
+        // We take the last son in the scrollview
+        View view = scrollView.getChildAt(scrollView.getChildCount() - 1);
+        int distanceToEnd = (view.getBottom() - (scrollView.getHeight() + scrollView.getScrollY()));
+
+        // if diff is zero, then the bottom has been reached
+        if (distanceToEnd == 0) {
+            AoUtils.fromHtml("ass");
+
+            // do stuff your load more stuff
+
         }
-
     }
 }

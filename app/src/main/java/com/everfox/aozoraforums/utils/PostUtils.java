@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Animatable;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,16 +13,24 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.bumptech.glide.load.engine.cache.ExternalCacheDiskCacheFactory;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.controller.BaseControllerListener;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.DraweeView;
+import com.facebook.drawee.view.SimpleDraweeView;
+import com.facebook.imagepipeline.animated.base.AbstractAnimatedDrawable;
+import com.facebook.imagepipeline.animated.base.AnimatedDrawable;
+import com.facebook.imagepipeline.image.ImageInfo;
+import com.facebook.imagepipeline.request.ImageRequest;
 import com.parse.GetDataCallback;
 import com.parse.ParseFile;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Field;
 import java.sql.Time;
 import java.util.Calendar;
 import java.util.Date;
@@ -31,6 +41,7 @@ import java.util.Date;
 
 public class PostUtils {
 
+    public static int NUMBER_OF_LOOPS = 1;
     public static double MAX_DIFFERENCE_WIDTH_HEIGHT = 1.2;
     public static String URL_YOUTUBE_THUMBNAILS ="https://i.ytimg.com/vi/YOUTUBE_ID/hqdefault.jpg";
 
@@ -44,37 +55,69 @@ public class PostUtils {
         ivPlayYoutube.setVisibility(View.VISIBLE);
     }
 
-    public static void loadTimelinePostImageURLToImageView(Context context, TimelinePost post, com.facebook.drawee.view.SimpleDraweeView simpleDraweeView, ImageView imageView) {
+    public static void loadTimelinePostImageURLToImageView(final Context context, TimelinePost post, final SimpleDraweeView simpleDraweeView, final ImageView imageView) {
         try {
 
             Boolean isGif = false;
             final JSONObject jsonImageInfo = post.getJSONArray(TimelinePost.IMAGES).getJSONObject(0);
-            String urlImage = jsonImageInfo.getString("url");
+            final String urlImage = jsonImageInfo.getString("url");
             if(urlImage.toUpperCase().endsWith("GIF")) {
                 isGif = true;
             }
+
             if(!isGif) {
-                prepareImageView(jsonImageInfo,imageView);
+                prepareImageView(jsonImageInfo,imageView,null );
                 Glide.with(context).load(urlImage).crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
             }
             else {
 
-                prepareImageView(jsonImageInfo,simpleDraweeView);
+                if(urlImage.contains("https")) urlImage.replace("https","http");
+                prepareImageView(jsonImageInfo,simpleDraweeView,simpleDraweeView);
                 DraweeController controller = Fresco.newDraweeControllerBuilder()
                         .setUri(urlImage)
-                        .setAutoPlayAnimations(true)
+                        .setAutoPlayAnimations(false)
+                        .setControllerListener(new BaseControllerListener<ImageInfo>(){
+                            @Override
+                            public void onFinalImageSet(String id, ImageInfo imageInfo, final Animatable animatable) {
+                                super.onFinalImageSet(id, imageInfo, animatable);
+
+                                final Handler handler = new Handler();
+                                final Runnable runnable = new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        animatable.stop();
+                                    }
+                                } ;
+
+                                simpleDraweeView.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        if(animatable.isRunning()) {
+                                            animatable.stop();
+                                            handler.removeCallbacks(runnable);
+                                        }else {
+                                            try {
+                                                Field field = AbstractAnimatedDrawable.class.getDeclaredField("mDurationMs");
+                                                field.setAccessible(true);
+                                                int duration = field.getInt(animatable);
+                                                handler.postDelayed(runnable,duration*NUMBER_OF_LOOPS);
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                            animatable.start();
+
+                                        }
+                                    }
+                                });
+                            }
+
+                        })
                         .build();
+
                 simpleDraweeView.setController(controller);
                 imageView.setVisibility(View.GONE);
                 simpleDraweeView.setVisibility(View.VISIBLE);
             }
-
-/*
-            if(!isGif)
-                Glide.with(context).load(urlImage).crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
-            else
-                Glide.with(context).load(urlImage).asGif().crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.NONE).into(imageView);
-*/
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -90,7 +133,7 @@ public class PostUtils {
                 isGif = true;
             }
             final Boolean finalIsGif = isGif;
-            prepareImageView(jsonImageInfo,imageView);
+            prepareImageView(jsonImageInfo,imageView,null);
             imageFile.getDataInBackground(new GetDataCallback() {
 
                 @Override
@@ -109,24 +152,26 @@ public class PostUtils {
         }
     }
 
-    private static void prepareImageView(JSONObject jsonImageInfo,ImageView iv) throws JSONException {
+    private static void prepareImageView(JSONObject jsonImageInfo,ImageView iv, SimpleDraweeView simpleDraweeView) throws JSONException {
 
-        final int jsonHeight =  jsonImageInfo.getInt("height");
-        final int jsonWidth =  jsonImageInfo.getInt("width");
-        if( (double)jsonHeight /  (double)jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT) {
+        final int jsonHeight = jsonImageInfo.getInt("height");
+        final int jsonWidth = jsonImageInfo.getInt("width");
+        if ((double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT) {
             int maxAllowedHeight = (int) (jsonWidth * MAX_DIFFERENCE_WIDTH_HEIGHT);
             ViewGroup.LayoutParams params = iv.getLayoutParams();
             params.height = maxAllowedHeight;
             iv.setLayoutParams(params);
+        } else {
+            if (simpleDraweeView != null) {
+                simpleDraweeView.setAspectRatio((float) jsonWidth / (float) jsonHeight);
+            }
         }
-
     }
 
     public static String getWhenWasPosted(TimelinePost timelinePost) {
 
         Date dateCreated = timelinePost.getCreatedAt();
         Date currentDate = Calendar.getInstance().getTime();
-
         int secondsDiff = (int) DateUtils.getSecondsDiff(dateCreated,currentDate);
         int weeksAgo =  (secondsDiff/(7*24*60*60));
         if ( weeksAgo > 0) {

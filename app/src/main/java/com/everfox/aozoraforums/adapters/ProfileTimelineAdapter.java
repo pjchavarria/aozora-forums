@@ -29,6 +29,7 @@ import com.parse.ParseUser;
 import org.json.JSONArray;
 
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -40,6 +41,7 @@ import butterknife.ButterKnife;
 
 public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimelineAdapter.ViewHolder> {
 
+    private ArrayList<View> viewTimelinePost = new ArrayList<>();
     private List<TimelinePost> timelinePosts;
     private Context context;
     private ParseUser currentUser;
@@ -51,7 +53,6 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
         this.currentUser = parseUser;
     }
 
-
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View layoutView = LayoutInflater.from(context).inflate(R.layout.timeline_post_item, parent, false);
@@ -61,7 +62,6 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
 
     @Override
     public void onBindViewHolder(ViewHolder holder, int position) {
-
         //si tiene repostsource sacar info de ahi
         TimelinePost timelinePost = timelinePosts.get(position);
         if(timelinePost.getParseObject(TimelinePost.REPOST_SOURCE) != null) {
@@ -77,6 +77,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
             loadPicOriginalPoster(holder,userWhoPosted);
             loadTimelinePostInfo(timelinePost,holder);
         }
+        viewTimelinePost.add(position,holder.itemView);
     }
 
     private void loadPicOriginalPoster(ViewHolder holder, ParseUser user) {
@@ -177,6 +178,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
         } else {
             holder.llLastComment.setVisibility(View.GONE);
         }
+
     }
 
     private void loadAvatarPic(ParseFile profilePic, final ImageView ivAvatar) {
@@ -194,6 +196,10 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
             });
         }
     }
+
+
+
+
 
     @Override
     public int getItemCount() {
@@ -241,6 +247,5 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
             ButterKnife.bind(this, view);
         }
     }
-
 
 }
