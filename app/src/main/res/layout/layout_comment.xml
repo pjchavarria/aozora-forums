@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"  xmlns:fresco="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
@@ -39,14 +39,17 @@
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="5dp">
             <TextView
                 android:id="@+id/tvCommentText"
                 android:text=""
-                android:layout_marginLeft="5dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/gray3C"
+                android:textColorLink="@color/inapp_blue"
+                android:linksClickable="false"
+                android:autoLink="all"
                 />
 
             <TextView
@@ -68,17 +71,47 @@
                 android:visibility="gone"
                 android:text=""
                 android:layout_marginTop="5dp"
+                android:textColorLink="@color/inapp_blue"
+                android:linksClickable="false"
+                android:autoLink="all"
                 />
 
-            <include android:layout_width="match_parent" android:layout_height="wrap_content" layout="@layout/layout_link"></include>
 
-            <ImageView
-                android:id="@+id/ivCommentImage"
-                android:layout_marginLeft="5dp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                />
+            <RelativeLayout
+                android:id="@+id/rlCommentContent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
 
+                <include android:layout_width="match_parent" android:layout_height="wrap_content" layout="@layout/layout_link"></include>
+
+                <com.facebook.drawee.view.SimpleDraweeView
+                    android:id="@+id/sdvCommentImageGif"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+                    fresco:viewAspectRatio="2"
+                    fresco:actualImageScaleType="fitCenter"
+                    />
+
+                <ImageView
+                    android:id="@+id/ivCommentImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:scaleType="centerCrop"
+                    />
+
+
+                <ImageView
+                    android:id="@+id/ivCommentPlay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/play"
+                    android:visibility="gone"
+                    />
+
+            </RelativeLayout>
 
         </LinearLayout>
 
@@ -87,7 +120,7 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="20dp"
         android:layout_marginLeft="50dp"
         android:layout_marginTop="5dp"
         >
@@ -106,6 +139,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="10dp"
+            android:adjustViewBounds="true"
             />
 
         <TextView

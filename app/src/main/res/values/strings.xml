@@ -49,5 +49,32 @@
 
   <string name="active_now" >ACTIVE NOW</string>
 
-  <string name="fa_icon_reposted_by">&#xf0ec;</string>
+  <string name="fa_icon_reposted_by">&#xf079;</string>
+  <string name="fa_right_arow">&#xf061;</string>
+
+  <string-array name="admin_post_options">
+    <item>Edit</item>
+    <item>Delete</item>
+  </string-array>
+
+  <string-array name="my_profile_options">
+    <item>Edit Profile</item>
+    <item>My Threads</item>
+    <item>Reputation Ranks</item>
+    <item>Discover Users</item>
+  </string-array>
+
+  <string-array name="user_lists_options">
+    <item>Who to follow</item>
+    <item>Online Now</item>
+    <item>New Users</item>
+    <item>Aozora Staff</item>
+    <item>New PRO Members</item>
+    <item>Oldest Active Users</item>
+  </string-array>
+
+  <string-array name="reputation_ranks">
+    <item>Top 500 Reputation Rank</item>
+    <item>Following Reputation Rank</item>
+  </string-array>
 </resources>

@@ -10,5 +10,4 @@
         android:layout_height="wrap_content"
         layout="@layout/layout_comment"></include>
 
-
 </LinearLayout>

@@ -6,6 +6,7 @@ package com.everfox.aozoraforums.models;
 
 public class ParseUserColumns {
 
+    public static String JOIN_DATE = "joinDate";
     public static String AVATAR_THUMB = "avatarThumb";
     public static String BANNER = "banner";
     public static String AOZORA_USERNAME = "aozoraUsername";

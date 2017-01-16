@@ -11,23 +11,26 @@
         android:background="@drawable/link_layout_background"
         android:layout_margin="5dp"
         android:visibility="gone"
+        android:paddingBottom="3dp"
         >
 
         <ImageView
             android:src="@drawable/placeholder_banner"
             android:id="@+id/ivLinkImage"
             android:layout_width="match_parent"
-            android:layout_height="100dp"
+            android:layout_height="180dp"
             android:scaleType="centerCrop"
             />
 
         <LinearLayout
+            android:weightSum="1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
             <LinearLayout
+                android:layout_weight="0.9"
                 android:orientation="vertical"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="10dp">
 
@@ -36,12 +39,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@color/gray3C"
+                    android:textStyle="bold"
                     />
 
                 <TextView
                     android:id="@+id/tvLinkDesc"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="@color/gray3C"
                     />
 
                 <TextView
@@ -50,16 +55,14 @@
                     android:layout_height="wrap_content"
                     />
             </LinearLayout>
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
 
             <ImageView
+                android:layout_weight="0.1"
                 android:id="@+id/ivGoToLink"
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/icon_like_small"
+                android:layout_gravity="center"
                 />
         </LinearLayout>
     </LinearLayout>

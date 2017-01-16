@@ -10,6 +10,7 @@ import com.parse.ParseObject;
 @ParseClassName("UserDetails")
 public class UserDetails extends ParseObject {
 
+    public static String POSTS = "posts" ;
     public static String DETAILS_USER = "details";
     public static String FOLLOWERS = "followersCount";
     public static String FOLLOWING = "followingCount";

@@ -23,9 +23,11 @@ import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.adapters.ProfileTimelineAdapter;
 import com.everfox.aozoraforums.controllers.ProfileParseHelper;
 import com.everfox.aozoraforums.controls.EndlessScrollView;
+import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.models.UserDetails;
+import com.everfox.aozoraforums.utils.AoConstants;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.everfox.aozoraforums.utils.ProfileUtils;
 import com.parse.FindCallback;
@@ -37,23 +39,30 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static com.everfox.aozoraforums.utils.AoUtils.getOptionListFromID;
+
 /**
  * Created by daniel.soto on 1/10/2017.
  */
 
-public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGetProfilePostsListener, EndlessScrollView.EndlessScrollListener {
+public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGetProfilePostsListener, EndlessScrollView.EndlessScrollListener,
+OptionListDialogFragment.OnListSelectedListener{
 
     ParseUser user;
     UserDetails userDetails;
     Boolean isProfile;
     Boolean isCurrentUser;
     ProfileTimelineAdapter timelineAdapter;
+    String postCount;
 
     @BindView(R.id.pbLoading) ProgressBar pbLoading;
     @BindView(R.id.llProfileContent)
@@ -75,6 +84,10 @@ public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGe
     RecyclerView rvTimeline;
     @BindView(R.id.scrollView)
     EndlessScrollView scrollView;
+    @BindView(R.id.tvFollow)
+    TextView tvFollow;
+    @BindView(R.id.ivMoreOptions)
+    ImageView ivMoreOptions;
 
     public static ProfileFragment newInstance(ParseUser user,Boolean isProfile, Boolean isCurrentUser) {
         ProfileFragment fragment = new ProfileFragment();
@@ -111,6 +124,10 @@ public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGe
         ParseFile bannerPic = user.getParseFile(ParseUserColumns.BANNER);
         loadAvatarAndBanner(profilePic,bannerPic);
         tvPopularity.setText(AoUtils.numberToStringOrZero(user.getNumber(ParseUserColumns.REPUTATION)));
+        if(!isCurrentUser) {
+            tvFollow.setVisibility(View.VISIBLE);
+            //SI LO ESTA SIGIENDO FOLLOWING, SINO FOLLOW
+        }
         String badgePro = ProfileUtils.badgesArrayToPro(user.getJSONArray(ParseUserColumns.BADGES));
         if(badgePro == "")
             tvPro.setVisibility(View.INVISIBLE);
@@ -150,6 +167,19 @@ public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGe
                 }
             }
         });
+        ivMoreOptions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String title = user.getString(ParseUserColumns.AOZORA_USERNAME);
+                Date joinDate = user.getDate(ParseUserColumns.JOIN_DATE);
+                DateFormat df = new SimpleDateFormat("MMM dd,yyyy");
+                String subtitle1 = "Member since: " + df.format(joinDate) ;
+                String subtitle2 = "Posts: " + postCount;
+                OptionListDialogFragment fragment = OptionListDialogFragment.newInstance(getActivity(),title,subtitle1,subtitle2,ProfileFragment.this, AoConstants.MY_PROFILE_OPTIONS_DIALOG);
+                fragment.setCancelable(true);
+                fragment.show(getFragmentManager(),"");
+            }
+        });
 
 
         if(!isProfile) {
@@ -169,6 +199,7 @@ public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGe
         tvFollowers.setText(AoUtils.numberToStringOrZero(userDetails.getNumber(UserDetails.FOLLOWERS)));
         tvFollowing.setText(AoUtils.numberToStringOrZero(userDetails.getNumber(UserDetails.FOLLOWING)));
         tvIntroduction.setText(userDetails.getString(UserDetails.ABOUT));
+        postCount = AoUtils.numberToStringOrZero(userDetails.getNumber(UserDetails.POSTS));
     }
 
     private void loadAvatarAndBanner(ParseFile profilePic, ParseFile bannerPic) {
@@ -237,7 +268,6 @@ public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGe
         // We take the last son in the scrollview
         View view = scrollView.getChildAt(scrollView.getChildCount() - 1);
         int distanceToEnd = (view.getBottom() - (scrollView.getHeight() + scrollView.getScrollY()));
-
         // if diff is zero, then the bottom has been reached
         if (distanceToEnd == 0) {
             AoUtils.fromHtml("ass");
@@ -245,5 +275,64 @@ public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGe
             // do stuff your load more stuff
 
         }
+    }
+
+    @Override
+    public void onListSelected(Integer list, Integer selectedList) {
+
+        List<String> optionList = AoUtils.getOptionListFromID(getActivity(),selectedList);
+        String selectedOption = optionList.get(list);
+        if(selectedList == AoConstants.MY_PROFILE_OPTIONS_DIALOG) {
+            switch (selectedOption){
+                case AoConstants.MY_PROFILE_DISCOVER:
+                    OptionListDialogFragment fUserList = OptionListDialogFragment.newInstance(getActivity(),"User Lists","Find fellow anime fans",null,ProfileFragment.this, AoConstants.USER_LIST_OPTIONS_DIALOG);
+                    fUserList.setCancelable(true);
+                    fUserList.show(getFragmentManager(),"");
+                    break;
+                case AoConstants.MY_PROFILE_REPUTATION:
+                    OptionListDialogFragment fRep = OptionListDialogFragment.newInstance(getActivity(),null,null,null,ProfileFragment.this, AoConstants.REPUTATION_RANKS_OPTIONS_DIALOG);
+                    fRep.setCancelable(true);
+                    fRep.show(getFragmentManager(),"");
+                    break;
+                case AoConstants.MY_PROFILE_EDIT:
+                    break;
+                case AoConstants.MY_PROFILE_THREADS:
+                    break;
+            }
+        }
+        if(selectedList == AoConstants.ADMIN_POST_OPTIONS_DIALOG) {
+            switch (selectedOption){
+                case AoConstants.ADMIN_POST_DELETE:
+                    break;
+                case AoConstants.ADMIN_POST_EDIT:
+                    break;
+            }
+        }
+        if(selectedList == AoConstants.USER_LIST_OPTIONS_DIALOG) {
+            switch (selectedOption){
+                case AoConstants.USER_LIST_FOLLOW:
+                    break;
+                case AoConstants.USER_LIST_NEW:
+                    break;
+                case AoConstants.USER_LIST_NEWPRO:
+                    break;
+                case AoConstants.USER_LIST_OLDESTACTIVE:
+                    break;
+                case AoConstants.USER_LIST_ONLINE:
+                    break;
+                case AoConstants.USER_LIST_STAFF:
+                    break;
+            }
+        }
+        if(selectedList == AoConstants.REPUTATION_RANKS_OPTIONS_DIALOG) {
+            switch (selectedOption){
+                case AoConstants.REPUTATION_RANKS_TOP500:
+                    break;
+                case AoConstants.REPUTATION_RANKS_FOLLOWING:
+                    break;
+            }
+        }
+
+
     }
 }

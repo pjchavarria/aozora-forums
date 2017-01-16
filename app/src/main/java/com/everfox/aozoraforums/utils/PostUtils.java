@@ -4,16 +4,29 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.graphics.drawable.Animatable;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.TypefaceSpan;
+import android.text.style.URLSpan;
 import android.util.DisplayMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.cache.ExternalCacheDiskCacheFactory;
+import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.controls.CustomTypefaceSpan;
+import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.controller.BaseControllerListener;
@@ -27,13 +40,18 @@ import com.facebook.imagepipeline.request.ImageRequest;
 import com.parse.GetDataCallback;
 import com.parse.ParseFile;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 
 /**
  * Created by daniel.soto on 1/12/2017.
@@ -47,15 +65,15 @@ public class PostUtils {
 
 
 
-    public static void loadYoutubeImageIntoImageView(Context context, TimelinePost post, ImageView imageView, ImageView ivPlayYoutube) {
+    public static void loadYoutubeImageIntoImageView(Context context, TimelinePost post, ImageView imageView, ImageView ivPlayVideo) {
         String youtubeID = post.getString(TimelinePost.YOUTUBE_ID);
         String urlImage = URL_YOUTUBE_THUMBNAILS.replace("YOUTUBE_ID",youtubeID);
         Glide.with(context).load(urlImage).crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
         imageView.requestLayout();
-        ivPlayYoutube.setVisibility(View.VISIBLE);
+        ivPlayVideo.setVisibility(View.VISIBLE);
     }
 
-    public static void loadTimelinePostImageURLToImageView(final Context context, TimelinePost post, final SimpleDraweeView simpleDraweeView, final ImageView imageView) {
+    public static void loadTimelinePostImageURLToImageView(final Context context, TimelinePost post, final SimpleDraweeView simpleDraweeView, final ImageView imageView,final ImageView ivPlayGif) {
         try {
 
             Boolean isGif = false;
@@ -80,12 +98,14 @@ public class PostUtils {
                             @Override
                             public void onFinalImageSet(String id, ImageInfo imageInfo, final Animatable animatable) {
                                 super.onFinalImageSet(id, imageInfo, animatable);
+                                ivPlayGif.setVisibility(View.VISIBLE);
 
                                 final Handler handler = new Handler();
                                 final Runnable runnable = new Runnable() {
                                     @Override
                                     public void run() {
                                         animatable.stop();
+                                        ivPlayGif.setVisibility(View.VISIBLE);
                                     }
                                 } ;
 
@@ -95,6 +115,7 @@ public class PostUtils {
                                         if(animatable.isRunning()) {
                                             animatable.stop();
                                             handler.removeCallbacks(runnable);
+                                            ivPlayGif.setVisibility(View.VISIBLE);
                                         }else {
                                             try {
                                                 Field field = AbstractAnimatedDrawable.class.getDeclaredField("mDurationMs");
@@ -105,6 +126,7 @@ public class PostUtils {
                                                 e.printStackTrace();
                                             }
                                             animatable.start();
+                                            ivPlayGif.setVisibility(View.GONE);
 
                                         }
                                     }
@@ -152,6 +174,25 @@ public class PostUtils {
         }
     }
 
+
+    public static void loadLinkIntoLinkLayout(Context context, TimelinePost post, LinearLayout llLinkLayout) {
+        try {
+            JSONObject jsonLink =  post.getJSONObject(TimelinePost.LINK);
+            ((TextView) llLinkLayout.findViewById(R.id.tvLinkTitle)).setText(jsonLink.getString("title"));
+            ((TextView) llLinkLayout.findViewById(R.id.tvLinkDesc)).setText(jsonLink.getString("description"));
+            URL url = new URL(jsonLink.getString("url"));
+            ((TextView) llLinkLayout.findViewById(R.id.tvLinkURL)).setText( url.getHost());
+            Glide.with(context).load( jsonLink.getJSONArray("images").get(0))
+                    .crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.NONE)
+                        .into(((ImageView) llLinkLayout.findViewById(R.id.ivLinkImage)));
+
+            llLinkLayout.setVisibility(View.VISIBLE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     private static void prepareImageView(JSONObject jsonImageInfo,ImageView iv, SimpleDraweeView simpleDraweeView) throws JSONException {
 
         final int jsonHeight = jsonImageInfo.getInt("height");
@@ -192,4 +233,16 @@ public class PostUtils {
 
         return "Just now";
     }
+
+    public static void setPostedByFromPost(Context context, TimelinePost post, TextView tvPostedBy) {
+
+        Typeface awesomeTypeface = Typeface.createFromAsset(context.getAssets(),"fonts/FontAwesome.ttf");
+        tvPostedBy.setText(post.getParseObject(TimelinePost.POSTED_BY).getString(ParseUserColumns.AOZORA_USERNAME) +" ");
+        Spannable rightArrow = new SpannableString(context.getString(R.string.fa_right_arow));
+        rightArrow.setSpan(new CustomTypefaceSpan("",awesomeTypeface),0,rightArrow.length(),0);
+        tvPostedBy.append(rightArrow);
+        tvPostedBy.append( " " + post.getParseObject(TimelinePost.USER_TIMELINE).getString(ParseUserColumns.AOZORA_USERNAME));
+
+    }
+
 }

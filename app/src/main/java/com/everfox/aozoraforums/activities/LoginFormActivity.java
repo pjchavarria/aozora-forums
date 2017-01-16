@@ -85,6 +85,21 @@ public class LoginFormActivity extends AppCompatActivity {
                 if (user != null) {
                     logInSuccesfull(user);
                 } else {
+                    //Intentamos segunda vez)
+                    tryLoginAsUserType(etUsername.getText().toString(), etPassword.getText().toString());
+
+                }
+                simpleLoading.dismissAllowingStateLoss();
+            }
+        });
+    }
+
+    private void tryLoginAsUserType(String username, String password) {
+        ParseUser.logInInBackground(username, password, new LogInCallback() {
+            public void done(ParseUser user, ParseException e) {
+                if (user != null) {
+                    logInSuccesfull(user);
+                } else {
                     if(e != null)
                         Toast.makeText(LoginFormActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                 }

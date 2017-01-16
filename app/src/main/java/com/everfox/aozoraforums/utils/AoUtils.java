@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.text.Html;
 import android.text.Spanned;
 
+import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.models.UserDetails;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -18,6 +19,9 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -95,8 +99,9 @@ public class AoUtils {
     public static String numberToStringOrZero (Number number) {
         if(number == null || number == (Number)0)
             return "0";
-        else
-            return String.valueOf(number);
+        else {
+            return String.valueOf(number.intValue());
+        }
     }
 
     public static OkHttpClient getUnsafeOkHttpClient() {
@@ -143,6 +148,20 @@ public class AoUtils {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static List<String> getOptionListFromID (Context context, Integer optionListID) {
+        switch (optionListID){
+            case AoConstants.ADMIN_POST_OPTIONS_DIALOG:
+                return Arrays.asList(context.getResources().getStringArray(R.array.admin_post_options));
+            case AoConstants.MY_PROFILE_OPTIONS_DIALOG:
+                return Arrays.asList(context.getResources().getStringArray(R.array.my_profile_options));
+            case AoConstants.USER_LIST_OPTIONS_DIALOG:
+                return Arrays.asList(context.getResources().getStringArray(R.array.user_lists_options));
+            case AoConstants.REPUTATION_RANKS_OPTIONS_DIALOG:
+                return Arrays.asList(context.getResources().getStringArray(R.array.reputation_ranks));
+        }
+        return new ArrayList<String>();
     }
 
 }

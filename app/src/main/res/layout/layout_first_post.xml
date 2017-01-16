@@ -102,6 +102,9 @@
             android:textSize="16sp"
             android:paddingLeft="10dp"
             android:paddingRight="15dp"
+            android:textColorLink="@color/inapp_blue"
+            android:linksClickable="false"
+            android:autoLink="all"
             />
 
         <TextView
@@ -129,13 +132,18 @@
             android:layout_marginTop="5dp"
             android:paddingLeft="10dp"
             android:paddingRight="15dp"
+            android:textColorLink="@color/inapp_blue"
+            android:linksClickable="false"
+            android:autoLink="all"
             />
 
-        <include android:layout_width="match_parent" android:layout_height="wrap_content" layout="@layout/layout_link"></include>
 
         <RelativeLayout
+            android:id="@+id/rlPostContent"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
+
+            <include android:layout_width="match_parent" android:layout_height="wrap_content" layout="@layout/layout_link"></include>
 
             <com.facebook.drawee.view.SimpleDraweeView
                 android:id="@+id/sdvPostImageGif"
@@ -154,20 +162,22 @@
                 android:scaleType="centerCrop"
                 />
 
+
             <ImageView
-                android:id="@+id/ivPlayYoutube"
+                android:id="@+id/ivPlay"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_centerInParent="true"
-                android:src="@drawable/ic_more_filled"
+                android:src="@drawable/play"
                 android:visibility="gone"
                 />
+
         </RelativeLayout>
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="10dp"
+            android:layout_height="30dp"
+            android:paddingLeft="20dp"
             android:layout_marginTop="10dp"
             android:paddingRight="15dp"
             >
@@ -177,6 +187,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/icon_like_small"
+                android:adjustViewBounds="true"
                 />
 
 
@@ -195,8 +206,9 @@
                 android:id="@+id/ivComments"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/icon_like_small"
+                android:src="@drawable/speech_bubble"
                 android:layout_marginLeft="40dp"
+                android:adjustViewBounds="true"
                 />
 
             <TextView
@@ -214,8 +226,9 @@
                 android:id="@+id/ivRepost"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/icon_like_small"
+                android:src="@drawable/icon_repost"
                 android:layout_marginLeft="40dp"
+                android:adjustViewBounds="true"
                 />
 
             <TextView
@@ -238,7 +251,8 @@
                 android:id="@+id/ivAddReply"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/icon_like_small"
+                android:src="@drawable/web_share"
+                android:paddingBottom="3dp"
                 />
 
         </LinearLayout>
