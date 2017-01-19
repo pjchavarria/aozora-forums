@@ -21,6 +21,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.controllers.ProfileParseHelper;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.AoUtils;
@@ -29,6 +30,7 @@ import com.facebook.drawee.drawable.RoundedCornersDrawable;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.parse.GetDataCallback;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import org.json.JSONArray;
@@ -46,11 +48,16 @@ import butterknife.ButterKnife;
 
 public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimelineAdapter.ViewHolder> {
 
-    private ArrayList<View> viewTimelinePost = new ArrayList<>();
+    private OnUsernameTappedListener mOnUsernameTappedCallback;
+
+    public interface OnUsernameTappedListener {
+        public void onUsernameTapped(ParseUser userTapped);
+    }
+
     private List<TimelinePost> timelinePosts;
     private Context context;
-    private ParseUser currentUser;
     Typeface awesomeTypeface;
+    private ParseUser currentUser;
 
 
     public ProfileTimelineAdapter (Context context, List<TimelinePost> tlps, Fragment callback, ParseUser parseUser) {
@@ -58,6 +65,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
         this.timelinePosts = tlps;
         this.currentUser = parseUser;
         awesomeTypeface = Typeface.createFromAsset(context.getAssets(),"fonts/FontAwesome.ttf");
+        mOnUsernameTappedCallback = (OnUsernameTappedListener) callback;
     }
 
     @Override
@@ -85,7 +93,6 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
             loadPicOriginalPoster(holder,userWhoPosted);
             loadTimelinePostInfo(timelinePost,holder);
         }
-        viewTimelinePost.add(position,holder.itemView);
     }
 
     private void loadPicOriginalPoster(ViewHolder holder, ParseUser user) {
@@ -96,13 +103,19 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
         }
     }
 
-    private void loadTimelinePostInfo(TimelinePost post, final ViewHolder holder) {
+    private void loadTimelinePostInfo(final TimelinePost post, final ViewHolder holder) {
         if(!post.getParseObject(TimelinePost.USER_TIMELINE).equals(post.getParseObject(TimelinePost.POSTED_BY))) {
             // Es un post en el muro de otra persona
-            PostUtils.setPostedByFromPost(context,post,holder.tvPostedBy);
+            PostUtils.setPostedByFromPost(context,post,holder.tvPostedBy,mOnUsernameTappedCallback);
         } else {
             //Post propio
             holder.tvPostedBy.setText(post.getParseObject(TimelinePost.POSTED_BY).getString(ParseUserColumns.AOZORA_USERNAME));
+            holder.tvPostedBy.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mOnUsernameTappedCallback.onUsernameTapped(post.getParseUser(TimelinePost.POSTED_BY));
+                }
+            });
         }
         String edited = "";
         if (post.getBoolean(TimelinePost.EDITED))
@@ -126,7 +139,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
         //LOAD VIDEO/LINK/IMAGE FOR POST
         if(post.getParseFile(TimelinePost.IMAGE) != null) {
             //File
-            PostUtils.loadTimelinePostImageFileToImageView(context,post,holder.ivPostImage);
+            PostUtils.loadTimelinePostImageFileToImageView(context,post,holder.sdvPostImageGif,holder.ivPostImage, holder.ivPlay);
         } else if(post.getJSONArray(TimelinePost.IMAGES) != null  && post.getJSONArray(TimelinePost.IMAGES) .length()>0 ) {
             PostUtils.loadTimelinePostImageURLToImageView(context,post,holder.sdvPostImageGif,holder.ivPostImage, holder.ivPlay);
         } else if(post.getString(TimelinePost.YOUTUBE_ID) != null) {
@@ -177,7 +190,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
             //LOAD VIDEO/IMAGE / LINK???? FOR COMMENT
             if(lastReply.getParseFile(TimelinePost.IMAGE) != null) {
                 //File
-                PostUtils.loadTimelinePostImageFileToImageView(context,lastReply,holder.ivCommentImage);
+                PostUtils.loadTimelinePostImageFileToImageView(context,lastReply,holder.sdvCommentImageGif,holder.ivCommentImage, holder.ivCommentPlay);
             } else if(lastReply.getJSONArray(TimelinePost.IMAGES) != null  && lastReply.getJSONArray(TimelinePost.IMAGES) .length()>0 ) {
                 PostUtils.loadTimelinePostImageURLToImageView(context,lastReply,holder.sdvCommentImageGif,holder.ivCommentImage, holder.ivCommentPlay);
             } else if(lastReply.getString(TimelinePost.YOUTUBE_ID) != null) {
@@ -244,6 +257,12 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
         @BindView(R.id.tvComments) TextView tvComments;
         @BindView(R.id.ivRepost) ImageView ivRepost;
         @BindView(R.id.ivAddReply) ImageView ivAddReply;
+        @BindView(R.id.ivPlay)
+        ImageView ivPlay;
+        @BindView(R.id.llLinkLayout)
+        LinearLayout llLinkLayout;
+        @BindView(R.id.rlPostContent)
+        RelativeLayout rlPostContent;
 
         @BindView(R.id.llLastComment)
         LinearLayout llLastComment;
@@ -259,19 +278,8 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
         @BindView(R.id.tvSpoilerText) TextView tvSpoilerText;
         @BindView(R.id.tvCommentSpoilerOpen) TextView tvCommentSpoilerOpen;
         @BindView(R.id.tvCommentSpoilerText) TextView tvCommentSpoilerText;
-        @BindView(R.id.rlPostContent)
-        RelativeLayout rlPostContent;
-
-        @BindView(R.id.llLinkLayout)
-        LinearLayout llLinkLayout;
-
         @BindView(R.id.rlCommentContent)
         RelativeLayout rlCommentContent;
-
-
-        @BindView(R.id.ivPlay)
-        ImageView ivPlay;
-
         @BindView(R.id.sdvCommentImageGif)
         SimpleDraweeView sdvCommentImageGif;
         @BindView(R.id.ivCommentPlay)

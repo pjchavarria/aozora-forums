@@ -1,5 +1,6 @@
 package com.everfox.aozoraforums.activities;
 
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
@@ -57,6 +58,16 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.flContent);
+                if (currentFragment instanceof ProfileFragment) {
+                    currentFragment.onResume();
+                }
+            }
+        });
     }
 
     private void OpenForumFragment() {
@@ -80,4 +91,6 @@ public class MainActivity extends AppCompatActivity {
             fragmentTransaction.replace(R.id.flContent, pf).commitAllowingStateLoss();
         }
     }
+
+
 }

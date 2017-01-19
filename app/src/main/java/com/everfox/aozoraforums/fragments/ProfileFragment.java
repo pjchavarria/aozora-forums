@@ -6,6 +6,8 @@ import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -20,6 +22,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.adapters.ProfileTimelineAdapter;
 import com.everfox.aozoraforums.controllers.ProfileParseHelper;
 import com.everfox.aozoraforums.controls.EndlessScrollView;
@@ -55,7 +58,7 @@ import static com.everfox.aozoraforums.utils.AoUtils.getOptionListFromID;
  */
 
 public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGetProfilePostsListener, EndlessScrollView.EndlessScrollListener,
-OptionListDialogFragment.OnListSelectedListener{
+OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUsernameTappedListener{
 
     ParseUser user;
     UserDetails userDetails;
@@ -63,6 +66,7 @@ OptionListDialogFragment.OnListSelectedListener{
     Boolean isCurrentUser;
     ProfileTimelineAdapter timelineAdapter;
     String postCount;
+    LinearLayoutManager llm;
 
     @BindView(R.id.pbLoading) ProgressBar pbLoading;
     @BindView(R.id.llProfileContent)
@@ -99,7 +103,6 @@ OptionListDialogFragment.OnListSelectedListener{
         return fragment;
     }
 
-    LinearLayoutManager llm;
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -192,7 +195,17 @@ OptionListDialogFragment.OnListSelectedListener{
                     .GetProfilePosts(user,0,ProfileParseHelper.PROFILE_FETCH_LIMIT,ProfileParseHelper.PROFILE_LIST);
 
         }
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(user.getString(ParseUserColumns.AOZORA_USERNAME));
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
     }
 
     private void loadUserDetails() {
@@ -234,31 +247,36 @@ OptionListDialogFragment.OnListSelectedListener{
     @Override
     public void onGetProfilePosts(final List<TimelinePost> timelinePosts) {
 
-        timelineAdapter = new ProfileTimelineAdapter(getActivity(),timelinePosts,ProfileFragment.this,user);
-        rvTimeline.setAdapter(timelineAdapter);
+        if(timelineAdapter.getItemCount() == 0) {
+            timelineAdapter = new ProfileTimelineAdapter(getActivity(), timelinePosts, ProfileFragment.this, user);
+            rvTimeline.setAdapter(timelineAdapter);
 
-        rvTimeline.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                super.onScrolled(recyclerView, dx, dy);
-                int visibleItemCount = llm.getChildCount();
-                int totalItemCount = llm.getItemCount();
-                int firstVisibleItems;
-                firstVisibleItems = llm.findFirstVisibleItemPosition()  ;
-                int pastVisibleItems = 0;
-                pastVisibleItems = firstVisibleItems;
+            rvTimeline.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    super.onScrolled(recyclerView, dx, dy);
+                    int visibleItemCount = llm.getChildCount();
+                    int totalItemCount = llm.getItemCount();
+                    int firstVisibleItems;
+                    firstVisibleItems = llm.findFirstVisibleItemPosition();
+                    int pastVisibleItems = 0;
+                    pastVisibleItems = firstVisibleItems;
 
 
                     if ((visibleItemCount + pastVisibleItems) >= totalItemCount
                             && pastVisibleItems >= 0) {
-                       AoUtils.fromHtml("ass");
+                        AoUtils.fromHtml("ass");
                     }
-            }
-        });
+                }
+            });
 
-        pbLoading.setVisibility(View.GONE);
-        llProfileContent.setVisibility(View.VISIBLE);
-        ivProfileBanner.setVisibility(View.VISIBLE);
+            pbLoading.setVisibility(View.GONE);
+            llProfileContent.setVisibility(View.VISIBLE);
+            ivProfileBanner.setVisibility(View.VISIBLE);
+        } else {
+            //Agregamos los timelineposts?...iguess
+
+        }
 
 
     }
@@ -332,7 +350,21 @@ OptionListDialogFragment.OnListSelectedListener{
                     break;
             }
         }
+    }
 
-
+    @Override
+    public void onUsernameTapped(ParseUser userTapped) {
+        if(!AoUtils.isActivityInvalid(getActivity())) {
+            if(!user.getObjectId().equals(userTapped.getObjectId())) {
+                ProfileFragment pf = null;
+                if(ParseUser.getCurrentUser().getObjectId().equals(userTapped.getObjectId()))
+                    pf = ProfileFragment.newInstance(userTapped, true, true);
+                else
+                    pf = ProfileFragment.newInstance(userTapped, true, false);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.add(R.id.flContent, pf).addToBackStack(null).commitAllowingStateLoss();
+            }
+        }
     }
 }

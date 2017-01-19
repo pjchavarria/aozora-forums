@@ -20,8 +20,8 @@ import java.util.List;
 public class ProfileParseHelper {
 
 
-    public static final int PROFILE_SKIP_STEP = 15;
-    public static final int PROFILE_FETCH_LIMIT = 15;
+    public static final int PROFILE_SKIP_STEP = 12;
+    public static final int PROFILE_FETCH_LIMIT = 12;
 
     public static final int FOLLOWING_LIST = 0;
     public static final int AOZORA_LIST = 1;
@@ -78,7 +78,8 @@ public class ProfileParseHelper {
         query.findInBackground(new FindCallback<TimelinePost>() {
             @Override
             public void done(List<TimelinePost> objects, ParseException e) {
-                mOnGetProfilePostsCallback.onGetProfilePosts(objects);
+                if(e== null)
+                    mOnGetProfilePostsCallback.onGetProfilePosts(objects);
             }
         });
 

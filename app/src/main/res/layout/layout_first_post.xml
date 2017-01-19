@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:fresco="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content">
+
     <LinearLayout
         android:id="@+id/llFirstPost"
         android:layout_width="match_parent"
@@ -68,6 +69,7 @@
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:layout_marginTop="2dp"
+                    android:textColorLink="@color/inapp_blue_darker"
                     />
 
                 <TextView
@@ -160,6 +162,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
                 android:scaleType="centerCrop"
+                android:adjustViewBounds="true"
                 />
 
 

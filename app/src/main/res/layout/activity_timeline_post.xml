@@ -2,49 +2,26 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:paddingTop="10dp"
-    android:paddingLeft="5dp"
-    android:paddingRight="10dp"
     >
 
-    <ScrollView
+
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/Base.Widget.AppCompat.ProgressBar"
+        android:indeterminate="true"
+        android:visibility="gone"
+        android:layout_centerInParent="true"
+
+        />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rvPostComments"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/llAddComment"
-        android:layout_alignParentTop="true">
-
-
-
-        <LinearLayout
-            android:orientation="vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <include
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                layout="@layout/layout_first_post"></include>
-                <View
-                    android:id="@+id/divider"
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/grayC5"
-                    android:layout_marginTop="5dp"
-                    ></View>
-
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/rvComments"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:nestedScrollingEnabled="false"
-                    android:background="@color/grayF6"
-                    >
-                </android.support.v7.widget.RecyclerView>
-
-        </LinearLayout>
-    </ScrollView>
-
+        ></android.support.v7.widget.RecyclerView>
 
     <LinearLayout
         android:id="@+id/llAddComment"
@@ -54,6 +31,8 @@
         android:orientation="vertical"
         android:background="@color/colorWhite"
         android:paddingBottom="5dp"
+        android:paddingLeft="5dp"
+        android:paddingRight="10dp"
         >
         <EditText
             android:layout_width="match_parent"
