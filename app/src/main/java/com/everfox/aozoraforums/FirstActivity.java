@@ -79,7 +79,7 @@ public class FirstActivity extends AppCompatActivity {
             }
         });
 
-        typeface = Typeface.createFromAsset(getApplicationContext().getAssets(),"fonts/FontAwesome.ttf");
+        typeface = AozoraForumsApp.getAwesomeTypeface();
         tvJapaneseName.setTypeface(typeface);
 
 

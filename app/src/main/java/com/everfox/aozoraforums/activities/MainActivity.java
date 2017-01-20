@@ -8,8 +8,10 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.fragments.ForumsFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
@@ -25,11 +27,13 @@ public class MainActivity extends AppCompatActivity {
     Integer selectedFragmentIndex = 0;
     ProfileFragment pf;
     ForumsFragment ff;
+    LinearLayout llNavBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        llNavBar = (LinearLayout) findViewById(R.id.llNavBar);
         btnForum = (TextView) findViewById(R.id.btnForum);
         btnNotifications = (TextView) findViewById(R.id.btnNotifications);
         btnProfile = (TextView) findViewById(R.id.btnProfile);
@@ -42,7 +46,7 @@ public class MainActivity extends AppCompatActivity {
                     //cambiamos el icono del boton a "selected"
 
                     //Cargamos AnimeInfoFragment
-                    OpenProfileFragment();
+                    OpenProfileFragment(ParseUser.getCurrentUser());
                 }
             }
         });
@@ -68,6 +72,12 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+
+        if(AozoraForumsApp.getProfileToPass()!= null) {
+            llNavBar.setVisibility(View.GONE);
+            OpenProfileFragment(AozoraForumsApp.getProfileToPass());
+            AozoraForumsApp.setProfileToPass(null);
+        }
     }
 
     private void OpenForumFragment() {
@@ -81,11 +91,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void OpenProfileFragment() {
+    private void OpenProfileFragment(ParseUser user) {
         if(!AoUtils.isActivityInvalid(MainActivity.this)) {
-
             if (pf == null)
-                pf = ProfileFragment.newInstance(ParseUser.getCurrentUser(),true,true);
+                if(ParseUser.getCurrentUser().getObjectId().equals(user.getObjectId()))
+                    pf = ProfileFragment.newInstance(user, true, true);
+                else
+                    pf = ProfileFragment.newInstance(user, true, false);
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.flContent, pf).commitAllowingStateLoss();

@@ -1,6 +1,7 @@
 package com.everfox.aozoraforums.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
@@ -17,10 +18,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.activities.TimelinePostActivity;
 import com.everfox.aozoraforums.controllers.ProfileParseHelper;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
@@ -46,10 +50,13 @@ import butterknife.ButterKnife;
  * Created by daniel.soto on 1/12/2017.
  */
 
-public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimelineAdapter.ViewHolder> {
+public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
+
+    private final int VIEW_ITEM = 1;
+    private final int VIEW_PROG = 0;
 
     private OnUsernameTappedListener mOnUsernameTappedCallback;
-
     public interface OnUsernameTappedListener {
         public void onUsernameTapped(ParseUser userTapped);
     }
@@ -64,40 +71,67 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
         this.context = context;
         this.timelinePosts = tlps;
         this.currentUser = parseUser;
-        awesomeTypeface = Typeface.createFromAsset(context.getAssets(),"fonts/FontAwesome.ttf");
+        awesomeTypeface = AozoraForumsApp.getAwesomeTypeface();
         mOnUsernameTappedCallback = (OnUsernameTappedListener) callback;
     }
 
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View layoutView = LayoutInflater.from(context).inflate(R.layout.timeline_post_item, parent, false);
-        ViewHolder vh = new ViewHolder(layoutView);
+    public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+
+        RecyclerView.ViewHolder vh;
+        if (viewType == VIEW_ITEM) {
+            View v = LayoutInflater.from(context)
+                    .inflate(R.layout.timeline_post_item, parent, false);
+
+            vh = new ViewHolder(v);
+        } else {
+            View v = LayoutInflater.from(context)
+                    .inflate(R.layout.progress_item, parent, false);
+
+            vh = new ProgressViewHolder(v);
+        }
+
         return vh;
     }
 
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
-        //si tiene repostsource sacar info de ahi
-        TimelinePost timelinePost = timelinePosts.get(position);
-        if(timelinePost.getParseObject(TimelinePost.REPOST_SOURCE) != null) {
-            //OMG ES REPOST SOUND THE FKING ALARM
-            TimelinePost repost = (TimelinePost)timelinePost.getParseObject(TimelinePost.REPOST_SOURCE);
-            ParseUser userWhoPosted = repost.getParseUser(TimelinePost.POSTED_BY);
-            loadPicOriginalPoster(holder,userWhoPosted);
-            holder.tvRepostedBy.setText(context.getString(R.string.fa_icon_reposted_by)+ " " + currentUser.getString(ParseUserColumns.AOZORA_USERNAME) + " Reposted");
-            holder.tvRepostedBy.setTypeface(awesomeTypeface);
-            loadTimelinePostInfo(repost,holder);
-        } else {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-            ParseUser userWhoPosted = timelinePost.getParseUser(TimelinePost.POSTED_BY);
-            loadPicOriginalPoster(holder,userWhoPosted);
-            loadTimelinePostInfo(timelinePost,holder);
+        if(holder instanceof ProgressViewHolder) {
+
+
+        } else {
+            ViewHolder itemViewHolder = (ViewHolder) holder;
+            //si tiene repostsource sacar info de ahi
+            final TimelinePost timelinePost = timelinePosts.get(position);
+            if (timelinePost.getParseObject(TimelinePost.REPOST_SOURCE) != null) {
+                //OMG ES REPOST SOUND THE FKING ALARM
+                TimelinePost repost = (TimelinePost) timelinePost.getParseObject(TimelinePost.REPOST_SOURCE);
+                ParseUser userWhoPosted = repost.getParseUser(TimelinePost.POSTED_BY);
+                loadPicOriginalPoster(itemViewHolder, userWhoPosted);
+                itemViewHolder.tvRepostedBy.setText(context.getString(R.string.fa_icon_reposted_by) + " " + currentUser.getString(ParseUserColumns.AOZORA_USERNAME) + " Reposted");
+                itemViewHolder.tvRepostedBy.setTypeface(awesomeTypeface);
+                loadTimelinePostInfo(repost, itemViewHolder);
+            } else {
+
+                ParseUser userWhoPosted = timelinePost.getParseUser(TimelinePost.POSTED_BY);
+                loadPicOriginalPoster(itemViewHolder, userWhoPosted);
+                loadTimelinePostInfo(timelinePost, itemViewHolder);
+            }
+            holder.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    AozoraForumsApp.setTimelinePostToPass(timelinePost);
+                    Intent i = new Intent(context, TimelinePostActivity.class);
+                    context.startActivity(i);
+                }
+            });
         }
     }
 
     private void loadPicOriginalPoster(ViewHolder holder, ParseUser user) {
         ParseFile profilePic = user.getParseFile(ParseUserColumns.AVATAR_THUMB);
-        loadAvatarPic(profilePic, holder.ivAvatar);
+        PostUtils.loadAvatarPic(profilePic, holder.ivAvatar);
         if (user.getBoolean(ParseUserColumns.ACTIVE)) {
             holder.tvUserActive.setVisibility(View.VISIBLE);
         }
@@ -106,7 +140,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
     private void loadTimelinePostInfo(final TimelinePost post, final ViewHolder holder) {
         if(!post.getParseObject(TimelinePost.USER_TIMELINE).equals(post.getParseObject(TimelinePost.POSTED_BY))) {
             // Es un post en el muro de otra persona
-            PostUtils.setPostedByFromPost(context,post,holder.tvPostedBy,mOnUsernameTappedCallback);
+            PostUtils.setPostedByFromPost(context,post,holder.tvPostedBy,mOnUsernameTappedCallback,null);
         } else {
             //Post propio
             holder.tvPostedBy.setText(post.getParseObject(TimelinePost.POSTED_BY).getString(ParseUserColumns.AOZORA_USERNAME));
@@ -139,9 +173,9 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
         //LOAD VIDEO/LINK/IMAGE FOR POST
         if(post.getParseFile(TimelinePost.IMAGE) != null) {
             //File
-            PostUtils.loadTimelinePostImageFileToImageView(context,post,holder.sdvPostImageGif,holder.ivPostImage, holder.ivPlay);
+            PostUtils.loadTimelinePostImageFileToImageView(context,post,holder.sdvPostImageGif,holder.ivPostImage, holder.ivPlay,false);
         } else if(post.getJSONArray(TimelinePost.IMAGES) != null  && post.getJSONArray(TimelinePost.IMAGES) .length()>0 ) {
-            PostUtils.loadTimelinePostImageURLToImageView(context,post,holder.sdvPostImageGif,holder.ivPostImage, holder.ivPlay);
+            PostUtils.loadTimelinePostImageURLToImageView(context,post,holder.sdvPostImageGif,holder.ivPostImage, holder.ivPlay,false);
         } else if(post.getString(TimelinePost.YOUTUBE_ID) != null) {
             PostUtils.loadYoutubeImageIntoImageView(context,post,holder.ivPostImage, holder.ivPlay);
         } else if (post.getJSONObject(TimelinePost.LINK) != null) {
@@ -166,7 +200,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
         if(post.getParseObject(TimelinePost.LAST_REPLY) != null) {
             TimelinePost lastReply = (TimelinePost) post.getParseObject(TimelinePost.LAST_REPLY);
             ParseUser userLastComment = (ParseUser)lastReply.getParseObject(TimelinePost.POSTED_BY);
-            loadAvatarPic(userLastComment.getParseFile(ParseUserColumns.AVATAR_THUMB), holder.ivCommentAvatar);
+            PostUtils.loadAvatarPic(userLastComment.getParseFile(ParseUserColumns.AVATAR_THUMB), holder.ivCommentAvatar);
             if (userLastComment.getBoolean(ParseUserColumns.ACTIVE)) {
                 holder.tvCommentUserActive.setVisibility(View.VISIBLE);
             }
@@ -176,8 +210,6 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
             Spannable content = new SpannableString(" " + lastReply.getString(TimelinePost.CONTENT));
             content.setSpan(new ForegroundColorSpan(Color.BLACK), 0, content.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             holder.tvCommentText.append(content);
-
-
 
             //SPOILERS NO ABREN EN COMMENTS
             if(lastReply.getBoolean(TimelinePost.HAS_SPOILERS)) {
@@ -190,9 +222,9 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
             //LOAD VIDEO/IMAGE / LINK???? FOR COMMENT
             if(lastReply.getParseFile(TimelinePost.IMAGE) != null) {
                 //File
-                PostUtils.loadTimelinePostImageFileToImageView(context,lastReply,holder.sdvCommentImageGif,holder.ivCommentImage, holder.ivCommentPlay);
+                PostUtils.loadTimelinePostImageFileToImageView(context,lastReply,holder.sdvCommentImageGif,holder.ivCommentImage, holder.ivCommentPlay,false);
             } else if(lastReply.getJSONArray(TimelinePost.IMAGES) != null  && lastReply.getJSONArray(TimelinePost.IMAGES) .length()>0 ) {
-                PostUtils.loadTimelinePostImageURLToImageView(context,lastReply,holder.sdvCommentImageGif,holder.ivCommentImage, holder.ivCommentPlay);
+                PostUtils.loadTimelinePostImageURLToImageView(context,lastReply,holder.sdvCommentImageGif,holder.ivCommentImage, holder.ivCommentPlay,false);
             } else if(lastReply.getString(TimelinePost.YOUTUBE_ID) != null) {
                 PostUtils.loadYoutubeImageIntoImageView(context,lastReply,holder.ivCommentImage,holder.ivCommentPlay);
             }
@@ -214,29 +246,25 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<ProfileTimeline
 
     }
 
-    private void loadAvatarPic(ParseFile profilePic, final ImageView ivAvatar) {
-        if(profilePic != null) {
-            profilePic.getDataInBackground(new GetDataCallback() {
-
-                @Override
-                public void done(byte[] data, com.parse.ParseException e) {
-                    if (e == null) {
-                        Bitmap bmp = BitmapFactory
-                                .decodeByteArray(data, 0, data.length);
-                        ivAvatar.setImageBitmap(bmp);
-                    }
-                }
-            });
-        }
+    @Override
+    public int getItemViewType(int position) {
+        return timelinePosts.get(position).getObjectId() != null ? VIEW_ITEM : VIEW_PROG;
     }
-
-
-
 
 
     @Override
     public int getItemCount() {
         return timelinePosts.size();
+    }
+
+    public static class ProgressViewHolder extends RecyclerView.ViewHolder{
+
+        @BindView(R.id.pbLoading)
+        ProgressBar pbLoading;
+        public ProgressViewHolder(View view) {
+            super(view);
+            ButterKnife.bind(this, view);
+        }
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {

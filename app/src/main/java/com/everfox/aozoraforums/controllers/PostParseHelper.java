@@ -38,7 +38,25 @@ public class PostParseHelper {
         query.setSkip(skip);
         query.setLimit(limit);
         query.addAscendingOrder(TimelinePost.CREATED_AT);
-        query.whereEqualTo(TimelinePost.PARENT_POST,timelinePost);
+
+        if(timelinePost.getParseObject(TimelinePost.REPOST_SOURCE) != null) {
+            query.whereEqualTo(TimelinePost.PARENT_POST,timelinePost.getParseObject(TimelinePost.REPOST_SOURCE));
+        } else {
+            query.whereEqualTo(TimelinePost.PARENT_POST, timelinePost);
+
+        }
+        query.include(TimelinePost.EPISODE);
+        query.include(TimelinePost.POSTED_BY);
+        query.include(TimelinePost.USER_TIMELINE);
+        query.include(TimelinePost.REPOSTED_BY);
+        query.include(TimelinePost.REPOST_SOURCE+"."+TimelinePost.EPISODE);
+        query.include(TimelinePost.REPOST_SOURCE+"."+TimelinePost.POSTED_BY);
+        query.include(TimelinePost.REPOST_SOURCE + "." + TimelinePost.USER_TIMELINE);
+        query.include(TimelinePost.REPOST_SOURCE + "." + TimelinePost.LAST_REPLY);
+        query.include(TimelinePost.REPOST_SOURCE + "." + TimelinePost.LAST_REPLY+ "." + TimelinePost.POSTED_BY);
+        query.include(TimelinePost.REPOST_SOURCE + "." + TimelinePost.LAST_REPLY+ "." + TimelinePost.USER_TIMELINE);
+        query.include(TimelinePost.REPOST_SOURCE + "." + TimelinePost.REPOSTED_BY);
+
         query.findInBackground(new FindCallback<TimelinePost>() {
             @Override
             public void done(List<TimelinePost> objects, ParseException e) {

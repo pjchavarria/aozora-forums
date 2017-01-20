@@ -52,6 +52,9 @@
   <string name="fa_icon_reposted_by">&#xf079;</string>
   <string name="fa_right_arow">&#xf061;</string>
 
+  <string name="fa_plus">&#xf067;</string>
+  <string name="fa_check">&#xf00c;</string>
+
   <string-array name="admin_post_options">
     <item>Edit</item>
     <item>Delete</item>

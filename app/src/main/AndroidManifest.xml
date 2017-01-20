@@ -59,7 +59,14 @@
             android:name=".activities.MainActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
-        <activity android:name=".activities.TimelinePostActivity"></activity>
+        <activity android:name=".activities.TimelinePostActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"></activity>
+
+        <activity
+            android:name=".activities.AoTubeActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="landscape" />
     </application>
 
 </manifest>

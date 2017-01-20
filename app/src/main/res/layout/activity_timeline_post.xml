@@ -2,6 +2,8 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
+
+    android:background="@color/colorWhite"
     >
 
 
@@ -21,6 +23,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/llAddComment"
+        android:background="@color/grayF6"
         ></android.support.v7.widget.RecyclerView>
 
     <LinearLayout
@@ -35,12 +38,14 @@
         android:paddingRight="10dp"
         >
         <EditText
+            android:id="@+id/etComment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Write a comment"
             android:paddingLeft="10dp"
             android:paddingBottom="3dp"
             android:paddingTop="3dp"
+            android:background="@null"
             />
         <LinearLayout
             android:orientation="horizontal"

@@ -1,6 +1,7 @@
 package com.everfox.aozoraforums;
 
 import android.app.Application;
+import android.graphics.Typeface;
 
 import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.models.TimelinePost;
@@ -25,6 +26,32 @@ public class AozoraForumsApp extends Application {
 
     Integer FacebookRequestCode = 334;
 
+    private static TimelinePost timelinePostToPass;
+    public static TimelinePost getTimelinePostToPass() {
+        return timelinePostToPass;
+    }
+    public static void setTimelinePostToPass(TimelinePost _timelinePostToPass) {
+        timelinePostToPass = _timelinePostToPass;
+    }
+
+    private static ParseUser profileToPass;
+    public static ParseUser getProfileToPass() {
+        return profileToPass;
+    }
+    public static void setProfileToPass(ParseUser _profileToPass) {
+        profileToPass = _profileToPass;
+    }
+
+    static Typeface awesomeTypeface;
+
+    public static Typeface getAwesomeTypeface() {
+        return awesomeTypeface;
+    }
+
+    public static void setAwesomeTypeface(Typeface _awesomeTypeface) {
+        awesomeTypeface = _awesomeTypeface;
+    }
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -47,6 +74,7 @@ public class AozoraForumsApp extends Application {
                 .newBuilder(getApplicationContext(), okHttpClient)
         .build();
         Fresco.initialize(getApplicationContext(), config);
+        AozoraForumsApp.setAwesomeTypeface(Typeface.createFromAsset(getApplicationContext().getAssets(),"fonts/FontAwesome.ttf"));
     }
 
     private static ParseUser parseFacebookNewUser;
@@ -60,5 +88,7 @@ public class AozoraForumsApp extends Application {
 
     public static void cleanValues() {
         parseFacebookNewUser = null;
+        timelinePostToPass = null;
+        profileToPass = null;
     }
 }

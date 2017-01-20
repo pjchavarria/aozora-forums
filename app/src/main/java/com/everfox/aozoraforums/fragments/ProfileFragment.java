@@ -20,9 +20,12 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.MainActivity;
+import com.everfox.aozoraforums.activities.TimelinePostActivity;
 import com.everfox.aozoraforums.adapters.ProfileTimelineAdapter;
 import com.everfox.aozoraforums.controllers.ProfileParseHelper;
 import com.everfox.aozoraforums.controls.EndlessScrollView;
@@ -40,8 +43,10 @@ import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
+import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
+import java.sql.Time;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -67,6 +72,9 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
     ProfileTimelineAdapter timelineAdapter;
     String postCount;
     LinearLayoutManager llm;
+    Boolean loadingMorePosts = false;
+    private int fetchCount = 0;
+    ArrayList<TimelinePost> lstTimelinePost = new ArrayList<>();
 
     @BindView(R.id.pbLoading) ProgressBar pbLoading;
     @BindView(R.id.llProfileContent)
@@ -129,7 +137,20 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         tvPopularity.setText(AoUtils.numberToStringOrZero(user.getNumber(ParseUserColumns.REPUTATION)));
         if(!isCurrentUser) {
             tvFollow.setVisibility(View.VISIBLE);
+            tvFollow.setTypeface(AozoraForumsApp.getAwesomeTypeface());
             //SI LO ESTA SIGIENDO FOLLOWING, SINO FOLLOW
+
+            ParseRelation<ParseObject> relation = ParseUser.getCurrentUser().getRelation(ParseUserColumns.FOLLOWING);
+            relation.getQuery().findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    if(objects.contains(user)) {
+                        tvFollow.setText(getString(R.string.fa_check) +  " Following");
+                    }else {
+                        tvFollow.setText(getString(R.string.fa_plus) + " Follow");
+                    }
+                }
+            });
         }
         String badgePro = ProfileUtils.badgesArrayToPro(user.getJSONArray(ParseUserColumns.BADGES));
         if(badgePro == "")
@@ -192,7 +213,8 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         } else {
             //LoadProfile
             new ProfileParseHelper(getActivity(),ProfileFragment.this)
-                    .GetProfilePosts(user,0,ProfileParseHelper.PROFILE_FETCH_LIMIT,ProfileParseHelper.PROFILE_LIST);
+                    .GetProfilePosts(user,fetchCount*ProfileParseHelper.PROFILE_FETCH_LIMIT,ProfileParseHelper.PROFILE_FETCH_LIMIT,ProfileParseHelper.PROFILE_LIST);
+            fetchCount++;
 
         }
     }
@@ -200,6 +222,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
     @Override
     public void onResume() {
         super.onResume();
+        scrollView.setVisibility(View.VISIBLE);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(user.getString(ParseUserColumns.AOZORA_USERNAME));
     }
 
@@ -245,37 +268,25 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
     }
 
     @Override
-    public void onGetProfilePosts(final List<TimelinePost> timelinePosts) {
+    public void onGetProfilePosts(final List<TimelinePost> _timelinePosts) {
 
         if(timelineAdapter.getItemCount() == 0) {
-            timelineAdapter = new ProfileTimelineAdapter(getActivity(), timelinePosts, ProfileFragment.this, user);
+            lstTimelinePost.addAll(_timelinePosts);
+            timelineAdapter = new ProfileTimelineAdapter(getActivity(), lstTimelinePost, ProfileFragment.this, user);
             rvTimeline.setAdapter(timelineAdapter);
-
-            rvTimeline.addOnScrollListener(new RecyclerView.OnScrollListener() {
-                @Override
-                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                    super.onScrolled(recyclerView, dx, dy);
-                    int visibleItemCount = llm.getChildCount();
-                    int totalItemCount = llm.getItemCount();
-                    int firstVisibleItems;
-                    firstVisibleItems = llm.findFirstVisibleItemPosition();
-                    int pastVisibleItems = 0;
-                    pastVisibleItems = firstVisibleItems;
-
-
-                    if ((visibleItemCount + pastVisibleItems) >= totalItemCount
-                            && pastVisibleItems >= 0) {
-                        AoUtils.fromHtml("ass");
-                    }
-                }
-            });
-
             pbLoading.setVisibility(View.GONE);
             llProfileContent.setVisibility(View.VISIBLE);
             ivProfileBanner.setVisibility(View.VISIBLE);
         } else {
-            //Agregamos los timelineposts?...iguess
+            //remove progress item
+            lstTimelinePost.remove(lstTimelinePost.size() - 1);
+            timelineAdapter.notifyItemRemoved(lstTimelinePost.size());
 
+            for (int i = 0; i < ProfileParseHelper.PROFILE_FETCH_LIMIT; i++) {
+                lstTimelinePost.add(_timelinePosts.get(i));
+            }
+            timelineAdapter.notifyItemRangeInserted((fetchCount-1)*ProfileParseHelper.PROFILE_FETCH_LIMIT, lstTimelinePost.size());
+            loadingMorePosts = false;
         }
 
 
@@ -287,11 +298,14 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         View view = scrollView.getChildAt(scrollView.getChildCount() - 1);
         int distanceToEnd = (view.getBottom() - (scrollView.getHeight() + scrollView.getScrollY()));
         // if diff is zero, then the bottom has been reached
-        if (distanceToEnd == 0) {
-            AoUtils.fromHtml("ass");
+        if (distanceToEnd < 500 && !loadingMorePosts) {
 
-            // do stuff your load more stuff
-
+            lstTimelinePost.add(new TimelinePost());
+            timelineAdapter.notifyItemInserted(lstTimelinePost.size());
+            loadingMorePosts = true;
+            new ProfileParseHelper(getActivity(),ProfileFragment.this)
+                    .GetProfilePosts(user,fetchCount*ProfileParseHelper.PROFILE_FETCH_LIMIT,ProfileParseHelper.PROFILE_FETCH_LIMIT,ProfileParseHelper.PROFILE_LIST);
+            fetchCount++;
         }
     }
 
@@ -356,6 +370,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
     public void onUsernameTapped(ParseUser userTapped) {
         if(!AoUtils.isActivityInvalid(getActivity())) {
             if(!user.getObjectId().equals(userTapped.getObjectId())) {
+                scrollView.setVisibility(View.GONE);
                 ProfileFragment pf = null;
                 if(ParseUser.getCurrentUser().getObjectId().equals(userTapped.getObjectId()))
                     pf = ProfileFragment.newInstance(userTapped, true, true);

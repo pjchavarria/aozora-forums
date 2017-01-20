@@ -29,8 +29,10 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.cache.ExternalCacheDiskCacheFactory;
+import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.adapters.ProfileTimelineAdapter;
+import com.everfox.aozoraforums.adapters.TimelinePostsAdapter;
 import com.everfox.aozoraforums.controls.CustomTypefaceSpan;
 import com.everfox.aozoraforums.controls.FrescoGifListener;
 import com.everfox.aozoraforums.models.ParseUserColumns;
@@ -46,6 +48,7 @@ import com.facebook.imagepipeline.image.ImageInfo;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.parse.GetDataCallback;
 import com.parse.ParseFile;
+import com.parse.ParseUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -67,6 +70,7 @@ import java.util.HashMap;
 public class PostUtils {
 
     public static double MAX_DIFFERENCE_WIDTH_HEIGHT = 1.2;
+    public static double MAX_DIFFERENCE_WIDTH_HEIGHT_SIZE = 1.3;
     public static String URL_YOUTUBE_THUMBNAILS ="https://i.ytimg.com/vi/YOUTUBE_ID/hqdefault.jpg";
 
 
@@ -79,9 +83,10 @@ public class PostUtils {
         ivPlayVideo.setVisibility(View.VISIBLE);
     }
 
-    public static void loadTimelinePostImageURLToImageView(final Context context, TimelinePost post, final SimpleDraweeView simpleDraweeView, final ImageView imageView,final ImageView ivPlayGif) {
+    public static void loadTimelinePostImageURLToImageView(final Context context, TimelinePost post, final SimpleDraweeView simpleDraweeView, final ImageView imageView,final ImageView ivPlayGif, Boolean fullscreen) {
         try {
 
+            Boolean isComment = post.getParseObject(TimelinePost.PARENT_POST) != null ? true : false;
             Boolean isGif = false;
             final JSONObject jsonImageInfo = post.getJSONArray(TimelinePost.IMAGES).getJSONObject(0);
             final String urlImage = jsonImageInfo.getString("url");
@@ -90,7 +95,9 @@ public class PostUtils {
             }
 
             if(!isGif) {
-                prepareImageView(jsonImageInfo,imageView,null );
+
+                if(!isComment && !fullscreen)
+                    prepareImageView(jsonImageInfo,imageView,null );
 
                 int jsonHeight = 0;
                 int jsonWidth = 0;
@@ -100,15 +107,19 @@ public class PostUtils {
                 } catch (JSONException e1) {
                     e1.printStackTrace();
                 }
-                if( (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT)
+                if( (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT && !isComment && !fullscreen)
                     Glide.with(context).load(urlImage).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                 else
-                    Glide.with(context).load(urlImage).crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                    Glide.with(context).load(urlImage).crossFade().fitCenter()
+                            .diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                imageView.setVisibility(View.VISIBLE);
             }
             else {
 
                 if(urlImage.contains("https")) urlImage.replace("https","http");
-                prepareImageView(jsonImageInfo,simpleDraweeView,simpleDraweeView);
+
+                if(!fullscreen)
+                    prepareImageView(jsonImageInfo,simpleDraweeView,simpleDraweeView);
                 FrescoGifListener frescoGifListener = new FrescoGifListener(ivPlayGif, simpleDraweeView);
                 DraweeController controller = Fresco.newDraweeControllerBuilder()
                         .setUri(urlImage)
@@ -126,8 +137,9 @@ public class PostUtils {
         }
     }
 
-    public static void loadTimelinePostImageFileToImageView(final Context context, TimelinePost post, final SimpleDraweeView simpleDraweeView, final ImageView imageView,final ImageView ivPlayGif) {
+    public static void loadTimelinePostImageFileToImageView(final Context context, TimelinePost post, final SimpleDraweeView simpleDraweeView, final ImageView imageView, final ImageView ivPlayGif, final Boolean fullscreen) {
         try {
+            final Boolean isComment = post.getParseObject(TimelinePost.PARENT_POST) != null ? true : false;
             Boolean isGif = false;
             final JSONObject jsonImageInfo = post.getJSONArray(TimelinePost.IMAGES).getJSONObject(0);
             ParseFile imageFile = post.getParseFile(TimelinePost.IMAGE);
@@ -136,10 +148,12 @@ public class PostUtils {
             }
             final Boolean finalIsGif = isGif;
 
-            if(!isGif)
-                prepareImageView(jsonImageInfo,imageView,null);
-            else
-                prepareImageView(jsonImageInfo,imageView,simpleDraweeView);
+            if(!isComment && !fullscreen) {
+                if (!isGif)
+                    prepareImageView(jsonImageInfo, imageView, null);
+                else
+                    prepareImageView(jsonImageInfo, imageView, simpleDraweeView);
+            }
 
             imageFile.getDataInBackground(new GetDataCallback() {
 
@@ -156,10 +170,11 @@ public class PostUtils {
                             } catch (JSONException e1) {
                                 e1.printStackTrace();
                             }
-                            if( (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT)
+                            if( (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT && !fullscreen && !isComment)
                                 Glide.with(context).load(data).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                             else
                                 Glide.with(context).load(data).crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                            imageView.setVisibility(View.VISIBLE);
                         }
                         else {
                             FrescoGifListener frescoGifListener = new FrescoGifListener(ivPlayGif, simpleDraweeView);
@@ -189,7 +204,7 @@ public class PostUtils {
         final int jsonHeight = jsonImageInfo.getInt("height");
         final int jsonWidth = jsonImageInfo.getInt("width");
         if ((double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT) {
-            int maxAllowedHeight = (int) (jsonWidth * MAX_DIFFERENCE_WIDTH_HEIGHT);
+            int maxAllowedHeight = (int) (jsonWidth * MAX_DIFFERENCE_WIDTH_HEIGHT_SIZE);
             ViewGroup.LayoutParams params = iv.getLayoutParams();
             params.height = maxAllowedHeight;
             iv.setLayoutParams(params);
@@ -245,14 +260,15 @@ public class PostUtils {
         return "Just now";
     }
 
-    public static void setPostedByFromPost(Context context, final TimelinePost post, TextView tvPostedBy, final ProfileTimelineAdapter.OnUsernameTappedListener mOnUsernameTappedCallback) {
+    public static void setCommentUsernameAndText(final TimelinePost comment, TextView tvComment,
+                                                 final TimelinePostsAdapter.OnUsernameTappedListener mPostCallback) {
 
-        Typeface awesomeTypeface = Typeface.createFromAsset(context.getAssets(),"fonts/FontAwesome.ttf");
-        Spannable postedBy = new SpannableString(post.getParseObject(TimelinePost.POSTED_BY).getString(ParseUserColumns.AOZORA_USERNAME) +" ");
-        postedBy.setSpan(new ClickableSpan() {
+        final ParseUser userComment = (ParseUser)comment.getParseObject(TimelinePost.POSTED_BY);
+        Spannable username = new SpannableString(userComment.getString(ParseUserColumns.AOZORA_USERNAME));
+        username.setSpan(new ClickableSpan() {
             @Override
             public void onClick(View view) {
-                mOnUsernameTappedCallback.onUsernameTapped(post.getParseUser(TimelinePost.POSTED_BY));
+                mPostCallback.onUsernameTapped(userComment);
             }
 
             @Override
@@ -260,26 +276,81 @@ public class PostUtils {
                 super.updateDrawState(ds);
                 ds.setUnderlineText(false);
             }
-        },0,postedBy.length(),0);
+        },0,username.length(),0);
+        tvComment.setText(username);
+
+        Spannable content = new SpannableString(" " + comment.getString(TimelinePost.CONTENT));
+        content.setSpan(new ForegroundColorSpan(Color.BLACK), 0, content.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        tvComment.append(content);
+        tvComment.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    public static void setPostedByFromPost(Context context, final TimelinePost post, TextView tvPostedBy,
+                                           final ProfileTimelineAdapter.OnUsernameTappedListener mProfileCallback,
+                                           final TimelinePostsAdapter.OnUsernameTappedListener mPostCallback) {
+
+        Typeface awesomeTypeface = AozoraForumsApp.getAwesomeTypeface();
+        Spannable postedBy = new SpannableString(post.getParseObject(TimelinePost.POSTED_BY).getString(ParseUserColumns.AOZORA_USERNAME) +" ");
         Spannable rightArrow = new SpannableString(context.getString(R.string.fa_right_arow) + " ");
         rightArrow.setSpan(new CustomTypefaceSpan("",awesomeTypeface),0,rightArrow.length(),0);
         Spannable userTimeline = new SpannableString(post.getParseObject(TimelinePost.USER_TIMELINE).getString(ParseUserColumns.AOZORA_USERNAME));
-        userTimeline.setSpan(new ClickableSpan() {
-            @Override
-            public void onClick(View view) {
-                mOnUsernameTappedCallback.onUsernameTapped(post.getParseUser(TimelinePost.USER_TIMELINE));
-            }
-
-            @Override
-            public void updateDrawState(TextPaint ds) {
-                super.updateDrawState(ds);
-                ds.setUnderlineText(false);
-            }
-        },0,userTimeline.length(),0);
+        if(mProfileCallback != null) {
+            setProfileCallbackToSpan(postedBy,post.getParseUser(TimelinePost.POSTED_BY),mProfileCallback);
+            setProfileCallbackToSpan(userTimeline,post.getParseUser(TimelinePost.USER_TIMELINE),mProfileCallback);
+        } else {
+            setPostCallbackToSpan(postedBy,post.getParseUser(TimelinePost.POSTED_BY),mPostCallback);
+            setPostCallbackToSpan(userTimeline,post.getParseUser(TimelinePost.USER_TIMELINE),mPostCallback);
+        }
         tvPostedBy.setText(postedBy);
         tvPostedBy.append(rightArrow);
         tvPostedBy.append(userTimeline);
         tvPostedBy.setMovementMethod(LinkMovementMethod.getInstance());
 
+    }
+
+    private static void setProfileCallbackToSpan(Spannable text, final ParseUser user, final ProfileTimelineAdapter.OnUsernameTappedListener mCallback ) {
+        text.setSpan(new ClickableSpan() {
+            @Override
+            public void onClick(View view) {
+                mCallback.onUsernameTapped(user);
+            }
+
+            @Override
+            public void updateDrawState(TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(false);
+            }
+        },0,text.length(),0);
+    }
+
+    private static void setPostCallbackToSpan(Spannable text, final ParseUser user, final TimelinePostsAdapter.OnUsernameTappedListener mCallback ) {
+        text.setSpan(new ClickableSpan() {
+            @Override
+            public void onClick(View view) {
+                mCallback.onUsernameTapped(user);
+            }
+
+            @Override
+            public void updateDrawState(TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(false);
+            }
+        },0,text.length(),0);
+    }
+
+    public static void loadAvatarPic(ParseFile profilePic, final ImageView ivAvatar) {
+        if(profilePic != null) {
+            profilePic.getDataInBackground(new GetDataCallback() {
+
+                @Override
+                public void done(byte[] data, com.parse.ParseException e) {
+                    if (e == null) {
+                        Bitmap bmp = BitmapFactory
+                                .decodeByteArray(data, 0, data.length);
+                        ivAvatar.setImageBitmap(bmp);
+                    }
+                }
+            });
+        }
     }
 }

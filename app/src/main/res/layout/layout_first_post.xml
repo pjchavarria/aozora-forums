@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:fresco="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:background="@color/colorWhite"
+    >
 
     <LinearLayout
         android:id="@+id/llFirstPost"
@@ -26,7 +28,7 @@
                     android:id="@+id/ivAvatar"
                     android:layout_width="45dp"
                     android:layout_height="45dp"
-                    android:src="@mipmap/ic_launcher"
+                    android:src="@drawable/default_avatar"
                     android:scaleType="fitXY"
                     android:adjustViewBounds="true"
                     android:visibility="visible"
@@ -181,8 +183,9 @@
             android:layout_width="match_parent"
             android:layout_height="30dp"
             android:paddingLeft="20dp"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="5dp"
             android:paddingRight="15dp"
+            android:paddingBottom="5dp"
             >
 
             <ImageView

@@ -41,4 +41,5 @@ dependencies {
     compile 'com.facebook.fresco:animated-gif:1.0.0'
     compile "com.facebook.fresco:imagepipeline-okhttp3:1.0.0"
     compile 'com.squareup.okhttp3:okhttp:3.5.0'
+    compile files('libs/YoutubeAndroidPlayerApi.jar')
 }

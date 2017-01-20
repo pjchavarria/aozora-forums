@@ -7,16 +7,6 @@
     android:fitsSystemWindows="true"
     >
 
-    <ProgressBar
-        android:id="@+id/pbLoading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/Base.Widget.AppCompat.ProgressBar"
-        android:indeterminate="true"
-        android:visibility="gone"
-        android:layout_centerInParent="true"
-
-        />
 
     <com.everfox.aozoraforums.controls.EndlessScrollView
         android:id="@+id/scrollView"
@@ -67,7 +57,7 @@
                             android:id="@+id/ivAvatar"
                             android:layout_width="60dp"
                             android:layout_height="60dp"
-                            android:src="@mipmap/ic_launcher"
+                            android:src="@drawable/default_avatar"
                             android:scaleType="fitXY"
                             android:adjustViewBounds="true"
                             android:layout_gravity="start"
@@ -304,4 +294,14 @@
     </com.everfox.aozoraforums.controls.EndlessScrollView>
 
 
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/Base.Widget.AppCompat.ProgressBar"
+        android:indeterminate="true"
+        android:visibility="gone"
+        android:layout_centerInParent="true"
+
+        />
 </RelativeLayout>

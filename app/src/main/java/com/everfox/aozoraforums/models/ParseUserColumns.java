@@ -15,4 +15,5 @@ public class ParseUserColumns {
     public static String DETAILS = "details";
     public static String ACTIVE = "active";
     public static String ACTIVE_END = "activeEnd";
+    public static String FOLLOWING = "following";
 }
