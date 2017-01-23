@@ -13,6 +13,7 @@ import android.widget.TextView;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.controllers.FriendsController;
 import com.everfox.aozoraforums.fragments.ForumsFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.utils.AoUtils;
@@ -22,11 +23,12 @@ import com.parse.ParseUser;
 public class MainActivity extends AppCompatActivity {
 
     Button btnLogout;
-    TextView btnForum, btnNotifications, btnProfile;
+    TextView btnForum, btnNotifications, btnProfile, btnFeed;
     FrameLayout flContent;
     Integer selectedFragmentIndex = 0;
-    ProfileFragment pf;
-    ForumsFragment ff;
+    ProfileFragment profileFragment;
+    ForumsFragment forumsFragmentf;
+    ProfileFragment feedFragment;
     LinearLayout llNavBar;
 
     @Override
@@ -34,6 +36,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         llNavBar = (LinearLayout) findViewById(R.id.llNavBar);
+        btnFeed = (TextView) findViewById(R.id.btnFeed);
         btnForum = (TextView) findViewById(R.id.btnForum);
         btnNotifications = (TextView) findViewById(R.id.btnNotifications);
         btnProfile = (TextView) findViewById(R.id.btnProfile);
@@ -41,8 +44,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View view) {
-                if (selectedFragmentIndex != 2 ) {
-                    selectedFragmentIndex = 2;
+                if (selectedFragmentIndex != 3 ) {
+                    selectedFragmentIndex = 3;
                     //cambiamos el icono del boton a "selected"
 
                     //Cargamos AnimeInfoFragment
@@ -62,6 +65,18 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        btnFeed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (selectedFragmentIndex != 2 ) {
+                    selectedFragmentIndex = 2;
+                    //cambiamos el icono del boton a "selected"
+
+                    //Cargamos AnimeInfoFragment
+                    OpenFeedFragment(ParseUser.getCurrentUser());
+                }
+            }
+        });
 
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
@@ -78,29 +93,46 @@ public class MainActivity extends AppCompatActivity {
             OpenProfileFragment(AozoraForumsApp.getProfileToPass());
             AozoraForumsApp.setProfileToPass(null);
         }
+        FriendsController.fetchFollowing();
+    }
+
+
+
+    private void OpenFeedFragment(ParseUser user) {
+        if(!AoUtils.isActivityInvalid(MainActivity.this)) {
+            if (feedFragment == null)
+                feedFragment = ProfileFragment.newInstance(user, false, true);
+            else
+                feedFragment.scrollFeedToStart();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.flContent, feedFragment).commitAllowingStateLoss();
+        }
     }
 
     private void OpenForumFragment() {
         if(!AoUtils.isActivityInvalid(MainActivity.this)) {
 
-            if (ff == null)
-                ff = ForumsFragment.newInstance();
+            if (forumsFragmentf == null)
+                forumsFragmentf = ForumsFragment.newInstance();
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.flContent, ff).commitAllowingStateLoss();
+            fragmentTransaction.replace(R.id.flContent, forumsFragmentf).commitAllowingStateLoss();
         }
     }
 
     private void OpenProfileFragment(ParseUser user) {
         if(!AoUtils.isActivityInvalid(MainActivity.this)) {
-            if (pf == null)
+            if (profileFragment == null)
                 if(ParseUser.getCurrentUser().getObjectId().equals(user.getObjectId()))
-                    pf = ProfileFragment.newInstance(user, true, true);
+                    profileFragment = ProfileFragment.newInstance(user, true, true);
                 else
-                    pf = ProfileFragment.newInstance(user, true, false);
+                    profileFragment = ProfileFragment.newInstance(user, true, false);
+            else
+                profileFragment.scrollProfileToStart();
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.flContent, pf).commitAllowingStateLoss();
+            fragmentTransaction.replace(R.id.flContent, profileFragment).commitAllowingStateLoss();
         }
     }
 

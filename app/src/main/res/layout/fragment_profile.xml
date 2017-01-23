@@ -5,15 +5,97 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
+    android:background="@color/colorWhite"
     >
+
+    <LinearLayout
+        android:id="@+id/llFeedFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:visibility="gone"
+        >
+        <LinearLayout
+            android:id="@+id/llFeed"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorWhite"
+            android:paddingTop="10dp"
+            android:visibility="visible"
+            >
+
+            <LinearLayout
+                android:id="@+id/tvFollowingTab"
+                android:orientation="vertical"
+                android:layout_weight="0.5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Following"
+                    android:gravity="center_horizontal"
+                    android:textColor="@color/inapp_blue"
+                    />
+
+                <View
+                    android:id="@+id/followingMark"
+                    android:layout_gravity="bottom"
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/inapp_blue"
+                    android:layout_marginTop="10dp"
+                    android:visibility="visible"
+                    ></View>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/tvAozoraTab"
+                android:orientation="vertical"
+                android:layout_weight="0.5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Aozora"
+                    android:gravity="center_horizontal"
+                    android:textColor="@color/inapp_blue" />
+
+                <View
+                    android:id="@+id/aozoraMark"
+                    android:layout_gravity="bottom"
+                    android:layout_width="match_parent"
+                    android:layout_height="2dp"
+                    android:background="@color/inapp_blue"
+                    android:layout_marginTop="10dp"
+                    android:visibility="invisible"
+                    ></View>
+            </LinearLayout>
+        </LinearLayout>
+
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshFeed"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rvFeed"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/grayF6"
+                android:scrollbars="vertical"
+                ></android.support.v7.widget.RecyclerView>
+        </android.support.v4.widget.SwipeRefreshLayout>
+    </LinearLayout>
 
 
     <com.everfox.aozoraforums.controls.EndlessScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentStart="true"
         android:fillViewport="true"
         >
 
@@ -33,7 +115,7 @@
             <LinearLayout
                 android:id="@+id/llProfileContent"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="90dp"
                 android:orientation="vertical"
                 android:visibility="visible"
@@ -210,86 +292,25 @@
                     </LinearLayout>
 
                 </LinearLayout>
-
+            </LinearLayout>
 
                 <LinearLayout
                     android:id="@+id/llProfileTimeline"
                     android:orientation="vertical"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_below="@+id/llProfileContent"
                     >
 
 
-                    <LinearLayout
-                        android:id="@+id/llFeed"
-                        android:orientation="horizontal"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/colorWhite"
-                        android:paddingTop="10dp"
-                        android:visibility="gone"
-                        android:paddingLeft="5dp"
-                        android:layout_marginTop="5dp"
-                        >
-
-                        <LinearLayout
-                            android:id="@+id/tvFollowingTab"
-                            android:orientation="vertical"
-                            android:layout_weight="0.5"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content">
-
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="Following"
-                                android:gravity="center_horizontal"
-                                android:textColor="@color/inapp_blue"
-                                />
-
-                            <View
-                                android:layout_gravity="bottom"
-                                android:layout_width="match_parent"
-                                android:layout_height="2dp"
-                                android:background="@color/inapp_blue"
-                                android:layout_marginTop="10dp"
-                                android:visibility="visible"
-                                ></View>
-                        </LinearLayout>
-
-                        <LinearLayout
-                            android:id="@+id/tvAozoraTab"
-                            android:orientation="vertical"
-                            android:layout_weight="0.5"
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content">
-                            <TextView
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:text="Aozora"
-                                android:gravity="center_horizontal"
-                                android:textColor="@color/inapp_blue" />
-
-                            <View
-                                android:layout_gravity="bottom"
-                                android:layout_width="match_parent"
-                                android:layout_height="2dp"
-                                android:background="@color/inapp_blue"
-                                android:layout_marginTop="10dp"
-                                android:visibility="invisible"
-                                ></View>
-                        </LinearLayout>
-                    </LinearLayout>
-
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/rvTimeline"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:background="@color/grayF6"
-                        android:nestedScrollingEnabled="false"
-                        ></android.support.v7.widget.RecyclerView>
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/rvTimeline"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/grayF6"
+                            android:nestedScrollingEnabled="false"
+                            ></android.support.v7.widget.RecyclerView>
                 </LinearLayout>
-            </LinearLayout>
         </RelativeLayout>
     </com.everfox.aozoraforums.controls.EndlessScrollView>
 

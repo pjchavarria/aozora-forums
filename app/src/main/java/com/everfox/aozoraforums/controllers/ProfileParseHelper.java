@@ -3,12 +3,16 @@ package com.everfox.aozoraforums.controllers;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 
+import com.everfox.aozoraforums.models.PUser;
+import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,13 +24,15 @@ import java.util.List;
 public class ProfileParseHelper {
 
 
-    public static final int PROFILE_SKIP_STEP = 12;
-    public static final int PROFILE_FETCH_LIMIT = 12;
+    public static final int PROFILE_SKIP_STEP = 5;
+    public static final int PROFILE_FETCH_LIMIT = 5;
 
     public static final int FOLLOWING_LIST = 0;
     public static final int AOZORA_LIST = 1;
     public static final int PROFILE_LIST = 2;
 
+    public static final String DARKCIRIUS_ACCOUNT = "Bt5dy11isC";
+    public static final String AOZORA_ACCOUNT = "bR0T6mStO";
 
     private OnGetProfilePostsListener mOnGetProfilePostsCallback;
 
@@ -46,14 +52,39 @@ public class ProfileParseHelper {
         query.setSkip(skip);
         query.setLimit(limit);
         query.orderByDescending(TimelinePost.CREATED_AT);
+        ArrayList<String> lstVisibility = new ArrayList<String>();
+        ArrayList<String> lstPostType = new ArrayList<String>();
         switch (selectedList){
             case FOLLOWING_LIST:
+
+                lstPostType.add("statusUpdate");
+                query.whereContainedIn(TimelinePost.TYPE,lstPostType);
+
+                if(FriendsController.following != null) {
+                    ArrayList<ParseObject> allUsers = new ArrayList<>();
+                    ParseUser darkciriusAccount = ParseUser.createWithoutData(ParseUser.class,DARKCIRIUS_ACCOUNT);
+                    ParseUser aozoraAccount = ParseUser.createWithoutData(ParseUser.class,AOZORA_ACCOUNT);
+                    allUsers.add(darkciriusAccount);
+                    allUsers.add(aozoraAccount);
+                    allUsers.addAll( FriendsController.following);
+                    query.whereContainedIn(TimelinePost.USER_TIMELINE,allUsers);
+
+                } else {
+                    ParseQuery<ParseObject> followingQuery = userProfile.getRelation(ParseUserColumns.FOLLOWING).getQuery();
+                    followingQuery.orderByDescending(ParseUserColumns.ACTIVE_START);
+                    followingQuery.selectKeys(Arrays.asList(new String[]{ParseUserColumns.OBJECT_ID}));
+                    followingQuery.setLimit(1000);
+                    query.whereMatchesKeyInQuery(TimelinePost.USER_TIMELINE,TimelinePost.USER_TIMELINE,followingQuery);
+                }
+
                 break;
             case AOZORA_LIST:
+                lstVisibility.add("sponsored");
+                lstVisibility.add("popular");
+                query.whereContainedIn(TimelinePost.VISIBILITY,lstVisibility);
                 break;
             case PROFILE_LIST:
                 query.whereEqualTo(TimelinePost.USER_TIMELINE,userProfile);
-                ArrayList<String> lstVisibility = new ArrayList<String>();
                 lstVisibility.add("profile");
                 lstVisibility.add("update");
                 lstVisibility.add("popular");

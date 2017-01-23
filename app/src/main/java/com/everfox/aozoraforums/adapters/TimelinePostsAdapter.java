@@ -227,6 +227,8 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         holder.ivCommentPlay.setVisibility(View.GONE);
         holder.tvCommentSpoilerOpen.setVisibility(View.GONE);
         holder.tvCommentSpoilerText.setVisibility(View.GONE);
+        RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
+        holder.ivCommentImage.setLayoutParams(lp);
 
         final TimelinePost comment = timelinePosts.get(position);
         ParseUser userLastComment = (ParseUser)comment.getParseObject(TimelinePost.POSTED_BY);

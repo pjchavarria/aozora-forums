@@ -113,6 +113,7 @@ public class PostUtils {
                     Glide.with(context).load(urlImage).crossFade().fitCenter()
                             .diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                 imageView.setVisibility(View.VISIBLE);
+                imageView.requestLayout();
             }
             else {
 
@@ -175,6 +176,7 @@ public class PostUtils {
                             else
                                 Glide.with(context).load(data).crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                             imageView.setVisibility(View.VISIBLE);
+                            imageView.requestLayout();
                         }
                         else {
                             FrescoGifListener frescoGifListener = new FrescoGifListener(ivPlayGif, simpleDraweeView);

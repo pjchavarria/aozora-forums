@@ -4,11 +4,13 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.NestedScrollView;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -75,8 +77,13 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
     Boolean loadingMorePosts = false;
     private int fetchCount = 0;
     ArrayList<TimelinePost> lstTimelinePost = new ArrayList<>();
+    int selectedList;
+
+    RecyclerView rvTimeline;
 
     @BindView(R.id.pbLoading) ProgressBar pbLoading;
+    @BindView(R.id.llFeedFragment)
+    LinearLayout llFeedFragment;
     @BindView(R.id.llProfileContent)
     LinearLayout llProfileContent;
     @BindView(R.id.ivProfileBanner)
@@ -92,14 +99,24 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
     @BindView(R.id.tvFollowers) TextView tvFollowers;
     @BindView(R.id.llFeed) LinearLayout llFeed;
     @BindView(R.id.tvIntroduction) TextView tvIntroduction;
-    @BindView(R.id.rvTimeline)
-    RecyclerView rvTimeline;
     @BindView(R.id.scrollView)
     EndlessScrollView scrollView;
     @BindView(R.id.tvFollow)
     TextView tvFollow;
     @BindView(R.id.ivMoreOptions)
     ImageView ivMoreOptions;
+    @BindView(R.id.followingMark)
+    View vFollowingMark;
+    @BindView(R.id.aozoraMark)
+    View vAozoraMark;
+    @BindView(R.id.tvFollowingTab)
+    LinearLayout tvFollowingTab;
+    @BindView(R.id.tvAozoraTab)
+    LinearLayout tvAozoraTab;
+    @BindView(R.id.swipeRefreshFeed)
+    SwipeRefreshLayout swipeRefreshFeed;
+    @BindView(R.id.llProfileTimeline)
+    LinearLayout llProfileTimeline;
 
     public static ProfileFragment newInstance(ParseUser user,Boolean isProfile, Boolean isCurrentUser) {
         ProfileFragment fragment = new ProfileFragment();
@@ -117,6 +134,11 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(user.getString(ParseUserColumns.AOZORA_USERNAME));
         ButterKnife.bind(this,view);
+        if(isProfile) {
+            rvTimeline = (RecyclerView) view.findViewById(R.id.rvTimeline);
+        } else {
+            rvTimeline = (RecyclerView) view.findViewById(R.id.rvFeed);
+        }
         llm = new LinearLayoutManager(getActivity());
         rvTimeline.setLayoutManager(llm);
         timelineAdapter = new ProfileTimelineAdapter(getActivity(),new ArrayList<TimelinePost>(),ProfileFragment.this,user);
@@ -125,104 +147,178 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         pbLoading.setVisibility(View.VISIBLE);
         llProfileContent.setVisibility(View.GONE);
         ivProfileBanner.setVisibility(View.GONE);
+        llProfileTimeline.setVisibility(View.GONE);
         return view;
     }
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ParseFile profilePic = user.getParseFile(ParseUserColumns.AVATAR_THUMB);
-        ParseFile bannerPic = user.getParseFile(ParseUserColumns.BANNER);
-        loadAvatarAndBanner(profilePic,bannerPic);
-        tvPopularity.setText(AoUtils.numberToStringOrZero(user.getNumber(ParseUserColumns.REPUTATION)));
-        if(!isCurrentUser) {
-            tvFollow.setVisibility(View.VISIBLE);
-            tvFollow.setTypeface(AozoraForumsApp.getAwesomeTypeface());
-            //SI LO ESTA SIGIENDO FOLLOWING, SINO FOLLOW
 
-            ParseRelation<ParseObject> relation = ParseUser.getCurrentUser().getRelation(ParseUserColumns.FOLLOWING);
-            relation.getQuery().findInBackground(new FindCallback<ParseObject>() {
+        if(!isProfile) {
+            selectedList = ProfileParseHelper.FOLLOWING_LIST;
+            tvFollowingTab.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void done(List<ParseObject> objects, ParseException e) {
-                    if(objects.contains(user)) {
-                        tvFollow.setText(getString(R.string.fa_check) +  " Following");
-                    }else {
-                        tvFollow.setText(getString(R.string.fa_plus) + " Follow");
+                public void onClick(View view) {
+                    if(selectedList != ProfileParseHelper.FOLLOWING_LIST) {
+                        if(!loadingMorePosts) {
+                            selectedList = ProfileParseHelper.FOLLOWING_LIST;
+                            vFollowingMark.setVisibility(View.VISIBLE);
+                            vAozoraMark.setVisibility(View.INVISIBLE);
+                            reloadPosts();
+                        } else {
+                            Toast.makeText(getActivity(),"Currently loading posts, please try in a few seconds",Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        scrollFeedToStart();
                     }
                 }
             });
-        }
-        String badgePro = ProfileUtils.badgesArrayToPro(user.getJSONArray(ParseUserColumns.BADGES));
-        if(badgePro == "")
-            tvPro.setVisibility(View.INVISIBLE);
-        else
-            tvPro.setText(badgePro);
-        String badge = ProfileUtils.badgesArrayToBadge(user.getJSONArray(ParseUserColumns.BADGES));
-        if(badge == "")
-            tvBadge.setVisibility(View.INVISIBLE);
-        else
-            tvBadge.setText(badge);
-        tvUsername.setText(user.getString(ParseUserColumns.AOZORA_USERNAME));
-        if(isCurrentUser)
-            tvLastActive.setText(getResources().getString(R.string.active_now));
-        else
-            tvLastActive.setText(ProfileUtils.lastActiveFromUser(user));
+            tvAozoraTab.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(selectedList != ProfileParseHelper.AOZORA_LIST) {
+                        if(!loadingMorePosts) {
+                            selectedList = ProfileParseHelper.AOZORA_LIST;
+                            vFollowingMark.setVisibility(View.INVISIBLE);
+                            vAozoraMark.setVisibility(View.VISIBLE);
+                            reloadPosts();
 
-        user.getParseObject(ParseUserColumns.DETAILS).fetchIfNeededInBackground(new GetCallback<UserDetails>() {
-            @Override
-            public void done(UserDetails object, ParseException e) {
-
-                if(object == null) {
-                    ParseQuery<UserDetails> queryDetails = ParseQuery.getQuery(UserDetails.class);
-                    queryDetails.setLimit(1);
-                    queryDetails.whereEqualTo(UserDetails.DETAILS_USER,user);
-                    queryDetails.findInBackground(new FindCallback<UserDetails>() {
-                        @Override
-                        public void done(List<UserDetails> objects, ParseException e) {
-                            if(objects != null && e != null && objects.size()>0) {
-                                userDetails = objects.get(0);
-                                loadUserDetails();
-                            }
+                        } else {
+                            Toast.makeText(getActivity(),"Currently loading posts, please try in a few seconds",Toast.LENGTH_SHORT).show();
                         }
-                    });
-                } else {
-                    userDetails = object;
-                    loadUserDetails();
+                    } else {
+                        scrollFeedToStart();
+                    }
                 }
-            }
-        });
-        ivMoreOptions.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String title = user.getString(ParseUserColumns.AOZORA_USERNAME);
-                Date joinDate = user.getDate(ParseUserColumns.JOIN_DATE);
-                DateFormat df = new SimpleDateFormat("MMM dd,yyyy");
-                String subtitle1 = "Member since: " + df.format(joinDate) ;
-                String subtitle2 = "Posts: " + postCount;
-                OptionListDialogFragment fragment = OptionListDialogFragment.newInstance(getActivity(),title,subtitle1,subtitle2,ProfileFragment.this, AoConstants.MY_PROFILE_OPTIONS_DIALOG);
-                fragment.setCancelable(true);
-                fragment.show(getFragmentManager(),"");
-            }
-        });
+            });
 
+            rvTimeline.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    if (loadingMorePosts)
+                        return;
+                    int visibleItemCount = llm.getChildCount();
+                    int totalItemCount = llm.getItemCount();
+                    int pastVisibleItems = llm.findFirstVisibleItemPosition();
+                    if (pastVisibleItems + visibleItemCount >= totalItemCount && !loadingMorePosts) {
+                        scrolledToEnd();
+                    }
+                }
+            });
 
-        if(!isProfile) {
-            llFeed.setVisibility(View.VISIBLE);
-            //Load Following
+            swipeRefreshFeed.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    reloadPosts();
+                }
+            });
 
         } else {
             //LoadProfile
-            new ProfileParseHelper(getActivity(),ProfileFragment.this)
-                    .GetProfilePosts(user,fetchCount*ProfileParseHelper.PROFILE_FETCH_LIMIT,ProfileParseHelper.PROFILE_FETCH_LIMIT,ProfileParseHelper.PROFILE_LIST);
-            fetchCount++;
+
+            selectedList = ProfileParseHelper.PROFILE_LIST;
+            ParseFile profilePic = user.getParseFile(ParseUserColumns.AVATAR_THUMB);
+            ParseFile bannerPic = user.getParseFile(ParseUserColumns.BANNER);
+            loadAvatarAndBanner(profilePic,bannerPic);
+            tvPopularity.setText(AoUtils.numberToStringOrZero(user.getNumber(ParseUserColumns.REPUTATION)));
+            if(!isCurrentUser) {
+                tvFollow.setVisibility(View.VISIBLE);
+                tvFollow.setTypeface(AozoraForumsApp.getAwesomeTypeface());
+                //SI LO ESTA SIGIENDO FOLLOWING, SINO FOLLOW
+
+                ParseRelation<ParseObject> relation = ParseUser.getCurrentUser().getRelation(ParseUserColumns.FOLLOWING);
+                relation.getQuery().findInBackground(new FindCallback<ParseObject>() {
+                    @Override
+                    public void done(List<ParseObject> objects, ParseException e) {
+                        if(objects.contains(user)) {
+                            tvFollow.setText(getString(R.string.fa_check) +  " Following");
+                        }else {
+                            tvFollow.setText(getString(R.string.fa_plus) + " Follow");
+                        }
+                    }
+                });
+            }
+            String badgePro = ProfileUtils.badgesArrayToPro(user.getJSONArray(ParseUserColumns.BADGES));
+            if(badgePro == "")
+                tvPro.setVisibility(View.INVISIBLE);
+            else
+                tvPro.setText(badgePro);
+            String badge = ProfileUtils.badgesArrayToBadge(user.getJSONArray(ParseUserColumns.BADGES));
+            if(badge == "")
+                tvBadge.setVisibility(View.INVISIBLE);
+            else
+                tvBadge.setText(badge);
+            tvUsername.setText(user.getString(ParseUserColumns.AOZORA_USERNAME));
+            if(isCurrentUser)
+                tvLastActive.setText(getResources().getString(R.string.active_now));
+            else
+                tvLastActive.setText(ProfileUtils.lastActiveFromUser(user));
+
+            user.getParseObject(ParseUserColumns.DETAILS).fetchIfNeededInBackground(new GetCallback<UserDetails>() {
+                @Override
+                public void done(UserDetails object, ParseException e) {
+
+                    if(object == null) {
+                        ParseQuery<UserDetails> queryDetails = ParseQuery.getQuery(UserDetails.class);
+                        queryDetails.setLimit(1);
+                        queryDetails.whereEqualTo(UserDetails.DETAILS_USER,user);
+                        queryDetails.findInBackground(new FindCallback<UserDetails>() {
+                            @Override
+                            public void done(List<UserDetails> objects, ParseException e) {
+                                if(objects != null && e != null && objects.size()>0) {
+                                    userDetails = objects.get(0);
+                                    loadUserDetails();
+                                }
+                            }
+                        });
+                    } else {
+                        userDetails = object;
+                        loadUserDetails();
+                    }
+                }
+            });
+            ivMoreOptions.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String title = user.getString(ParseUserColumns.AOZORA_USERNAME);
+                    Date joinDate = user.getDate(ParseUserColumns.JOIN_DATE);
+                    DateFormat df = new SimpleDateFormat("MMM dd,yyyy");
+                    String subtitle1 = "Member since: " + df.format(joinDate) ;
+                    String subtitle2 = "Posts: " + postCount;
+                    OptionListDialogFragment fragment = OptionListDialogFragment.newInstance(getActivity(),title,subtitle1,subtitle2,ProfileFragment.this, AoConstants.MY_PROFILE_OPTIONS_DIALOG);
+                    fragment.setCancelable(true);
+                    fragment.show(getFragmentManager(),"");
+                }
+            });
+
 
         }
+
+        new ProfileParseHelper(getActivity(),ProfileFragment.this)
+                .GetProfilePosts(user,fetchCount*ProfileParseHelper.PROFILE_FETCH_LIMIT,ProfileParseHelper.PROFILE_FETCH_LIMIT,selectedList);
+        fetchCount++;
+    }
+
+
+
+    private void reloadPosts() {
+        fetchCount = 0;
+        rvTimeline.setVisibility(View.GONE);
+        if(!isProfile)
+            pbLoading.setVisibility(View.VISIBLE);
+        lstTimelinePost.clear();
+        timelineAdapter.notifyDataSetChanged();
+        new ProfileParseHelper(getActivity(), ProfileFragment.this)
+                .GetProfilePosts(user, fetchCount * ProfileParseHelper.PROFILE_FETCH_LIMIT, ProfileParseHelper.PROFILE_FETCH_LIMIT, selectedList);
+        fetchCount++;
     }
 
     @Override
     public void onResume() {
         super.onResume();
-        scrollView.setVisibility(View.VISIBLE);
+        if(isProfile)
+            rvTimeline.setVisibility(View.VISIBLE);
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(user.getString(ParseUserColumns.AOZORA_USERNAME));
     }
 
@@ -275,19 +371,29 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
             timelineAdapter = new ProfileTimelineAdapter(getActivity(), lstTimelinePost, ProfileFragment.this, user);
             rvTimeline.setAdapter(timelineAdapter);
             pbLoading.setVisibility(View.GONE);
-            llProfileContent.setVisibility(View.VISIBLE);
-            ivProfileBanner.setVisibility(View.VISIBLE);
+            rvTimeline.setVisibility(View.VISIBLE);
+            if(isProfile) {
+                llProfileContent.setVisibility(View.VISIBLE);
+                ivProfileBanner.setVisibility(View.VISIBLE);
+                llProfileTimeline.setVisibility(View.VISIBLE);
+            }
+            else {
+                swipeRefreshFeed.setRefreshing(false);
+                llFeed.setVisibility(View.VISIBLE);
+                llFeedFragment.setVisibility(View.VISIBLE);
+            }
         } else {
             //remove progress item
             lstTimelinePost.remove(lstTimelinePost.size() - 1);
             timelineAdapter.notifyItemRemoved(lstTimelinePost.size());
-
-            for (int i = 0; i < ProfileParseHelper.PROFILE_FETCH_LIMIT; i++) {
-                lstTimelinePost.add(_timelinePosts.get(i));
+            if(_timelinePosts.size() > 0 ) {
+                for (int i = 0; i < _timelinePosts.size(); i++) {
+                    lstTimelinePost.add(_timelinePosts.get(i));
+                }
+                timelineAdapter.notifyItemRangeInserted((fetchCount - 1) * ProfileParseHelper.PROFILE_FETCH_LIMIT, lstTimelinePost.size());
             }
-            timelineAdapter.notifyItemRangeInserted((fetchCount-1)*ProfileParseHelper.PROFILE_FETCH_LIMIT, lstTimelinePost.size());
-            loadingMorePosts = false;
         }
+        loadingMorePosts = false;
 
 
     }
@@ -299,14 +405,23 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         int distanceToEnd = (view.getBottom() - (scrollView.getHeight() + scrollView.getScrollY()));
         // if diff is zero, then the bottom has been reached
         if (distanceToEnd < 500 && !loadingMorePosts) {
-
-            lstTimelinePost.add(new TimelinePost());
-            timelineAdapter.notifyItemInserted(lstTimelinePost.size());
-            loadingMorePosts = true;
-            new ProfileParseHelper(getActivity(),ProfileFragment.this)
-                    .GetProfilePosts(user,fetchCount*ProfileParseHelper.PROFILE_FETCH_LIMIT,ProfileParseHelper.PROFILE_FETCH_LIMIT,ProfileParseHelper.PROFILE_LIST);
-            fetchCount++;
+            scrolledToEnd();
         }
+    }
+
+    private void scrolledToEnd() {
+
+        loadingMorePosts = true;
+        lstTimelinePost.add(new TimelinePost());
+        rvTimeline.post(new Runnable() {
+            @Override
+            public void run() {
+                timelineAdapter.notifyItemInserted(lstTimelinePost.size());
+            }
+        });
+        new ProfileParseHelper(getActivity(), ProfileFragment.this)
+                .GetProfilePosts(user, fetchCount * ProfileParseHelper.PROFILE_FETCH_LIMIT, ProfileParseHelper.PROFILE_FETCH_LIMIT, selectedList);
+        fetchCount++;
     }
 
     @Override
@@ -370,7 +485,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
     public void onUsernameTapped(ParseUser userTapped) {
         if(!AoUtils.isActivityInvalid(getActivity())) {
             if(!user.getObjectId().equals(userTapped.getObjectId())) {
-                scrollView.setVisibility(View.GONE);
+                rvTimeline.setVisibility(View.GONE);
                 ProfileFragment pf = null;
                 if(ParseUser.getCurrentUser().getObjectId().equals(userTapped.getObjectId()))
                     pf = ProfileFragment.newInstance(userTapped, true, true);
@@ -381,5 +496,24 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
                 fragmentTransaction.add(R.id.flContent, pf).addToBackStack(null).commitAllowingStateLoss();
             }
         }
+    }
+
+    public void scrollFeedToStart() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                rvTimeline.scrollToPosition(0);
+            }
+        }, 200);
+    }
+
+    public void scrollProfileToStart() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                scrollView.scrollTo(0,0);
+            }
+        }, 200);
+
     }
 }
