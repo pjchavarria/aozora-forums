@@ -10,6 +10,16 @@ import com.parse.ParseObject;
 @ParseClassName("TimelinePost")
 public class TimelinePost extends ParseObject {
 
+    public TimelinePost getRepostFather() {
+        return repostFather;
+    }
+
+    public void setRepostFather(TimelinePost repostFather) {
+        this.repostFather = repostFather;
+    }
+
+    private TimelinePost repostFather;
+
     public static String NON_SPOILER_CONTENT = "nonSpoilerContent";
     public static String LIKED_BY = "likedBy";
     public static String REPLY_COUNT = "replyCount";

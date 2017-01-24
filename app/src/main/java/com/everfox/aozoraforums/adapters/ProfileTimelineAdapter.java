@@ -108,8 +108,9 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 //OMG ES REPOST SOUND THE FKING ALARM
                 TimelinePost repost = (TimelinePost) timelinePost.getParseObject(TimelinePost.REPOST_SOURCE);
                 ParseUser userWhoPosted = repost.getParseUser(TimelinePost.POSTED_BY);
+                ParseUser userWhoPostedRepost = timelinePost.getParseUser(TimelinePost.POSTED_BY);
                 loadPicOriginalPoster(itemViewHolder, userWhoPosted);
-                itemViewHolder.tvRepostedBy.setText(context.getString(R.string.fa_icon_reposted_by) + " " + currentUser.getString(ParseUserColumns.AOZORA_USERNAME) + " Reposted");
+                itemViewHolder.tvRepostedBy.setText(context.getString(R.string.fa_icon_reposted_by) + " " + userWhoPostedRepost.getString(ParseUserColumns.AOZORA_USERNAME) + " Reposted");
                 itemViewHolder.tvRepostedBy.setTypeface(awesomeTypeface);
                 loadTimelinePostInfo(repost, itemViewHolder);
             } else {

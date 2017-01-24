@@ -12,6 +12,7 @@ import android.text.Html;
 import android.text.Spanned;
 
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.models.UserDetails;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -21,6 +22,8 @@ import com.parse.ParseUser;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import javax.net.ssl.HostnameVerifier;
@@ -162,6 +165,28 @@ public class AoUtils {
                 return Arrays.asList(context.getResources().getStringArray(R.array.reputation_ranks));
         }
         return new ArrayList<String>();
+    }
+
+    public static ArrayList<TimelinePost> clearTimelinePostDuplicates(ArrayList<TimelinePost> timelinePosts) {
+        ArrayList<TimelinePost> newPostList = new ArrayList<>(timelinePosts);
+        ArrayList<Integer> lstIDS = new ArrayList<>();
+        for(int i=0;i<newPostList.size();i++) {
+            TimelinePost originalPost =(TimelinePost) newPostList.get(i).getParseObject(TimelinePost.REPOST_SOURCE);
+            if(originalPost != null) {
+                originalPost.setRepostFather(newPostList.get(i));
+                newPostList.remove(i);
+                newPostList.add(i,originalPost);
+            }
+        }
+        newPostList = new ArrayList<>(new LinkedHashSet<>(newPostList));
+        for(int i=0;i<newPostList.size();i++) {
+            TimelinePost repostFather =newPostList.get(i).getRepostFather();
+            if(repostFather != null) {
+                newPostList.remove(i);
+                newPostList.add(i,repostFather);
+            }
+        }
+        return newPostList;
     }
 
 }

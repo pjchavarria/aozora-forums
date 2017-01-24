@@ -165,7 +165,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
                             selectedList = ProfileParseHelper.FOLLOWING_LIST;
                             vFollowingMark.setVisibility(View.VISIBLE);
                             vAozoraMark.setVisibility(View.INVISIBLE);
-                            reloadPosts();
+                            reloadPosts(false);
                         } else {
                             Toast.makeText(getActivity(),"Currently loading posts, please try in a few seconds",Toast.LENGTH_SHORT).show();
                         }
@@ -182,7 +182,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
                             selectedList = ProfileParseHelper.AOZORA_LIST;
                             vFollowingMark.setVisibility(View.INVISIBLE);
                             vAozoraMark.setVisibility(View.VISIBLE);
-                            reloadPosts();
+                            reloadPosts(false);
 
                         } else {
                             Toast.makeText(getActivity(),"Currently loading posts, please try in a few seconds",Toast.LENGTH_SHORT).show();
@@ -210,10 +210,11 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
             swipeRefreshFeed.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
-                    reloadPosts();
+                    reloadPosts(true);
                 }
             });
 
+            scrollView.setVisibility(View.GONE);
         } else {
             //LoadProfile
 
@@ -302,11 +303,13 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
 
 
 
-    private void reloadPosts() {
+    private void reloadPosts(Boolean isFromPull) {
         fetchCount = 0;
-        rvTimeline.setVisibility(View.GONE);
-        if(!isProfile)
-            pbLoading.setVisibility(View.VISIBLE);
+        if(!isFromPull) {
+            rvTimeline.setVisibility(View.GONE);
+            if (!isProfile)
+                pbLoading.setVisibility(View.VISIBLE);
+        }
         lstTimelinePost.clear();
         timelineAdapter.notifyDataSetChanged();
         new ProfileParseHelper(getActivity(), ProfileFragment.this)
@@ -364,9 +367,10 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
     }
 
     @Override
-    public void onGetProfilePosts(final List<TimelinePost> _timelinePosts) {
+    public void onGetProfilePosts(List<TimelinePost> _timelinePosts) {
 
         if(timelineAdapter.getItemCount() == 0) {
+            _timelinePosts = AoUtils.clearTimelinePostDuplicates(new ArrayList<>(_timelinePosts));
             lstTimelinePost.addAll(_timelinePosts);
             timelineAdapter = new ProfileTimelineAdapter(getActivity(), lstTimelinePost, ProfileFragment.this, user);
             rvTimeline.setAdapter(timelineAdapter);
@@ -387,10 +391,15 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
             lstTimelinePost.remove(lstTimelinePost.size() - 1);
             timelineAdapter.notifyItemRemoved(lstTimelinePost.size());
             if(_timelinePosts.size() > 0 ) {
-                for (int i = 0; i < _timelinePosts.size(); i++) {
-                    lstTimelinePost.add(_timelinePosts.get(i));
+                int currentPosition = lstTimelinePost.size();
+                ArrayList<TimelinePost> auxList = new ArrayList<>();
+                auxList.addAll(lstTimelinePost);
+                auxList.addAll(_timelinePosts);
+                auxList = AoUtils.clearTimelinePostDuplicates(auxList);
+                for (int i = lstTimelinePost.size(); i < auxList.size(); i++) {
+                    lstTimelinePost.add(auxList.get(i));
                 }
-                timelineAdapter.notifyItemRangeInserted((fetchCount - 1) * ProfileParseHelper.PROFILE_FETCH_LIMIT, lstTimelinePost.size());
+                timelineAdapter.notifyItemRangeInserted(currentPosition, lstTimelinePost.size() - currentPosition);
             }
         }
         loadingMorePosts = false;

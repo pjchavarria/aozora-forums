@@ -18,13 +18,19 @@
 
         />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rvPostComments"
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshPost"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_above="@+id/llAddComment"
-        android:background="@color/grayF6"
-        ></android.support.v7.widget.RecyclerView>
+        >
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rvPostComments"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/grayF6"
+            ></android.support.v7.widget.RecyclerView>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
     <LinearLayout
         android:id="@+id/llAddComment"

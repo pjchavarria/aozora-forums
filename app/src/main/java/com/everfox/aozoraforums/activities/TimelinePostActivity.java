@@ -3,6 +3,7 @@ package com.everfox.aozoraforums.activities;
 import android.content.Intent;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -37,6 +38,7 @@ public class TimelinePostActivity extends AppCompatActivity implements PostParse
     TimelinePost parentPost;
     LinearLayoutManager llm;
     TimelinePostsAdapter postsAdapter;
+    Boolean isLoading = false;
 
     @BindView(R.id.pbLoading)
     ProgressBar pbLoading;
@@ -44,6 +46,8 @@ public class TimelinePostActivity extends AppCompatActivity implements PostParse
     RecyclerView rvPostComments;
     @BindView(R.id.llAddComment)
     LinearLayout llAddComment;
+    @BindView(R.id.swipeRefreshPost)
+    SwipeRefreshLayout swipeRefreshPost;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +63,21 @@ public class TimelinePostActivity extends AppCompatActivity implements PostParse
         rvPostComments.setVisibility(View.GONE);
         new PostParseHelper(this,this)
                 .GetTimelinePostComments(parentPost,0,2000);
+        swipeRefreshPost.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if(!isLoading)
+                    reloadPosts();
+            }
+        });
+        isLoading = true;
+    }
+
+    private void reloadPosts() {
+
+        isLoading = true;
+        new PostParseHelper(this,this)
+                .GetTimelinePostComments(parentPost,0,2000);
     }
 
     @Override
@@ -70,18 +89,20 @@ public class TimelinePostActivity extends AppCompatActivity implements PostParse
     @Override
     public void onTimelinePostComments(List<TimelinePost> timelinePosts) {
 
+        swipeRefreshPost.setRefreshing(false);
+        timelinePosts.add(0,parentPost);
+        postsAdapter = new TimelinePostsAdapter(TimelinePostActivity.this, timelinePosts, TimelinePostActivity.this, ParseUser.getCurrentUser());
+        rvPostComments.setAdapter(postsAdapter);
+        pbLoading.setVisibility(View.GONE);
+        rvPostComments.setVisibility(View.VISIBLE);
         if(postsAdapter.getItemCount() == 0) {
-            timelinePosts.add(0,parentPost);
-            postsAdapter = new TimelinePostsAdapter(TimelinePostActivity.this, timelinePosts, TimelinePostActivity.this, ParseUser.getCurrentUser());
-            rvPostComments.setAdapter(postsAdapter);
-            pbLoading.setVisibility(View.GONE);
-            rvPostComments.setVisibility(View.VISIBLE);
             RecyclerView.RecycledViewPool recycledViewPool = rvPostComments.getRecycledViewPool();
             recycledViewPool.setMaxRecycledViews(TimelinePostsAdapter.ITEM_FIRST_POST,0);
             recycledViewPool.setMaxRecycledViews(TimelinePostsAdapter.ITEM_COMMENT,0);
             rvPostComments.setRecycledViewPool(recycledViewPool);
             rvPostComments.setItemViewCacheSize(200);
         }
+        isLoading = false;
     }
 
     @Override
