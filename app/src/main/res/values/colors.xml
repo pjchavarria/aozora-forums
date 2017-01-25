@@ -6,8 +6,12 @@
 
     <color name="colorWhite">#FFFFFF</color>
     <color name="colorBlack">#000000</color>
+    <color name="grayA5">#A5A5A5</color>
     <color name="grayC5">#C5C5C5</color>
+    <color name="grayF5">#F5F5F5</color>
+    <color name="grayF8">#F8F8F8</color>
 
+    <color name="grayE4">#E4E4E4</color>
     <color name="grayE5">#E5E5E5</color>
     <color name="grayF6">#F6F6F6</color>
     <color name="gray3C">#3C3C3C</color>

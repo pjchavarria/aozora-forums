@@ -12,10 +12,13 @@ import android.text.Html;
 import android.text.Spanned;
 
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.models.AoNotification;
+import com.everfox.aozoraforums.models.PUser;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.models.UserDetails;
 import com.parse.GetCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
@@ -189,4 +192,20 @@ public class AoUtils {
         return newPostList;
     }
 
+    public static ArrayList<AoNotification> filterNotifications(ArrayList<AoNotification> notifications) {
+        ArrayList<AoNotification> filteredNotifications = new ArrayList<>();
+        for(int i=0;i<notifications.size();i++) {
+            AoNotification notification = notifications.get(i);
+            List<PUser> pUserList = notification.getList(AoNotification.TRIGGERED_BY);
+            if(pUserList == null) {
+                filteredNotifications.add(notification);
+                break;
+            }
+            if(pUserList.size() > 1 ||
+                    pUserList.size() == 1 && !pUserList.get(0).equals(ParseUser.getCurrentUser())) {
+                filteredNotifications.add(notification);
+            }
+        }
+        return filteredNotifications;
+    }
 }

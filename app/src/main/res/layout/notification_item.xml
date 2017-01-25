@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/grayF5"
+    android:layout_marginBottom="2dp"
+    android:paddingTop="5dp"
+    android:paddingBottom="5dp"
+    >
+
+    <com.everfox.aozoraforums.controls.RoundedImageView
+        android:id="@+id/ivAvatar"
+        android:layout_width="45dp"
+        android:layout_height="45dp"
+        android:src="@drawable/default_avatar"
+        android:scaleType="fitXY"
+        android:adjustViewBounds="true"
+        android:visibility="visible"
+        android:layout_marginTop="5dp"
+        android:layout_marginLeft="10dp"
+        />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="5dp"
+        android:layout_marginRight="5dp"
+        android:layout_marginTop="10dp"
+        >
+
+        <TextView
+            android:id="@+id/tvNotificationText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/gray3C"
+            android:text="User x is following you!"
+            />
+        <TextView
+            android:id="@+id/tvNotificationWhen"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="4hrs ago"
+            android:layout_marginTop="2dp"
+            />
+
+    </LinearLayout>
+
+</LinearLayout>

@@ -35,6 +35,7 @@ import com.everfox.aozoraforums.adapters.ProfileTimelineAdapter;
 import com.everfox.aozoraforums.adapters.TimelinePostsAdapter;
 import com.everfox.aozoraforums.controls.CustomTypefaceSpan;
 import com.everfox.aozoraforums.controls.FrescoGifListener;
+import com.everfox.aozoraforums.models.AoNotification;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.facebook.drawee.backends.pipeline.Fresco;
@@ -236,6 +237,33 @@ public class PostUtils {
 
     }
 
+    public static String getWhenNotificationWasUpdate(AoNotification notification) {
+
+        Date lastUpdated = notification.getDate(AoNotification.LAST_UPDATED_AT);
+        if(lastUpdated == null) {
+            lastUpdated = notification.getUpdatedAt();
+        }
+        Date currentDate = Calendar.getInstance().getTime();
+        int secondsDiff = (int) DateUtils.getSecondsDiff(lastUpdated,currentDate);
+        int weeksAgo =  (secondsDiff/(7*24*60*60));
+        if ( weeksAgo > 0) {
+            return String.valueOf(weeksAgo) + " " + (weeksAgo == 1? "week" : "weeks");
+        }
+        int daysAgo =  (secondsDiff/(24*60*60));
+        if ( daysAgo > 0) {
+            return String.valueOf(daysAgo) + " " + (daysAgo == 1? "day" : "days");
+        }
+        int hoursAgo =  (secondsDiff/(60*60));
+        if ( hoursAgo > 0) {
+            return String.valueOf(hoursAgo) + " " + (hoursAgo == 1? "hr" : "hrs");
+        }
+        int minutesAgo =  (secondsDiff/(60));
+        if ( minutesAgo > 0) {
+            return String.valueOf(minutesAgo) + " " + (minutesAgo == 1? "min" : "mins");
+        }
+
+        return "Just now";
+    }
 
     public static String getWhenWasPosted(TimelinePost timelinePost) {
 

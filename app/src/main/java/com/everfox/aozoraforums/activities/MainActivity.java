@@ -15,6 +15,7 @@ import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.controllers.FriendsController;
 import com.everfox.aozoraforums.fragments.ForumsFragment;
+import com.everfox.aozoraforums.fragments.NotificationsFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.facebook.drawee.backends.pipeline.Fresco;
@@ -29,6 +30,7 @@ public class MainActivity extends AppCompatActivity {
     ProfileFragment profileFragment;
     ForumsFragment forumsFragmentf;
     ProfileFragment feedFragment;
+    NotificationsFragment notificationsFragment;
     LinearLayout llNavBar;
 
     @Override
@@ -77,6 +79,18 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        btnNotifications.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (selectedFragmentIndex != 1 ) {
+                    selectedFragmentIndex = 1;
+                    //cambiamos el icono del boton a "selected"
+
+                    //Cargamos Notification Fragment
+                    OpenNotificationFragment();
+                }
+            }
+        });
 
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
@@ -96,6 +110,17 @@ public class MainActivity extends AppCompatActivity {
         FriendsController.fetchFollowing();
     }
 
+    private void OpenNotificationFragment() {
+        if(!AoUtils.isActivityInvalid(MainActivity.this)) {
+            if (notificationsFragment == null)
+                notificationsFragment = NotificationsFragment.newInstance();
+            else
+                notificationsFragment.scrollFeedToStart();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.flContent, notificationsFragment).commitAllowingStateLoss();
+        }
+    }
 
 
     private void OpenFeedFragment(ParseUser user) {

@@ -4,6 +4,7 @@ import android.app.Application;
 import android.graphics.Typeface;
 
 import com.everfox.aozoraforums.activities.MainActivity;
+import com.everfox.aozoraforums.models.AoNotification;
 import com.everfox.aozoraforums.models.PUser;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.models.UserDetails;
@@ -60,6 +61,7 @@ public class AozoraForumsApp extends Application {
         ParseObject.registerSubclass(UserDetails.class);
         ParseObject.registerSubclass(TimelinePost.class);
         ParseObject.registerSubclass(PUser.class);
+        ParseObject.registerSubclass(AoNotification.class);
 
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId("AneKeKPLygTGmVmqWsY6totXXTQfk8")
