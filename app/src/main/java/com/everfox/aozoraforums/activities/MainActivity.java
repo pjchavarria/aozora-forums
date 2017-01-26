@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
     private void OpenFeedFragment(ParseUser user) {
         if(!AoUtils.isActivityInvalid(MainActivity.this)) {
             if (feedFragment == null)
-                feedFragment = ProfileFragment.newInstance(user, false, true);
+                feedFragment = ProfileFragment.newInstance(user, false, true,null);
             else
                 feedFragment.scrollFeedToStart();
             FragmentManager fragmentManager = getSupportFragmentManager();
@@ -150,9 +150,9 @@ public class MainActivity extends AppCompatActivity {
         if(!AoUtils.isActivityInvalid(MainActivity.this)) {
             if (profileFragment == null)
                 if(ParseUser.getCurrentUser().getObjectId().equals(user.getObjectId()))
-                    profileFragment = ProfileFragment.newInstance(user, true, true);
+                    profileFragment = ProfileFragment.newInstance(user, true, true,null);
                 else
-                    profileFragment = ProfileFragment.newInstance(user, true, false);
+                    profileFragment = ProfileFragment.newInstance(user, true, false,null);
             else
                 profileFragment.scrollProfileToStart();
             FragmentManager fragmentManager = getSupportFragmentManager();

@@ -1,9 +1,13 @@
 package com.everfox.aozoraforums.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -11,9 +15,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.activities.TimelinePostActivity;
 import com.everfox.aozoraforums.adapters.NotificationsAdapter;
 import com.everfox.aozoraforums.adapters.TimelinePostsAdapter;
@@ -21,8 +27,10 @@ import com.everfox.aozoraforums.controllers.NotificationsHelper;
 import com.everfox.aozoraforums.controllers.PostParseHelper;
 import com.everfox.aozoraforums.controllers.ProfileParseHelper;
 import com.everfox.aozoraforums.models.AoNotification;
+import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.AoUtils;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
@@ -43,6 +51,8 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
     ArrayList<AoNotification> lstNotifications = new ArrayList<>();
     int fetchCount = 0;
 
+    @BindView(R.id.fabReadAll)
+    FloatingActionButton fabReadAll;
 
     @BindView(R.id.pbLoading)
     ProgressBar pbLoading;
@@ -105,6 +115,14 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
                 }
             }
         });
+
+        fabReadAll.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Toast.makeText(getActivity(),"Read all tapped",Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     private void scrolledToEnd() {
@@ -141,6 +159,7 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
             rvNotifications.setAdapter(notiAdapter);
             pbLoading.setVisibility(View.GONE);
             rvNotifications.setVisibility(View.VISIBLE);
+            fabReadAll.setVisibility(View.VISIBLE);
             swipeRefreshNoti.setRefreshing(false);
         } else {
             lstNotifications.remove(lstNotifications.size()-1);
@@ -173,5 +192,22 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
     @Override
     public void mOnNotificationTapped(AoNotification notificationTaped) {
 
+        if(notificationTaped.getString(AoNotification.TARGET_CLASS).equals(TimelinePost.TABLE_NAME)) {
+            Intent i = new Intent(getActivity(), TimelinePostActivity.class);
+            i.putExtra(TimelinePostActivity.EXTRA_TIMELINEPOST_ID, notificationTaped.getString(AoNotification.TARGET_ID));
+            startActivity(i);
+        } else if (notificationTaped.getString(AoNotification.TARGET_CLASS).equals(ParseUserColumns.TABLE_NAME)) {
+            if(!AoUtils.isActivityInvalid(getActivity())) {
+                String userID = notificationTaped.getString(AoNotification.TARGET_ID);
+                ProfileFragment profileFragment = null;
+                if(ParseUser.getCurrentUser().getObjectId().equals(userID))
+                    profileFragment = ProfileFragment.newInstance(ParseUser.getCurrentUser(), true, true,null);
+                else
+                    profileFragment = ProfileFragment.newInstance(null, true, false,userID);
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.add(R.id.flContent, profileFragment).addToBackStack(null).commitAllowingStateLoss();
+            }
+        }
     }
 }

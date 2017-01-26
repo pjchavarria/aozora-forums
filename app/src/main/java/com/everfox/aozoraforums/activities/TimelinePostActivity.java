@@ -9,9 +9,11 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
@@ -24,6 +26,9 @@ import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.AoUtils;
+import com.parse.GetCallback;
+import com.parse.ParseException;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.sql.Time;
@@ -34,6 +39,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class TimelinePostActivity extends AppCompatActivity implements PostParseHelper.OnGetTimelinePostCommentsListener, TimelinePostsAdapter.OnUsernameTappedListener {
+
+    public static String EXTRA_TIMELINEPOST_ID = "TimelinePostID";
 
     TimelinePost parentPost;
     LinearLayoutManager llm;
@@ -48,6 +55,10 @@ public class TimelinePostActivity extends AppCompatActivity implements PostParse
     LinearLayout llAddComment;
     @BindView(R.id.swipeRefreshPost)
     SwipeRefreshLayout swipeRefreshPost;
+    @BindView(R.id.rlContent)
+    RelativeLayout rlContent;
+    @BindView(R.id.flNewFragments)
+    FrameLayout flNewFragments;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,15 +72,45 @@ public class TimelinePostActivity extends AppCompatActivity implements PostParse
         rvPostComments.setAdapter(postsAdapter);
         pbLoading.setVisibility(View.VISIBLE);
         rvPostComments.setVisibility(View.GONE);
-        new PostParseHelper(this,this)
-                .GetTimelinePostComments(parentPost,0,2000);
         swipeRefreshPost.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                if(!isLoading)
+                if (!isLoading)
                     reloadPosts();
             }
         });
+
+        if(getIntent().hasExtra(EXTRA_TIMELINEPOST_ID)) {
+            String timelinePostID = getIntent().getStringExtra(EXTRA_TIMELINEPOST_ID);
+            ParseQuery<TimelinePost> postParseQuery = ParseQuery.getQuery(TimelinePost.class);
+            postParseQuery.whereEqualTo(TimelinePost.OBJECT_ID,timelinePostID);
+            postParseQuery.getFirstInBackground(new GetCallback<TimelinePost>() {
+                @Override
+                public void done(TimelinePost object, ParseException e) {
+                    if(object != null && e==null) {
+                        parentPost = object;
+                        setTitle(parentPost.getParseObject(TimelinePost.POSTED_BY).getString(ParseUserColumns.AOZORA_USERNAME));
+                        new PostParseHelper(TimelinePostActivity.this, TimelinePostActivity.this)
+                                .GetTimelinePostComments(parentPost, 0, 2000);
+                    } else {
+                        Toast.makeText(TimelinePostActivity.this,"A problem occured, try again later",Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                }
+            });
+        } else {
+
+            new PostParseHelper(this, this)
+                    .GetTimelinePostComments(parentPost, 0, 2000);
+            swipeRefreshPost.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    if (!isLoading)
+                        reloadPosts();
+                }
+            });
+        }
+
         isLoading = true;
     }
 
@@ -83,7 +124,8 @@ public class TimelinePostActivity extends AppCompatActivity implements PostParse
     @Override
     protected void onResume() {
         super.onResume();
-        setTitle(parentPost.getParseObject(TimelinePost.POSTED_BY).getString(ParseUserColumns.AOZORA_USERNAME));
+        if(parentPost != null)
+            setTitle(parentPost.getParseObject(TimelinePost.POSTED_BY).getString(ParseUserColumns.AOZORA_USERNAME));
     }
 
     @Override
@@ -110,10 +152,22 @@ public class TimelinePostActivity extends AppCompatActivity implements PostParse
 
         if(!AoUtils.isActivityInvalid(TimelinePostActivity.this)) {
             //Abrimos Main Activity y le mandamos usuario
+
+            /*
             AozoraForumsApp.setProfileToPass(userTapped);
             Toast.makeText(this,userTapped.getString(ParseUserColumns.AOZORA_USERNAME),Toast.LENGTH_SHORT).show();
             Intent i = new Intent(this,MainActivity.class);
             startActivity(i);
+            */
+            ProfileFragment profileFragment = null;
+            if(ParseUser.getCurrentUser().getObjectId().equals(userTapped.getObjectId()))
+                profileFragment = ProfileFragment.newInstance(ParseUser.getCurrentUser(), true, true,null);
+            else
+                profileFragment = ProfileFragment.newInstance(userTapped, true, false,null);
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.add(R.id.flNewFragments, profileFragment).addToBackStack(null).commitAllowingStateLoss();
+
         }
     }
 }

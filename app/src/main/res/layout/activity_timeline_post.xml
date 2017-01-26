@@ -2,107 +2,117 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-
     android:background="@color/colorWhite"
     >
 
 
-    <ProgressBar
-        android:id="@+id/pbLoading"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        style="@style/Base.Widget.AppCompat.ProgressBar"
-        android:indeterminate="true"
-        android:visibility="gone"
-        android:layout_centerInParent="true"
-
-        />
-
-    <android.support.v4.widget.SwipeRefreshLayout
-        android:id="@+id/swipeRefreshPost"
+    <RelativeLayout
+        android:id="@+id/rlContent"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/llAddComment"
-        >
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rvPostComments"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/grayF6"
-            ></android.support.v7.widget.RecyclerView>
-    </android.support.v4.widget.SwipeRefreshLayout>
+        android:layout_height="match_parent">
 
-    <LinearLayout
-        android:id="@+id/llAddComment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:orientation="vertical"
-        android:background="@color/colorWhite"
-        android:paddingBottom="5dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="10dp"
-        >
-        <EditText
-            android:id="@+id/etComment"
-            android:layout_width="match_parent"
+        <ProgressBar
+            android:id="@+id/pbLoading"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="Write a comment"
-            android:paddingLeft="10dp"
-            android:paddingBottom="3dp"
-            android:paddingTop="3dp"
-            android:background="@null"
+            style="@style/Base.Widget.AppCompat.ProgressBar"
+            android:indeterminate="true"
+            android:visibility="gone"
+            android:layout_centerInParent="true"
+
             />
-        <LinearLayout
-            android:orientation="horizontal"
+
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshPost"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingLeft="10dp">
-            
-            <ImageView
-                android:id="@+id/ivAddPhotoGallery"
-                android:layout_width="wrap_content"
+            android:layout_above="@+id/llAddComment"
+            >
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rvPostComments"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:src="@drawable/icon_like_small"
-                />
-            <ImageView
-                android:id="@+id/ivAddPhotoInternet"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:src="@drawable/icon_like_small"
-                />
+                android:background="@color/grayF6"
+                ></android.support.v7.widget.RecyclerView>
+        </android.support.v4.widget.SwipeRefreshLayout>
 
-            <ImageView
-                android:id="@+id/tvAddVideo"
-                android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/llAddComment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:orientation="vertical"
+            android:background="@color/colorWhite"
+            android:paddingBottom="5dp"
+            android:paddingLeft="5dp"
+            android:paddingRight="10dp"
+            >
+            <EditText
+                android:id="@+id/etComment"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:src="@drawable/icon_like_small"
-                />
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <Button
-                android:id="@+id/btnSendComment"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Send"
-                android:textAllCaps="false"
-                android:background="@drawable/button_send"
-                android:textColor="@color/colorWhite"
+                android:hint="Write a comment"
                 android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="7dp"
-                android:paddingBottom="7dp"
-                android:minHeight="0dp"
-                android:minWidth="0dp"
-
+                android:paddingBottom="3dp"
+                android:paddingTop="3dp"
+                android:background="@null"
                 />
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp">
 
+                <ImageView
+                    android:id="@+id/ivAddPhotoGallery"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/icon_like_small"
+                    />
+                <ImageView
+                    android:id="@+id/ivAddPhotoInternet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:src="@drawable/icon_like_small"
+                    />
+
+                <ImageView
+                    android:id="@+id/tvAddVideo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:src="@drawable/icon_like_small"
+                    />
+
+                <Space
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <Button
+                    android:id="@+id/btnSendComment"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Send"
+                    android:textAllCaps="false"
+                    android:background="@drawable/button_send"
+                    android:textColor="@color/colorWhite"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="7dp"
+                    android:paddingBottom="7dp"
+                    android:minHeight="0dp"
+                    android:minWidth="0dp"
+
+                    />
+
+            </LinearLayout>
         </LinearLayout>
-    </LinearLayout>
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/flNewFragments"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"></FrameLayout>
 </RelativeLayout>

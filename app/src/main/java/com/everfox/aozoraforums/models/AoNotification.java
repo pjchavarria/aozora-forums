@@ -19,4 +19,6 @@ public class AoNotification extends ParseObject {
     public static String MESSAGE_OWNER = "messageOwner";
     public static String PREVIOUS_MESSAGE = "previousMessage";
     public static String MESSAGE = "message";
+    public static String TARGET_ID = "targetID";
+    public static String TARGET_CLASS = "targetClass";
 }

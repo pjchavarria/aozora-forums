@@ -114,6 +114,13 @@ public class NotificationsAdapter extends RecyclerView.Adapter<RecyclerView.View
             }
 
             vh.tvNotificationWhen.setText(PostUtils.getWhenNotificationWasUpdate(notification));
+
+            vh.itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mOnNotificationTappedCallback.mOnNotificationTapped(notification);
+                }
+            });
         }
     }
 

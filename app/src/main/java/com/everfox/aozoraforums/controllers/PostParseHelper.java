@@ -64,8 +64,5 @@ public class PostParseHelper {
                     mOnGetTimelinePostCommentsCallback.onTimelinePostComments(objects);
             }
         });
-
-
-
     }
 }

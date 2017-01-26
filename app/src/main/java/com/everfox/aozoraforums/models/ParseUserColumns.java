@@ -18,4 +18,5 @@ public class ParseUserColumns {
     public static String ACTIVE_START = "activeStart";
     public static String FOLLOWING = "following";
     public static String OBJECT_ID = "objectId";
+    public static String TABLE_NAME = "_User";
 }

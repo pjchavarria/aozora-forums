@@ -46,6 +46,9 @@ public class TimelinePost extends ParseObject {
     public static String EPISODE = "episode";
     public static String REPOST_COUNT = "repostCount";
     public static String YOUTUBE_ID = "youtubeID";
+    public static String OBJECT_ID = "objectId";
 
     public static String CREATED_AT = "createdAt";
+
+    public static String TABLE_NAME = "TimelinePost";
 }
