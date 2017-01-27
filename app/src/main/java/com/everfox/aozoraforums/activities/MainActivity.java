@@ -14,6 +14,7 @@ import android.widget.TextView;
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.controllers.FriendsController;
+import com.everfox.aozoraforums.fragments.FollowersFragment;
 import com.everfox.aozoraforums.fragments.ForumsFragment;
 import com.everfox.aozoraforums.fragments.NotificationsFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
@@ -96,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onBackStackChanged() {
                 Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.flContent);
-                if (currentFragment instanceof ProfileFragment) {
+                if (currentFragment != null && currentFragment instanceof ProfileFragment || currentFragment instanceof FollowersFragment) {
                     currentFragment.onResume();
                 }
             }

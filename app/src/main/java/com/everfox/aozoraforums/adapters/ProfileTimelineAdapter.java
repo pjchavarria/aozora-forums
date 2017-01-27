@@ -155,6 +155,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         holder.tvCommentSpoilerOpen.setVisibility(View.GONE);
         holder.tvCommentSpoilerText.setVisibility(View.GONE);
         holder.llLinkLayout.setVisibility(View.GONE);
+        holder.tvViewPreviousComments.setVisibility(View.GONE);
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         holder.ivPostImage.setLayoutParams(lp);
 
@@ -218,6 +219,11 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
         //LastReply
         if(post.getParseObject(TimelinePost.LAST_REPLY) != null) {
+
+            if(post.getInt(TimelinePost.REPLY_COUNT)>1) {
+                holder.tvViewPreviousComments.setVisibility(View.VISIBLE);
+            }
+
             TimelinePost lastReply = (TimelinePost) post.getParseObject(TimelinePost.LAST_REPLY);
             ParseUser userLastComment = (ParseUser)lastReply.getParseObject(TimelinePost.POSTED_BY);
             PostUtils.loadAvatarPic(userLastComment.getParseFile(ParseUserColumns.AVATAR_THUMB), holder.ivCommentAvatar);
@@ -314,6 +320,9 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
         @BindView(R.id.llLastComment)
         LinearLayout llLastComment;
+
+        @BindView(R.id.tvViewPreviousComments)
+        TextView tvViewPreviousComments;
         @BindView(R.id.ivCommentAvatar) ImageView ivCommentAvatar;
         @BindView(R.id.tvCommentUserActive) View tvCommentUserActive;
         @BindView(R.id.tvCommentText) TextView tvCommentText;

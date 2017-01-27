@@ -259,36 +259,46 @@
                         android:paddingBottom="5dp"
                         >
 
-                        <TextView
-                            android:id="@+id/tvFollowing"
-                            android:textColor="@color/colorBlack"
-                            android:text="999"
+                        <LinearLayout
+                            android:id="@+id/llFollowing"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
+                            android:layout_height="wrap_content">
 
-                        <TextView
-                            android:text="FOLLOWING"
-                            android:layout_marginLeft="2dp"
+                            <TextView
+                                android:id="@+id/tvFollowing"
+                                android:textColor="@color/colorBlack"
+                                android:text="999"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
+
+                            <TextView
+                                android:text="FOLLOWING"
+                                android:layout_marginLeft="2dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/grayC5" />
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:id="@+id/llFollowers"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/grayC5" />
+                            android:layout_height="wrap_content">
+                            <TextView
+                                android:layout_marginLeft="20dp"
+                                android:id="@+id/tvFollowers"
+                                android:textColor="@color/colorBlack"
+                                android:text="999"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content" />
 
-
-                        <TextView
-                            android:layout_marginLeft="20dp"
-                            android:id="@+id/tvFollowers"
-                            android:textColor="@color/colorBlack"
-                            android:text="999"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content" />
-
-                        <TextView
-                            android:text="FOLLOWERS"
-                            android:layout_marginLeft="2dp"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:textColor="@color/grayC5"
-                            />
+                            <TextView
+                                android:text="FOLLOWERS"
+                                android:layout_marginLeft="2dp"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/grayC5"
+                                />
+                            </LinearLayout>
                     </LinearLayout>
 
                 </LinearLayout>

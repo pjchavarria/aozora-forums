@@ -1,6 +1,7 @@
 package com.everfox.aozoraforums.models;
 
 import com.parse.ParseClassName;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 /**
@@ -9,4 +10,16 @@ import com.parse.ParseUser;
 
 @ParseClassName("_User")
 public class PUser extends ParseUser {
+
+    private Boolean isFollowingThisUser;
+
+    public Boolean getFollowingThisUser() {
+        if(isFollowingThisUser == null)
+            return false;
+        return isFollowingThisUser;
+    }
+
+    public void setFollowingThisUser(Boolean followingThisUser) {
+        isFollowingThisUser = followingThisUser;
+    }
 }

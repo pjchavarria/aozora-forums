@@ -1,6 +1,7 @@
 package com.everfox.aozoraforums.activities;
 
 import android.content.Intent;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -110,6 +111,17 @@ public class TimelinePostActivity extends AppCompatActivity implements PostParse
                 }
             });
         }
+
+
+        getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.flContent);
+                if (currentFragment != null && currentFragment instanceof ProfileFragment) {
+                    currentFragment.onResume();
+                }
+            }
+        });
 
         isLoading = true;
     }

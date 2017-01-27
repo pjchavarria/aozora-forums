@@ -39,6 +39,7 @@ import com.everfox.aozoraforums.models.UserDetails;
 import com.everfox.aozoraforums.utils.AoConstants;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.everfox.aozoraforums.utils.ProfileUtils;
+import com.parse.CountCallback;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
 import com.parse.GetDataCallback;
@@ -119,6 +120,10 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
     SwipeRefreshLayout swipeRefreshFeed;
     @BindView(R.id.llProfileTimeline)
     LinearLayout llProfileTimeline;
+    @BindView(R.id.llFollowers)
+    LinearLayout llFollowers;
+    @BindView(R.id.llFollowing)
+    LinearLayout llFollowing;
 
     public static ProfileFragment newInstance(ParseUser user,Boolean isProfile, Boolean isCurrentUser, String userID) {
         ProfileFragment fragment = new ProfileFragment();
@@ -267,17 +272,18 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
             //SI LO ESTA SIGIENDO FOLLOWING, SINO FOLLOW
 
             ParseRelation<ParseObject> relation = ParseUser.getCurrentUser().getRelation(ParseUserColumns.FOLLOWING);
-            relation.getQuery().findInBackground(new FindCallback<ParseObject>() {
+            relation.getQuery().whereEqualTo(ParseUserColumns.OBJECT_ID, user.getObjectId()).countInBackground(new CountCallback() {
                 @Override
-                public void done(List<ParseObject> objects, ParseException e) {
-                    if(objects.contains(user)) {
-                        tvFollow.setText(getString(R.string.fa_check) +  " Following");
-                    }else {
+                public void done(int count, ParseException e) {
+                    if (count > 0) {
+                        tvFollow.setText(getString(R.string.fa_check) + " Following");
+                    } else {
                         tvFollow.setText(getString(R.string.fa_plus) + " Follow");
                     }
                 }
             });
         }
+
         String badgePro = ProfileUtils.badgesArrayToPro(user.getJSONArray(ParseUserColumns.BADGES));
         if(badgePro == "")
             tvPro.setVisibility(View.INVISIBLE);
@@ -350,8 +356,10 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
     @Override
     public void onResume() {
         super.onResume();
-        if(isProfile)
+        if(isProfile) {
+            scrollView.setVisibility(View.VISIBLE);
             rvTimeline.setVisibility(View.VISIBLE);
+        }
         if(user != null)
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(user.getString(ParseUserColumns.AOZORA_USERNAME));
     }
@@ -363,9 +371,34 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
 
     private void loadUserDetails() {
         tvFollowers.setText(AoUtils.numberToStringOrZero(userDetails.getNumber(UserDetails.FOLLOWERS)));
+        llFollowers.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!AoUtils.isActivityInvalid(getActivity())) {
+                    OpenFollowersFragment(true);
+                }
+            }
+        });
         tvFollowing.setText(AoUtils.numberToStringOrZero(userDetails.getNumber(UserDetails.FOLLOWING)));
+        llFollowing.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!AoUtils.isActivityInvalid(getActivity())) {
+                    OpenFollowersFragment(false);
+                }
+            }
+        });
         tvIntroduction.setText(userDetails.getString(UserDetails.ABOUT));
         postCount = AoUtils.numberToStringOrZero(userDetails.getNumber(UserDetails.POSTS));
+    }
+
+    private void OpenFollowersFragment(Boolean isFollowers) {
+        scrollView.setVisibility(View.GONE);
+        FollowersFragment ff = null;
+        ff = FollowersFragment.newInstance(user,isFollowers);
+        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.add(R.id.flContent, ff).addToBackStack(null).commitAllowingStateLoss();
     }
 
     private void loadAvatarAndBanner(ParseFile profilePic, ParseFile bannerPic) {
