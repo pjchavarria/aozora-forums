@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -8,6 +8,159 @@
         android:text="LOGOUT"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         />
-</LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/btnLogout">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="30dp"
+            android:background="@color/colorBlack"
+            >
+            <RelativeLayout
+                android:id="@+id/rlAoArt"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AoArt"
+                    android:textColor="@color/colorWhite"
+                    android:layout_centerInParent="true"
+                    />
+
+                <View
+                    android:id="@+id/vAoArt"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:background="@color/inapp_blue"
+                    android:layout_alignParentBottom="true"
+                    android:visibility="visible"
+                    ></View>
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/rlAoNews"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AoNews"
+                    android:textColor="@color/colorWhite"
+                    android:layout_centerInParent="true"
+                    />
+
+                <View
+                    android:id="@+id/vAoNews"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:background="@color/inapp_blue"
+                    android:layout_alignParentBottom="true"
+                    android:visibility="invisible"
+                    />
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/rlAoGur"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AoGur"
+                    android:textColor="@color/colorWhite"
+                    android:layout_centerInParent="true"
+                    />
+
+                <View
+                    android:id="@+id/vAoGur"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:background="@color/inapp_blue"
+                    android:layout_alignParentBottom="true"
+                    android:visibility="invisible"
+                    ></View>
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/rlAoTalk"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="AoTalk"
+                    android:textColor="@color/colorWhite"
+                    android:layout_centerInParent="true"
+                    />
+
+                <View
+                    android:id="@+id/vAoTalk"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:background="@color/inapp_blue"
+                    android:layout_alignParentBottom="true"
+                    android:visibility="invisible"
+                    ></View>
+            </RelativeLayout>
+            <RelativeLayout
+                android:id="@+id/rlOfficial"
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Official"
+                    android:textColor="@color/colorWhite"
+                    android:layout_centerInParent="true"
+                    />
+
+                <View
+                    android:id="@+id/vOffical"
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:background="@color/inapp_blue"
+                    android:layout_alignParentBottom="true"
+                    android:visibility="invisible"
+                    ></View>
+            </RelativeLayout>
+        </LinearLayout>
+
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/swipeRefreshForums"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rvForums"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/grayF6"
+                android:scrollbars="vertical"
+                ></android.support.v7.widget.RecyclerView>
+        </android.support.v4.widget.SwipeRefreshLayout>
+
+    </LinearLayout>
+
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/Base.Widget.AppCompat.ProgressBar"
+        android:indeterminate="true"
+        android:visibility="gone"
+        android:layout_centerInParent="true"
+        />
+
+</RelativeLayout>

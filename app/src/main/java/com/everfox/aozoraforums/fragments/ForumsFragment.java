@@ -6,18 +6,25 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RelativeLayout;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.FirstActivity;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.MainActivity;
+import com.everfox.aozoraforums.controllers.ForumsHelper;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
 /**
  * Created by daniel.soto on 1/10/2017.
@@ -25,8 +32,44 @@ import com.parse.ParseUser;
 
 public class ForumsFragment extends Fragment {
 
-    Button btnLogout;
+
     SharedPreferences sharedPreferences;
+    LinearLayoutManager llm;
+    ForumsHelper forumsHelper;
+
+
+    @BindView(R.id.btnLogout)
+    Button btnLogout;
+
+    @BindView(R.id.rlAoArt)
+    RelativeLayout rlAoArt;
+    @BindView(R.id.rlAoNews)
+    RelativeLayout rlAoNews;
+    @BindView(R.id.rlAoGur)
+    RelativeLayout rlAoGur;
+    @BindView(R.id.rlAoTalk)
+    RelativeLayout rlAoTalk;
+    @BindView(R.id.rlOfficial)
+    RelativeLayout rlOfficial;
+
+    @BindView(R.id.vAoArt)
+    RelativeLayout vAoArt;
+    @BindView(R.id.vAoNews)
+    RelativeLayout vAoNews;
+    @BindView(R.id.vAoGur)
+    RelativeLayout vAoGur;
+    @BindView(R.id.vAoTalk)
+    RelativeLayout vAoTalk;
+    @BindView(R.id.vOffical)
+    RelativeLayout vOffical;
+
+    @BindView(R.id.rvForums)
+    RelativeLayout rvForums;
+    @BindView(R.id.swipeRefreshForums)
+    SwipeRefreshLayout swipeRefreshForums;
+
+
+
 
     public static ForumsFragment newInstance() {
         ForumsFragment fragment = new ForumsFragment();
@@ -40,9 +83,7 @@ public class ForumsFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
-
         View view = inflater.inflate(R.layout.fragment_forums, container, false);
-        btnLogout = (Button) view.findViewById(R.id.btnLogout);
         btnLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -62,6 +103,11 @@ public class ForumsFragment extends Fragment {
                 startActivity(intent);
             }
         });
+
+        ButterKnife.bind(this,view);
+
+
+
 
         return view;
     }

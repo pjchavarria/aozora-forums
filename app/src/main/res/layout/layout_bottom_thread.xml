@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="30dp"
+    android:layout_marginLeft="20dp"
+    android:layout_marginRight="10dp"
+    android:layout_marginTop="15dp"
+    android:layout_marginBottom="10dp"
+    >
+
+    <ImageView
+        android:id="@+id/ivUpvotes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/icon_upvote"
+        android:adjustViewBounds="true"
+        />
+
+
+    <TextView
+        android:id="@+id/tvUpvotes"
+        android:text="4"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorBlack"
+        android:textSize="16sp"
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="3dp"
+        />
+
+    <ImageView
+        android:id="@+id/ivComments"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/speech_bubble"
+        android:layout_marginLeft="40dp"
+        android:adjustViewBounds="true"
+        />
+
+    <TextView
+        android:id="@+id/tvComments"
+        android:text="2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorBlack"
+        android:textSize="16sp"
+        android:layout_marginLeft="3dp"
+        android:layout_gravity="center_vertical"
+        />
+
+    <ImageView
+        android:id="@+id/ivDownvotes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/icon_downvote"
+        android:layout_marginLeft="40dp"
+        android:adjustViewBounds="true"
+        />
+
+    <TextView
+        android:id="@+id/tvDownvotes"
+        android:text="2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorBlack"
+        android:textSize="16sp"
+        android:layout_marginLeft="3dp"
+        android:layout_gravity="center_vertical"
+        />
+
+    <Space
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <ImageView
+        android:id="@+id/ivAddReply"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:src="@drawable/web_share"
+        android:paddingBottom="3dp"
+        />
+
+</LinearLayout>

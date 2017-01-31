@@ -5,6 +5,7 @@ import android.graphics.Typeface;
 
 import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.models.AoNotification;
+import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.PUser;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.models.UserDetails;
@@ -17,6 +18,9 @@ import com.parse.ParseFacebookUtils;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import okhttp3.OkHttpClient;
 
@@ -52,6 +56,28 @@ public class AozoraForumsApp extends Application {
 
     public static void setAwesomeTypeface(Typeface _awesomeTypeface) {
         awesomeTypeface = _awesomeTypeface;
+    }
+
+    private static List<String> hiddenGlobalThreads;
+
+    public static List<String> getHiddenGlobalThreads() {
+        if(hiddenGlobalThreads == null)
+            hiddenGlobalThreads = new ArrayList<>();
+        return hiddenGlobalThreads;
+    }
+    public static void setHiddenGlobalThreads(List<String> hiddenGlobalThreads) {
+        AozoraForumsApp.hiddenGlobalThreads = hiddenGlobalThreads;
+    }
+
+    private static List<AoThread> globalThreads;
+
+    public static List<AoThread> getGlobalThreads() {
+        if(globalThreads == null)
+            globalThreads = new ArrayList<>();
+        return globalThreads;
+    }
+    public static void setGlobalThreads(List<AoThread> globalThreads) {
+        AozoraForumsApp.globalThreads = globalThreads;
     }
 
     @Override

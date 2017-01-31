@@ -81,6 +81,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
     ArrayList<TimelinePost> lstTimelinePost = new ArrayList<>();
     int selectedList;
     String userID = null;
+    Date lastItemDate = null;
 
     RecyclerView rvTimeline;
 
@@ -212,6 +213,9 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
                         int totalItemCount = llm.getItemCount();
                         int pastVisibleItems = llm.findFirstVisibleItemPosition();
                         if (pastVisibleItems + visibleItemCount >= totalItemCount && !loadingMorePosts) {
+                            if(lstTimelinePost.size()>0) {
+                                lastItemDate = lstTimelinePost.get(lstTimelinePost.size()-1).getDate(TimelinePost.CREATED_AT);
+                            }
                             scrolledToEnd();
                         }
                     }
@@ -231,7 +235,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
             }
 
             new ProfileParseHelper(getActivity(), ProfileFragment.this)
-                    .GetProfilePosts(user, fetchCount * ProfileParseHelper.PROFILE_FETCH_LIMIT, ProfileParseHelper.PROFILE_FETCH_LIMIT, selectedList);
+                    .GetProfilePosts(user, fetchCount * ProfileParseHelper.PROFILE_FETCH_LIMIT, ProfileParseHelper.PROFILE_FETCH_LIMIT, selectedList,null);
             fetchCount++;
         } else {
 
@@ -245,7 +249,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
                         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(user.getString(ParseUserColumns.AOZORA_USERNAME));
                         loadProfile();
                         new ProfileParseHelper(getActivity(), ProfileFragment.this)
-                                .GetProfilePosts(user, fetchCount * ProfileParseHelper.PROFILE_FETCH_LIMIT, ProfileParseHelper.PROFILE_FETCH_LIMIT, selectedList);
+                                .GetProfilePosts(user, fetchCount * ProfileParseHelper.PROFILE_FETCH_LIMIT, ProfileParseHelper.PROFILE_FETCH_LIMIT, selectedList,null);
                         fetchCount++;
                     } else {
                         Toast.makeText(getActivity(),"A problem occured, try again later",Toast.LENGTH_SHORT).show();
@@ -349,7 +353,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         lstTimelinePost.clear();
         timelineAdapter.notifyDataSetChanged();
         new ProfileParseHelper(getActivity(), ProfileFragment.this)
-                .GetProfilePosts(user, fetchCount * ProfileParseHelper.PROFILE_FETCH_LIMIT, ProfileParseHelper.PROFILE_FETCH_LIMIT, selectedList);
+                .GetProfilePosts(user, fetchCount * ProfileParseHelper.PROFILE_FETCH_LIMIT, ProfileParseHelper.PROFILE_FETCH_LIMIT, selectedList,null);
         fetchCount++;
     }
 
@@ -478,6 +482,9 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         int distanceToEnd = (view.getBottom() - (scrollView.getHeight() + scrollView.getScrollY()));
         // if diff is zero, then the bottom has been reached
         if (distanceToEnd < 500 && !loadingMorePosts) {
+            if(lstTimelinePost.size()>0) {
+                lastItemDate = lstTimelinePost.get(lstTimelinePost.size()-1).getDate(TimelinePost.CREATED_AT);
+            }
             scrolledToEnd();
         }
     }
@@ -493,7 +500,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
             }
         });
         new ProfileParseHelper(getActivity(), ProfileFragment.this)
-                .GetProfilePosts(user, fetchCount * ProfileParseHelper.PROFILE_FETCH_LIMIT, ProfileParseHelper.PROFILE_FETCH_LIMIT, selectedList);
+                .GetProfilePosts(user, fetchCount * ProfileParseHelper.PROFILE_FETCH_LIMIT, ProfileParseHelper.PROFILE_FETCH_LIMIT, selectedList,lastItemDate);
         fetchCount++;
     }
 

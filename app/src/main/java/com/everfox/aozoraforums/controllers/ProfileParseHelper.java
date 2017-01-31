@@ -15,6 +15,7 @@ import com.parse.ParseUser;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,7 +26,7 @@ public class ProfileParseHelper {
 
 
     public static final int PROFILE_SKIP_STEP = 5;
-    public static final int PROFILE_FETCH_LIMIT = 5;
+    public static final int PROFILE_FETCH_LIMIT = 10;
 
     public static final int FOLLOWING_LIST = 0;
     public static final int AOZORA_LIST = 1;
@@ -46,7 +47,7 @@ public class ProfileParseHelper {
         this.mOnGetProfilePostsCallback = (OnGetProfilePostsListener) profileFragment;
     }
 
-    public void GetProfilePosts(ParseUser userProfile, int skip, int limit,int selectedList) {
+    public void GetProfilePosts(ParseUser userProfile, int skip, int limit,int selectedList, Date createdDate) {
 
         ParseQuery<TimelinePost> query = ParseQuery.getQuery(TimelinePost.class);
         query.setSkip(skip);
@@ -91,6 +92,11 @@ public class ProfileParseHelper {
                 query.whereContainedIn(TimelinePost.VISIBILITY,lstVisibility);
                 break;
         }
+
+        if(createdDate != null) {
+            query.whereLessThan(TimelinePost.CREATED_AT,createdDate);
+        }
+
         query.include(TimelinePost.EPISODE);
         query.include(TimelinePost.POSTED_BY);
         query.include(TimelinePost.USER_TIMELINE);

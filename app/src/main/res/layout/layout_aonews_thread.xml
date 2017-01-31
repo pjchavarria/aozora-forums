@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:fresco="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/colorWhite">
+
+
+    <RelativeLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:weightSum="1"
+        >
+
+        <LinearLayout
+            android:id="@+id/rlNewsContent"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toLeftOf="@+id/rlNewsImage"
+            android:layout_alignParentStart="true"
+            >
+
+            <TextView
+                android:id="@+id/tvNewsTagPostedWhen"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            
+            <TextView
+                android:id="@+id/tvNewsTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/gray3C"
+                android:textSize="18sp"
+                />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_alignParentRight="true"
+            android:id="@+id/rlNewsImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp">
+
+            <com.facebook.drawee.view.SimpleDraweeView
+                android:id="@+id/sdvThreadImageGif"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+                fresco:viewAspectRatio="2"
+                fresco:actualImageScaleType="fitCenter"
+                />
+
+            <ImageView
+                android:id="@+id/ivNewsImage"
+                android:layout_width="100dp"
+                android:layout_height="80dp"
+                android:src="@drawable/placeholder_banner"
+                android:scaleType="centerCrop"
+                android:layout_gravity="end"
+                />
+
+            <ImageView
+                android:id="@+id/ivPlay"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:src="@drawable/play"
+                android:visibility="gone"
+                />
+        </RelativeLayout>
+    </RelativeLayout>
+
+
+    <include android:layout_width="match_parent" android:layout_height="wrap_content" layout="@layout/layout_link"></include>
+
+    <include layout="@layout/layout_bottom_thread"></include>
+
+</LinearLayout>

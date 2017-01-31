@@ -25,4 +25,12 @@ public class AoConstants {
     public static final String USER_LIST_OLDESTACTIVE = "Oldest Active Users";
     public static final String REPUTATION_RANKS_TOP500= "Top 500 Reputation Rank";
     public static final String REPUTATION_RANKS_FOLLOWING = "Following Reputation Rank";
+
+    public static final String PINTYPE_GLOBAL = "global";
+    public static final String USERTHREAD = "userThread";
+    public static final String VISIBLE = "visible";
+
+    public static final String POPULAR = "popular";
+    public static final String RISING = "rising";
+    public static final String NEW = "new";
 }
