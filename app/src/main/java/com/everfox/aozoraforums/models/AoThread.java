@@ -10,10 +10,23 @@ import com.parse.ParseObject;
 @ParseClassName("Thread")
 public class AoThread extends ParseObject {
 
-    public Boolean getShowAsPinned() {
-        return showAsPinned;
+
+    public Boolean getHideDivider() {
+        if(hideDivider == null)
+            return false;
+        return hideDivider;
+    }
+    public void setHideDivider(Boolean hideDivider) {
+        this.hideDivider = hideDivider;
     }
 
+    private Boolean hideDivider;
+
+    public Boolean getShowAsPinned() {
+        if(showAsPinned == null)
+            return false;
+        return showAsPinned;
+    }
     public void setShowAsPinned(Boolean showAsPinned) {
         this.showAsPinned = showAsPinned;
     }
@@ -27,8 +40,12 @@ public class AoThread extends ParseObject {
     public static final String POSTEDBY = "postedBy";
     public static final String LASTPOSTEDBY = "lastPostedBy";
     public static final String TYPE = "type";
-    public static final String SUBTYPE = "subtype";
-    public static final String VISIBILITY = "visible";
+    public static final String SUBTYPE = "subType";
+    public static final String VISIBILITY = "visibility";
     public static final String LIKED_BY = "likedBy";
     public static final String CREATED_AT = "createdAt";
+    public static final String LIKE_COUNT = "likeCount";
+    public static final String UNLIKE_COUNT = "unlikeCount";
+    public static final String UNLIKED_BY = "unlikedBy";
+    public static final String TITLE = "title";
 }

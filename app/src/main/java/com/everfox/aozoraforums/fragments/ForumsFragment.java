@@ -4,24 +4,33 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.FirstActivity;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.MainActivity;
+import com.everfox.aozoraforums.adapters.ForumsAdapter;
 import com.everfox.aozoraforums.controllers.ForumsHelper;
+import com.everfox.aozoraforums.models.AoThread;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -30,16 +39,18 @@ import butterknife.ButterKnife;
  * Created by daniel.soto on 1/10/2017.
  */
 
-public class ForumsFragment extends Fragment {
+public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobalThreadsListener, ForumsHelper.OnGetThreadsListener {
 
-
-    SharedPreferences sharedPreferences;
+    ForumsAdapter forumsAdapter;
+    Boolean isLoading = false;
+    int fetchCount = 0;
+    Boolean fetchingGlobalThreads = false;
+    String selectedList = "aoArt";
+    String selectedSort = "POPULAR";
     LinearLayoutManager llm;
     ForumsHelper forumsHelper;
+    ArrayList<AoThread> lstThreads = new ArrayList<>();
 
-
-    @BindView(R.id.btnLogout)
-    Button btnLogout;
 
     @BindView(R.id.rlAoArt)
     RelativeLayout rlAoArt;
@@ -51,24 +62,23 @@ public class ForumsFragment extends Fragment {
     RelativeLayout rlAoTalk;
     @BindView(R.id.rlOfficial)
     RelativeLayout rlOfficial;
-
     @BindView(R.id.vAoArt)
-    RelativeLayout vAoArt;
+    View vAoArt;
     @BindView(R.id.vAoNews)
-    RelativeLayout vAoNews;
+    View vAoNews;
     @BindView(R.id.vAoGur)
-    RelativeLayout vAoGur;
+    View vAoGur;
     @BindView(R.id.vAoTalk)
-    RelativeLayout vAoTalk;
+    View vAoTalk;
     @BindView(R.id.vOffical)
-    RelativeLayout vOffical;
+    View vOffical;
 
     @BindView(R.id.rvForums)
-    RelativeLayout rvForums;
+    RecyclerView rvForums;
+    @BindView(R.id.pbLoading)
+    ProgressBar pbLoading;
     @BindView(R.id.swipeRefreshForums)
     SwipeRefreshLayout swipeRefreshForums;
-
-
 
 
     public static ForumsFragment newInstance() {
@@ -84,31 +94,129 @@ public class ForumsFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_forums, container, false);
-        btnLogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                try {
-                    ParseObject.unpinAll();
-                } catch (ParseException pEx) {
-                }
-
-                sharedPreferences = getActivity().getSharedPreferences("com.everfox.aozoraforums", Context.MODE_PRIVATE);
-                sharedPreferences.edit().remove("MAL_User").apply();
-                sharedPreferences.edit().remove("MAL_Password").apply();
-                AozoraForumsApp.cleanValues();
-                ParseUser.logOut();
-                Intent intent = new Intent(getActivity(), FirstActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-            }
-        });
-
         ButterKnife.bind(this,view);
 
 
-
+        forumsHelper = new ForumsHelper(getActivity(),this);
+        if(AozoraForumsApp.getGlobalThreads().size()==0) {
+            forumsHelper.GetGlobalThreads();
+            fetchingGlobalThreads = true;
+        } else {
+            lstThreads.addAll(AozoraForumsApp.getGlobalThreads());
+        }
+        llm = new LinearLayoutManager(getActivity());
+        rvForums.setLayoutManager(llm);
+        forumsAdapter = new ForumsAdapter(getActivity(),new ArrayList<AoThread>());
+        rvForums.setAdapter(forumsAdapter);
+        pbLoading.setVisibility(View.VISIBLE);
+        rvForums.setVisibility(View.GONE);
+        isLoading = true;
+        fetchCount++;
+        forumsHelper.GetThreads(selectedList,selectedSort,0,ForumsHelper.THREADS_FETCH_LIMIT);
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        swipeRefreshForums.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                if(!isLoading)
+                    reloadThreads();
+            }
+        });
+
+        rvForums.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                if (isLoading)
+                    return;
+                int visibleItemCount = llm.getChildCount();
+                int totalItemCount = llm.getItemCount();
+                int pastVisibleItems = llm.findFirstVisibleItemPosition();
+                if (pastVisibleItems + visibleItemCount >= totalItemCount && !isLoading) {
+                    scrolledToEnd();
+                }
+            }
+        });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Aozora Threads");
+    }
+
+    private void scrolledToEnd() {
+        if(!isLoading) {
+            isLoading = true;
+            lstThreads.add(new AoThread());
+            rvForums.post(new Runnable() {
+                @Override
+                public void run() {
+                    forumsAdapter.notifyItemInserted(lstThreads.size());
+                }
+            });
+            forumsHelper.GetThreads(selectedList, selectedSort, fetchCount * ForumsHelper.THREADS_FETCH_LIMIT, ForumsHelper.THREADS_FETCH_LIMIT);
+            fetchCount++;
+        }
+    }
+
+    private void reloadThreads() {
+        if(!isLoading) {
+            isLoading = true;
+            fetchCount = 0;
+            lstThreads.clear();
+            lstThreads.addAll(AozoraForumsApp.getGlobalThreads());
+            forumsAdapter.notifyDataSetChanged();
+            forumsHelper.GetThreads(selectedList, selectedSort, 0, ForumsHelper.THREADS_FETCH_LIMIT);
+            fetchCount++;
+        }
+
+    }
+
+    public void scrollThreadsToStart() {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                rvForums.scrollToPosition(0);
+            }
+        }, 200);
+    }
+
+    @Override
+    public void onGetGlobalThreads() {
+
+        lstThreads.addAll(0,AozoraForumsApp.getGlobalThreads());
+        forumsAdapter.notifyItemRangeInserted(0,AozoraForumsApp.getGlobalThreads().size());
+        fetchingGlobalThreads = false;
+    }
+
+    @Override
+    public void onGetThreads(List<AoThread> threads) {
+
+        if (fetchCount == 1) {
+            lstThreads.addAll(threads);
+            forumsAdapter = new ForumsAdapter(getActivity(),lstThreads);
+            rvForums.setAdapter(forumsAdapter);
+            pbLoading.setVisibility(View.GONE);
+            rvForums.setVisibility(View.VISIBLE);
+            swipeRefreshForums.setRefreshing(false);
+        } else {
+            swipeRefreshForums.setRefreshing(false);
+            lstThreads.remove(lstThreads.size()-1);
+            forumsAdapter.notifyItemRemoved(lstThreads.size());
+            if(threads.size()>0) {
+                int currentPosition = lstThreads.size();
+                lstThreads.addAll(threads);
+                forumsAdapter.notifyItemRangeInserted(currentPosition, lstThreads.size()-currentPosition);
+            }
+
+        }
+        isLoading = false;
+
     }
 }

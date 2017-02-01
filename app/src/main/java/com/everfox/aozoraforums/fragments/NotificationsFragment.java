@@ -1,6 +1,8 @@
 package com.everfox.aozoraforums.fragments;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
@@ -15,10 +17,12 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
+import com.everfox.aozoraforums.FirstActivity;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.activities.TimelinePostActivity;
@@ -31,6 +35,8 @@ import com.everfox.aozoraforums.models.AoNotification;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.AoUtils;
+import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
@@ -45,6 +51,10 @@ import butterknife.ButterKnife;
  */
 
 public class NotificationsFragment extends Fragment implements NotificationsHelper.OnGetNotificationListener, NotificationsAdapter.OnNotificationTappedListener  {
+
+    SharedPreferences sharedPreferences;
+    @BindView(R.id.btnLogout)
+    Button btnLogout;
 
     LinearLayoutManager llm;
     NotificationsAdapter notiAdapter;
@@ -76,6 +86,26 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_notifications, container, false);
         ButterKnife.bind(this,view);
+
+        btnLogout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                try {
+                    ParseObject.unpinAll();
+                } catch (ParseException pEx) {
+                }
+
+                sharedPreferences = getActivity().getSharedPreferences("com.everfox.aozoraforums", Context.MODE_PRIVATE);
+                sharedPreferences.edit().remove("MAL_User").apply();
+                sharedPreferences.edit().remove("MAL_Password").apply();
+                AozoraForumsApp.cleanValues();
+                ParseUser.logOut();
+                Intent intent = new Intent(getActivity(), FirstActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+            }
+        });
 
         llm = new LinearLayoutManager(getActivity());
         rvNotifications.setLayoutManager(llm);

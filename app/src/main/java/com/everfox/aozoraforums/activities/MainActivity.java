@@ -109,6 +109,8 @@ public class MainActivity extends AppCompatActivity {
             AozoraForumsApp.setProfileToPass(null);
         }
         FriendsController.fetchFollowing();
+        OpenForumFragment();
+
     }
 
     private void OpenNotificationFragment() {
@@ -141,6 +143,8 @@ public class MainActivity extends AppCompatActivity {
 
             if (forumsFragmentf == null)
                 forumsFragmentf = ForumsFragment.newInstance();
+            else
+                forumsFragmentf.scrollThreadsToStart();
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.flContent, forumsFragmentf).commitAllowingStateLoss();

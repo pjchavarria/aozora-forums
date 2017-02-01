@@ -21,6 +21,7 @@ import java.util.List;
 
 public class ForumsHelper {
 
+    public static int THREADS_FETCH_LIMIT = 15;
     private static int THREADRISINGMAXUPVOTES = 26;
 
     private Context context;
@@ -62,6 +63,7 @@ public class ForumsHelper {
                             globalThreads.add(objects.get(i));
                     }
 
+                    globalThreads.get(globalThreads.size()-1).setHideDivider(true);
                     AozoraForumsApp.setGlobalThreads(globalThreads);
                     mGetGlobalThreadsCallback.onGetGlobalThreads();
                 }
@@ -69,7 +71,7 @@ public class ForumsHelper {
         });
     }
 
-    public void GetThreads(String selectedList, String selectedSort,int skip, int limit,Date createdDate) {
+    public void GetThreads(String selectedList, String selectedSort,int skip, int limit) {
 
         ParseQuery<AoThread> query = ParseQuery.getQuery(AoThread.class);
         query.whereEqualTo(AoThread.TYPE,AoConstants.USERTHREAD);
@@ -77,9 +79,6 @@ public class ForumsHelper {
         query.whereEqualTo(AoThread.VISIBILITY, AoConstants.VISIBLE);
         query.setSkip(skip);
         query.setLimit(limit);
-        if(createdDate != null) {
-            query.whereLessThan(TimelinePost.CREATED_AT,createdDate);
-        }
         // FILTERING FAVORITES
         query.include(AoThread.TAGS);
         query.include(AoThread.STARTEDBY);
@@ -92,7 +91,7 @@ public class ForumsHelper {
                 break;
             case AoConstants.RISING:
                 query.orderByDescending(AoThread.HOTRANKING);
-                query.whereLessThan("likeCount",THREADRISINGMAXUPVOTES);
+                query.whereLessThan(AoThread.LIKE_COUNT,THREADRISINGMAXUPVOTES);
                 break;
             case AoConstants.NEW:
                 query.orderByDescending(AoThread.CREATED_AT);
@@ -106,7 +105,6 @@ public class ForumsHelper {
                     mGetThreadsCallback.onGetThreads(objects);
             }
         });
-
 
 
     }

@@ -49,6 +49,7 @@ import com.facebook.imagepipeline.image.ImageInfo;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.parse.GetDataCallback;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import org.json.JSONArray;
@@ -76,7 +77,7 @@ public class PostUtils {
 
 
 
-    public static void loadYoutubeImageIntoImageView(Context context, TimelinePost post, ImageView imageView, ImageView ivPlayVideo) {
+    public static void loadYoutubeImageIntoImageView(Context context, ParseObject post, ImageView imageView, ImageView ivPlayVideo) {
         String youtubeID = post.getString(TimelinePost.YOUTUBE_ID);
         String urlImage = URL_YOUTUBE_THUMBNAILS.replace("YOUTUBE_ID",youtubeID);
         Glide.with(context).load(urlImage).crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
@@ -84,10 +85,11 @@ public class PostUtils {
         ivPlayVideo.setVisibility(View.VISIBLE);
     }
 
-    public static void loadTimelinePostImageURLToImageView(final Context context, TimelinePost post, final SimpleDraweeView simpleDraweeView, final ImageView imageView,final ImageView ivPlayGif, Boolean fullscreen) {
+    public static void loadTimelinePostImageURLToImageView(final Context context, ParseObject post, final SimpleDraweeView simpleDraweeView, final ImageView imageView,final ImageView ivPlayGif, Boolean fullscreen) {
         try {
 
-            Boolean isComment = post.getParseObject(TimelinePost.PARENT_POST) != null ? true : false;
+            final Boolean isComment = (post instanceof TimelinePost
+                    && post.getParseObject(TimelinePost.PARENT_POST) != null);
             Boolean isGif = false;
             final JSONObject jsonImageInfo = post.getJSONArray(TimelinePost.IMAGES).getJSONObject(0);
             final String urlImage = jsonImageInfo.getString("url");
@@ -139,9 +141,12 @@ public class PostUtils {
         }
     }
 
-    public static void loadTimelinePostImageFileToImageView(final Context context, TimelinePost post, final SimpleDraweeView simpleDraweeView, final ImageView imageView, final ImageView ivPlayGif, final Boolean fullscreen) {
+    public static void loadTimelinePostImageFileToImageView(final Context context, ParseObject post, final SimpleDraweeView simpleDraweeView, final ImageView imageView, final ImageView ivPlayGif, final Boolean fullscreen) {
         try {
-            final Boolean isComment = post.getParseObject(TimelinePost.PARENT_POST) != null ? true : false;
+
+            final Boolean isComment = (post instanceof TimelinePost
+                    && post.getParseObject(TimelinePost.PARENT_POST) != null);
+
             Boolean isGif = false;
             final JSONObject jsonImageInfo = post.getJSONArray(TimelinePost.IMAGES).getJSONObject(0);
             ParseFile imageFile = post.getParseFile(TimelinePost.IMAGE);
@@ -208,6 +213,8 @@ public class PostUtils {
         final int jsonWidth = jsonImageInfo.getInt("width");
         if ((double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT) {
             int maxAllowedHeight = (int) (jsonWidth * MAX_DIFFERENCE_WIDTH_HEIGHT_SIZE);
+            if(maxAllowedHeight > 1500)
+                maxAllowedHeight = maxAllowedHeight/2;
             ViewGroup.LayoutParams params = iv.getLayoutParams();
             params.height = maxAllowedHeight;
             iv.setLayoutParams(params);
@@ -265,7 +272,7 @@ public class PostUtils {
         return "Just now";
     }
 
-    public static String getWhenWasPosted(TimelinePost timelinePost) {
+    public static String getWhenWasPosted(ParseObject timelinePost) {
 
         Date dateCreated = timelinePost.getCreatedAt();
         Date currentDate = Calendar.getInstance().getTime();
