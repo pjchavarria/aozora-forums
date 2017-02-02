@@ -2,7 +2,8 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:fresco="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@color/colorWhite">
+    android:background="@color/colorWhite"
+    android:layout_marginTop="15dp">
 
 
     <RelativeLayout
@@ -48,16 +49,15 @@
 
             <com.facebook.drawee.view.SimpleDraweeView
                 android:id="@+id/sdvThreadImageGif"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_width="120dp"
+                android:layout_height="80dp"
                 android:visibility="gone"
-                fresco:viewAspectRatio="2"
-                fresco:actualImageScaleType="fitCenter"
+                fresco:actualImageScaleType="centerCrop"
                 />
 
             <ImageView
-                android:id="@+id/ivNewsImage"
-                android:layout_width="100dp"
+                android:id="@+id/ivThreadImage"
+                android:layout_width="120dp"
                 android:layout_height="80dp"
                 android:src="@drawable/placeholder_banner"
                 android:scaleType="centerCrop"
@@ -76,7 +76,7 @@
     </RelativeLayout>
 
 
-    <include android:layout_width="match_parent" android:layout_height="wrap_content" layout="@layout/layout_link"></include>
+    <include android:layout_width="wrap_content" android:layout_height="wrap_content" layout="@layout/layout_link"></include>
 
     <include layout="@layout/layout_bottom_thread"></include>
 

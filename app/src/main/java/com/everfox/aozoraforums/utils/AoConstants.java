@@ -33,4 +33,11 @@ public class AoConstants {
     public static final String POPULAR = "popular";
     public static final String RISING = "rising";
     public static final String NEW = "new";
+
+    public static final String AOART = "aoArt";
+    public static final String AONEWS = "aoNews";
+    public static final String AOGUR = "aoGur";
+    public static final String AOTALK = "aoTalk";
+    public static final String OFFICIAL = "official";
+
 }

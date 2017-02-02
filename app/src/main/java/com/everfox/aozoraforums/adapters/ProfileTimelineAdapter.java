@@ -146,6 +146,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         holder.ivPostImage.setVisibility(View.GONE);
         holder.sdvPostImageGif.setVisibility(View.GONE);
         holder.ivPlay.setVisibility(View.GONE);
+        holder.llLinkLayout.setVisibility(View.GONE);
         holder.tvSpoilerOpen.setVisibility(View.GONE);
         holder.tvSpoilerText.setVisibility(View.GONE);
         holder.ivCommentImage.setImageDrawable(null);
@@ -154,7 +155,6 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         holder.ivCommentPlay.setVisibility(View.GONE);
         holder.tvCommentSpoilerOpen.setVisibility(View.GONE);
         holder.tvCommentSpoilerText.setVisibility(View.GONE);
-        holder.llLinkLayout.setVisibility(View.GONE);
         holder.tvViewPreviousComments.setVisibility(View.GONE);
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         holder.ivPostImage.setLayoutParams(lp);

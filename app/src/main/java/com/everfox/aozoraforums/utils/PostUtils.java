@@ -83,6 +83,7 @@ public class PostUtils {
         Glide.with(context).load(urlImage).crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
         imageView.requestLayout();
         ivPlayVideo.setVisibility(View.VISIBLE);
+        imageView.setVisibility(View.VISIBLE);
     }
 
     public static void loadTimelinePostImageURLToImageView(final Context context, ParseObject post, final SimpleDraweeView simpleDraweeView, final ImageView imageView,final ImageView ivPlayGif, Boolean fullscreen) {
@@ -226,7 +227,7 @@ public class PostUtils {
         }
     }
 
-    public static void loadLinkIntoLinkLayout(Context context, TimelinePost post, LinearLayout llLinkLayout) {
+    public static void loadLinkIntoLinkLayout(Context context, ParseObject post, LinearLayout llLinkLayout) {
         try {
             JSONObject jsonLink =  post.getJSONObject(TimelinePost.LINK);
             ((TextView) llLinkLayout.findViewById(R.id.tvLinkTitle)).setText(jsonLink.getString("title"));

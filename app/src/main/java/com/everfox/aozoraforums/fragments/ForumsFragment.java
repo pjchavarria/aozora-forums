@@ -25,6 +25,7 @@ import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.adapters.ForumsAdapter;
 import com.everfox.aozoraforums.controllers.ForumsHelper;
 import com.everfox.aozoraforums.models.AoThread;
+import com.everfox.aozoraforums.utils.AoConstants;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -41,11 +42,13 @@ import butterknife.ButterKnife;
 
 public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobalThreadsListener, ForumsHelper.OnGetThreadsListener {
 
+
     ForumsAdapter forumsAdapter;
     Boolean isLoading = false;
     int fetchCount = 0;
     Boolean fetchingGlobalThreads = false;
     String selectedList = "aoArt";
+    int selectedViewType = ForumsAdapter.VIEW_AOART;
     String selectedSort = "POPULAR";
     LinearLayoutManager llm;
     ForumsHelper forumsHelper;
@@ -96,7 +99,6 @@ public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobal
         View view = inflater.inflate(R.layout.fragment_forums, container, false);
         ButterKnife.bind(this,view);
 
-
         forumsHelper = new ForumsHelper(getActivity(),this);
         if(AozoraForumsApp.getGlobalThreads().size()==0) {
             forumsHelper.GetGlobalThreads();
@@ -106,7 +108,7 @@ public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobal
         }
         llm = new LinearLayoutManager(getActivity());
         rvForums.setLayoutManager(llm);
-        forumsAdapter = new ForumsAdapter(getActivity(),new ArrayList<AoThread>());
+        forumsAdapter = new ForumsAdapter(getActivity(),new ArrayList<AoThread>(),selectedViewType);
         rvForums.setAdapter(forumsAdapter);
         pbLoading.setVisibility(View.VISIBLE);
         rvForums.setVisibility(View.GONE);
@@ -139,6 +141,52 @@ public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobal
                 int pastVisibleItems = llm.findFirstVisibleItemPosition();
                 if (pastVisibleItems + visibleItemCount >= totalItemCount && !isLoading) {
                     scrolledToEnd();
+                }
+            }
+        });
+
+        rlAoArt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!isLoading) {
+                    selectedViewType = ForumsAdapter.VIEW_AOART;
+                    forumTabSelected(vAoArt,AoConstants.AOART);
+                }
+            }
+        });
+        rlAoGur.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!isLoading) {
+                    selectedViewType = ForumsAdapter.VIEW_AOGUROFFICIAL;
+                    forumTabSelected(vAoGur,AoConstants.AOGUR);
+                }
+            }
+        });
+        rlAoNews.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!isLoading) {
+                    selectedViewType = ForumsAdapter.VIEW_AONEWS;
+                    forumTabSelected(vAoNews,AoConstants.AONEWS);
+                }
+            }
+        });
+        rlAoTalk.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!isLoading) {
+                    selectedViewType = ForumsAdapter.VIEW_AOTALK;
+                    forumTabSelected(vAoTalk,AoConstants.AOTALK);
+                }
+            }
+        });
+        rlOfficial.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(!isLoading) {
+                    selectedViewType = ForumsAdapter.VIEW_AOGUROFFICIAL;
+                    forumTabSelected(vOffical,AoConstants.OFFICIAL);
                 }
             }
         });
@@ -200,7 +248,7 @@ public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobal
 
         if (fetchCount == 1) {
             lstThreads.addAll(threads);
-            forumsAdapter = new ForumsAdapter(getActivity(),lstThreads);
+            forumsAdapter = new ForumsAdapter(getActivity(),lstThreads,selectedViewType);
             rvForums.setAdapter(forumsAdapter);
             pbLoading.setVisibility(View.GONE);
             rvForums.setVisibility(View.VISIBLE);
@@ -217,6 +265,25 @@ public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobal
 
         }
         isLoading = false;
-
     }
+
+    private void forumTabSelected(View forumMark,String forum) {
+        if (!selectedList.equals(forum)) {
+            HideAllMarks();
+            forumMark.setVisibility(View.VISIBLE);
+            selectedList = forum;
+            reloadThreads();
+        } else {
+            scrollThreadsToStart();
+        }
+    }
+
+    private void HideAllMarks() {
+        vAoArt.setVisibility(View.INVISIBLE);
+        vAoNews.setVisibility(View.INVISIBLE);
+        vAoGur.setVisibility(View.INVISIBLE);
+        vAoTalk.setVisibility(View.INVISIBLE);
+        vOffical.setVisibility(View.INVISIBLE);
+    }
+
 }

@@ -113,6 +113,11 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+    }
+
     private void OpenNotificationFragment() {
         if(!AoUtils.isActivityInvalid(MainActivity.this)) {
             if (notificationsFragment == null)
