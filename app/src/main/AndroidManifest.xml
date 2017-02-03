@@ -18,6 +18,10 @@
         android:largeHeap="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.everfox.aozoraforums.utils.MyGlideModule"
+            android:value="MyGlideModule" />
+
         <activity
             android:name="com.facebook.FacebookActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
@@ -59,14 +63,15 @@
             android:name=".activities.MainActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
-        <activity android:name=".activities.TimelinePostActivity"
+        <activity
+            android:name=".activities.TimelinePostActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"></activity>
-
+            android:screenOrientation="portrait" />
         <activity
             android:name=".activities.AoTubeActivity"
             android:configChanges="orientation"
             android:screenOrientation="landscape" />
+        <activity android:name=".activities.ThreadActivity"></activity>
     </application>
 
 </manifest>

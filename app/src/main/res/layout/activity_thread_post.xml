@@ -23,13 +23,13 @@
             />
 
         <android.support.v4.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefreshPost"
+            android:id="@+id/swipeRefresh"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_above="@+id/llAddComment"
             >
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/rvPostComments"
+                android:id="@+id/rvComments"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/grayF6"

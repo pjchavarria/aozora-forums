@@ -4,6 +4,7 @@ import android.app.Application;
 import android.graphics.Typeface;
 
 import com.everfox.aozoraforums.activities.MainActivity;
+import com.everfox.aozoraforums.models.Anime;
 import com.everfox.aozoraforums.models.AoNotification;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.AoThreadTag;
@@ -32,6 +33,16 @@ import okhttp3.OkHttpClient;
 public class AozoraForumsApp extends Application {
 
     Integer FacebookRequestCode = 334;
+
+    private static AoThread threadToPass;
+
+    public static AoThread getThreadToPass() {
+        return threadToPass;
+    }
+
+    public static void setThreadToPass(AoThread threadToPass) {
+        AozoraForumsApp.threadToPass = threadToPass;
+    }
 
     private static TimelinePost timelinePostToPass;
     public static TimelinePost getTimelinePostToPass() {
@@ -91,6 +102,7 @@ public class AozoraForumsApp extends Application {
         ParseObject.registerSubclass(AoNotification.class);
         ParseObject.registerSubclass(AoThread.class);
         ParseObject.registerSubclass(AoThreadTag.class);
+        ParseObject.registerSubclass(Anime.class);
 
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId("AneKeKPLygTGmVmqWsY6totXXTQfk8")

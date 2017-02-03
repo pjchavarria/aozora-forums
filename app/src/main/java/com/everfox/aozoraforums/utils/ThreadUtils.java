@@ -1,16 +1,25 @@
 package com.everfox.aozoraforums.utils;
 
 import android.content.Context;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.TextPaint;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.everfox.aozoraforums.adapters.AoThreadAdapter;
 import com.everfox.aozoraforums.controls.FrescoGifListener;
+import com.everfox.aozoraforums.models.Anime;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.AoThreadTag;
+import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
@@ -33,6 +42,50 @@ public class ThreadUtils {
     public static double MAX_DIFFERENCE_WIDTH_HEIGHT = 1.2;
     public static double MAX_DIFFERENCE_WIDTH_HEIGHT_SIZE = 1.3;
 
+    public static double MAX_DIFFERENCE_AOTALK_WIDTH_HEIGHT = 0.33;
+    public static double MAX_DIFFERENCE_AOTALK_WIDTH_HEIGHT_SIZE = 0.33;
+
+
+    public static void setThreadTagWhenPostedViewsBy(final AoThread aoThread, TextView textView,
+                                                     final AoThreadAdapter.OnUsernameTappedListener mCallback) {
+        List<ParseObject> lst = aoThread.getList(AoThread.TAGS);
+        String threadTag = "";
+        for(int i=0;i<lst.size();i++) {
+            if(lst.get(i) instanceof AoThreadTag) {
+                threadTag = lst.get(i).getString(AoThreadTag.NAME);
+                break;
+            }
+            if(lst.get(i) instanceof Anime) {
+                threadTag = lst.get(i).getString(Anime.TITLE);
+                break;
+            }
+        }
+        String whenWasPosted = PostUtils.getWhenWasPosted(aoThread);
+        String views = " - " + AoUtils.numberToStringOrZero(aoThread.getNumber(AoThread.VIEWS)) + " views -";
+        String by = "by ";
+        String usernamePosted = aoThread.getParseUser(AoThread.POSTEDBY).getString(ParseUserColumns.AOZORA_USERNAME);
+        textView.setText("#" + threadTag + " - ");
+        textView.append(whenWasPosted);
+        textView.append(views);
+        textView.append(by);
+        Spannable username = new SpannableString(usernamePosted);
+        username.setSpan(new ClickableSpan() {
+            @Override
+            public void onClick(View view) {
+                mCallback.onUsernameTapped(aoThread.getParseUser(AoThread.POSTEDBY));
+            }
+
+            @Override
+            public void updateDrawState(TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(false);
+            }
+        },0,username.length(),0);
+        textView.append(username);
+        textView.setMovementMethod(LinkMovementMethod.getInstance());
+
+    }
+
 
     public static String getThreadTagWhenPosted(AoThread aoThread) {
         List<ParseObject> lst = aoThread.getList(AoThread.TAGS);
@@ -40,6 +93,10 @@ public class ThreadUtils {
         for(int i=0;i<lst.size();i++) {
             if(lst.get(i) instanceof AoThreadTag) {
                 threadTag = lst.get(i).getString(AoThreadTag.NAME);
+                break;
+            }
+            if(lst.get(i) instanceof Anime) {
+                threadTag = lst.get(i).getString(Anime.TITLE);
                 break;
             }
         }
@@ -131,7 +188,8 @@ public class ThreadUtils {
     }
 
 
-    public static void loadThreadImageURLToImageView(final Context context, ParseObject post, final SimpleDraweeView simpleDraweeView, final ImageView imageView, final ImageView ivPlayGif, Boolean fullscreen) {
+    public static void loadThreadImageURLToImageView(final Context context, ParseObject post, final SimpleDraweeView simpleDraweeView,
+                                                     final ImageView imageView, final ImageView ivPlayGif, Boolean fullscreen, Boolean aoTalk) {
         try {
 
             final Boolean isComment = (post instanceof TimelinePost
@@ -145,8 +203,12 @@ public class ThreadUtils {
 
             if(!isGif) {
 
-                if(!isComment && !fullscreen)
-                    prepareImageView(jsonImageInfo,imageView,null );
+                if(!isComment && !fullscreen) {
+                    if(aoTalk)
+                        prepareImageViewAoTalk(jsonImageInfo, imageView, null);
+                    else
+                        prepareImageView(jsonImageInfo, imageView, null);
+                }
 
                 int jsonHeight = 0;
                 int jsonWidth = 0;
@@ -187,7 +249,8 @@ public class ThreadUtils {
         }
     }
 
-    public static void loadThreadImageFileToImageView(final Context context, ParseObject post, final SimpleDraweeView simpleDraweeView, final ImageView imageView, final ImageView ivPlayGif, final Boolean fullscreen) {
+    public static void loadThreadImageFileToImageView(final Context context, ParseObject post, final SimpleDraweeView simpleDraweeView,
+                                                      final ImageView imageView, final ImageView ivPlayGif, final Boolean fullscreen, Boolean aoTalk) {
         try {
 
             final Boolean isComment = (post instanceof TimelinePost
@@ -202,10 +265,18 @@ public class ThreadUtils {
             final Boolean finalIsGif = isGif;
 
             if(!isComment && !fullscreen) {
-                if (!isGif)
-                    prepareImageView(jsonImageInfo, imageView, null);
-                else
-                    prepareImageView(jsonImageInfo, imageView, simpleDraweeView);
+                if (!isGif) {
+                    if(aoTalk)
+                        prepareImageViewAoTalk(jsonImageInfo, imageView, null);
+                    else
+                        prepareImageView(jsonImageInfo, imageView, null);
+                }
+                else {
+                    if(aoTalk)
+                        prepareImageViewAoTalk(jsonImageInfo, imageView, simpleDraweeView);
+                    else
+                        prepareImageView(jsonImageInfo, imageView, simpleDraweeView);
+                }
             }
 
             imageFile.getDataInBackground(new GetDataCallback() {
@@ -249,6 +320,26 @@ public class ThreadUtils {
 
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+    }
+
+
+    private static void prepareImageViewAoTalk(JSONObject jsonImageInfo,ImageView iv, SimpleDraweeView simpleDraweeView) throws JSONException {
+
+        final int jsonHeight = jsonImageInfo.getInt("height");
+        final int jsonWidth = jsonImageInfo.getInt("width");
+        if ((double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_AOTALK_WIDTH_HEIGHT) {
+            int maxAllowedHeight = (int) (jsonWidth * MAX_DIFFERENCE_AOTALK_WIDTH_HEIGHT_SIZE);
+            ViewGroup.LayoutParams params = iv.getLayoutParams();
+            if(maxAllowedHeight > 1500)
+                maxAllowedHeight = maxAllowedHeight/2;
+            params.height = maxAllowedHeight;
+            iv.setLayoutParams(params);
+            iv.requestLayout();
+        } else {
+            if (simpleDraweeView != null) {
+                simpleDraweeView.setAspectRatio((float) jsonWidth / (float) jsonHeight);
+            }
         }
     }
 

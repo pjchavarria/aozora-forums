@@ -44,6 +44,7 @@ public class OptionListDialogFragment extends DialogFragment {
     String subtitle2;
     Integer selectedList;
     LinearLayout llTitles;
+    LinearLayout llTitleSingleLine;
 
 
     private OnListSelectedListener mListSelectedCallback;
@@ -88,6 +89,9 @@ public class OptionListDialogFragment extends DialogFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialogfragment_listoptions,null);
 
+        Boolean isSingleLine = selectedList == AoConstants.SORT_OPTIONS_DIALOG;
+
+
         Bundle bundle = getArguments();
         options = (ArrayList<String>)bundle.getSerializable("options");
         rvLists = (RecyclerView)view.findViewById(R.id.rvList);
@@ -105,6 +109,14 @@ public class OptionListDialogFragment extends DialogFragment {
         tvDialogSubTitle1 = (TextView) view.findViewById(R.id.tvDialogSubTitle1);
         tvDialogSubTitle2 = (TextView)view.findViewById(R.id.tvDialogSubTitle2);
         llTitles = (LinearLayout) view.findViewById(R.id.llTitles);
+        llTitleSingleLine = (LinearLayout) view.findViewById(R.id.llTitleSingleLine);
+
+
+        if(isSingleLine) {
+            llTitles.setVisibility(View.GONE);
+            llTitleSingleLine.setVisibility(View.VISIBLE);
+            tvDialogTitle = (TextView) view.findViewById(R.id.tvDialogSingleLineTitle);
+        }
 
         if(title == null && subtitle1 == null && subtitle2 == null) {
             llTitles.setVisibility(View.GONE);

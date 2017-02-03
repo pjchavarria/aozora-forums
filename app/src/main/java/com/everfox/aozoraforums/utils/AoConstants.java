@@ -10,6 +10,7 @@ public class AoConstants {
     public static final int MY_PROFILE_OPTIONS_DIALOG = 1;
     public static final int USER_LIST_OPTIONS_DIALOG = 2;
     public static final int REPUTATION_RANKS_OPTIONS_DIALOG = 3;
+    public static final int SORT_OPTIONS_DIALOG = 4;
 
     public static final String ADMIN_POST_EDIT = "Edit";
     public static final String ADMIN_POST_DELETE = "Delete";
@@ -30,14 +31,14 @@ public class AoConstants {
     public static final String USERTHREAD = "userThread";
     public static final String VISIBLE = "visible";
 
-    public static final String POPULAR = "popular";
-    public static final String RISING = "rising";
-    public static final String NEW = "new";
+    public static final String POPULAR = "Popular";
+    public static final String RISING = "Rising";
+    public static final String NEW = "New";
 
     public static final String AOART = "aoArt";
     public static final String AONEWS = "aoNews";
     public static final String AOGUR = "aoGur";
     public static final String AOTALK = "aoTalk";
-    public static final String OFFICIAL = "official";
+    public static final String OFFICIAL = "aoOfficial";
 
 }

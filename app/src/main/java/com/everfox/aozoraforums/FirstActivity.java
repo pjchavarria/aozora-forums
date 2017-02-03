@@ -106,7 +106,6 @@ public class FirstActivity extends AppCompatActivity {
                 mp.setLooping(true);
             }
         });
-        vvIntro.start();
     }
 
     @Override
@@ -122,6 +121,7 @@ public class FirstActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        vvIntro.start();
         tvAppMessage.setText(AoUtils.fromHtml(getResources().getString(R.string.activity_login_tvAppMessage_Text)));
 
         if(ParseUser.getCurrentUser() != null) {

@@ -166,6 +166,8 @@ public class AoUtils {
                 return Arrays.asList(context.getResources().getStringArray(R.array.user_lists_options));
             case AoConstants.REPUTATION_RANKS_OPTIONS_DIALOG:
                 return Arrays.asList(context.getResources().getStringArray(R.array.reputation_ranks));
+            case AoConstants.SORT_OPTIONS_DIALOG:
+                return Arrays.asList(context.getResources().getStringArray(R.array.sort_options));
         }
         return new ArrayList<String>();
     }

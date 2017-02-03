@@ -18,7 +18,7 @@
             android:layout_width="35dp"
             android:layout_height="35dp">
             <com.everfox.aozoraforums.controls.RoundedImageView
-                android:id="@+id/ivCommentAvatar"
+                android:id="@+id/ivLastCommentAvatar"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:src="@drawable/default_avatar"
@@ -27,7 +27,7 @@
 
 
             <View
-                android:id="@+id/tvCommentUserActive"
+                android:id="@+id/tvLastCommentUserActive"
                 android:layout_width="10dp"
                 android:layout_height="10dp"
                 android:background="@drawable/green_circle"
@@ -44,7 +44,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="5dp">
             <TextView
-                android:id="@+id/tvCommentText"
+                android:id="@+id/tvLastCommentText"
                 android:text=""
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -55,7 +55,7 @@
                 />
 
             <TextView
-                android:id="@+id/tvCommentSpoilerOpen"
+                android:id="@+id/tvLastCommentSpoilerOpen"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/gray3C"
@@ -65,7 +65,7 @@
                 />
 
             <TextView
-                android:id="@+id/tvCommentSpoilerText"
+                android:id="@+id/tvLastCommentSpoilerText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/gray3C"
@@ -80,12 +80,13 @@
 
 
             <RelativeLayout
-                android:id="@+id/rlCommentContent"
+                android:id="@+id/rlLastCommentContent"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
 
+
                 <com.facebook.drawee.view.SimpleDraweeView
-                    android:id="@+id/sdvCommentImageGif"
+                    android:id="@+id/sdvLastCommentImageGif"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:visibility="gone"
@@ -94,7 +95,7 @@
                     />
 
                 <ImageView
-                    android:id="@+id/ivCommentImage"
+                    android:id="@+id/ivLastCommentImage"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="5dp"
@@ -104,7 +105,7 @@
 
 
                 <ImageView
-                    android:id="@+id/ivCommentPlay"
+                    android:id="@+id/ivLastCommentPlay"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
@@ -127,7 +128,7 @@
         >
 
         <TextView
-            android:id="@+id/tvCommentWhen"
+            android:id="@+id/tvLastCommentWhen"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="2 hrs"
@@ -135,7 +136,7 @@
             />
 
         <ImageView
-            android:id="@+id/ivCommentLikes"
+            android:id="@+id/ivLastCommentLikes"
             android:src="@drawable/icon_like_small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -144,7 +145,7 @@
             />
 
         <TextView
-            android:id="@+id/tvCommentNumberLikes"
+            android:id="@+id/tvLastCommentNumberLikes"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/gray3C"

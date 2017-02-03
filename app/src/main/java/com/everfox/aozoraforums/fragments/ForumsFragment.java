@@ -12,6 +12,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -24,8 +27,10 @@ import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.adapters.ForumsAdapter;
 import com.everfox.aozoraforums.controllers.ForumsHelper;
+import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.utils.AoConstants;
+import com.everfox.aozoraforums.utils.AoUtils;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -40,7 +45,8 @@ import butterknife.ButterKnife;
  * Created by daniel.soto on 1/10/2017.
  */
 
-public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobalThreadsListener, ForumsHelper.OnGetThreadsListener {
+public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobalThreadsListener, ForumsHelper.OnGetThreadsListener,
+OptionListDialogFragment.OnListSelectedListener{
 
 
     ForumsAdapter forumsAdapter;
@@ -49,7 +55,7 @@ public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobal
     Boolean fetchingGlobalThreads = false;
     String selectedList = "aoArt";
     int selectedViewType = ForumsAdapter.VIEW_AOART;
-    String selectedSort = "POPULAR";
+    String selectedSort = AoConstants.POPULAR;
     LinearLayoutManager llm;
     ForumsHelper forumsHelper;
     ArrayList<AoThread> lstThreads = new ArrayList<>();
@@ -98,6 +104,7 @@ public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobal
 
         View view = inflater.inflate(R.layout.fragment_forums, container, false);
         ButterKnife.bind(this,view);
+        setHasOptionsMenu(true);
 
         forumsHelper = new ForumsHelper(getActivity(),this);
         if(AozoraForumsApp.getGlobalThreads().size()==0) {
@@ -125,8 +132,7 @@ public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobal
         swipeRefreshForums.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                if(!isLoading)
-                    reloadThreads();
+                reloadThreads();
             }
         });
 
@@ -158,7 +164,7 @@ public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobal
             @Override
             public void onClick(View view) {
                 if(!isLoading) {
-                    selectedViewType = ForumsAdapter.VIEW_AOGUROFFICIAL;
+                    selectedViewType = ForumsAdapter.VIEW_AOGUR;
                     forumTabSelected(vAoGur,AoConstants.AOGUR);
                 }
             }
@@ -185,7 +191,7 @@ public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobal
             @Override
             public void onClick(View view) {
                 if(!isLoading) {
-                    selectedViewType = ForumsAdapter.VIEW_AOGUROFFICIAL;
+                    selectedViewType = ForumsAdapter.VIEW_AOOFFICIAL;
                     forumTabSelected(vOffical,AoConstants.OFFICIAL);
                 }
             }
@@ -286,4 +292,33 @@ public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobal
         vOffical.setVisibility(View.INVISIBLE);
     }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        inflater.inflate(R.menu.forums_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater);
+
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch(item.getItemId()) {
+            case R.id.sort:
+                OptionListDialogFragment optionListDialogFragment = OptionListDialogFragment.newInstance(getActivity(),"Current Sort: " + selectedSort,null,null,this,AoConstants.SORT_OPTIONS_DIALOG);
+                optionListDialogFragment.setCancelable(true);
+                optionListDialogFragment.show(getFragmentManager(),"");
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+
+    @Override
+    public void onListSelected(Integer list, Integer selectedList) {
+        List<String> optionList = AoUtils.getOptionListFromID(getActivity(),selectedList);
+        String selectedOption = optionList.get(list);
+        selectedSort = selectedOption;
+        reloadThreads();
+    }
 }

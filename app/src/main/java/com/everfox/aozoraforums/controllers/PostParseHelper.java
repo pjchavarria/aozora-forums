@@ -21,10 +21,10 @@ public class PostParseHelper {
 
 
     private OnGetTimelinePostCommentsListener mOnGetTimelinePostCommentsCallback;
-
     public interface OnGetTimelinePostCommentsListener {
         public void onTimelinePostComments(List<TimelinePost> timelinePosts);
     }
+
     private Context context;
 
     public PostParseHelper(Context context, Activity timelinePostAct) {

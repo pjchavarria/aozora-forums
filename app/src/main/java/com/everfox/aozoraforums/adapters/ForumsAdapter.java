@@ -1,6 +1,7 @@
 package com.everfox.aozoraforums.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.LayoutInflaterCompat;
@@ -16,9 +17,12 @@ import android.widget.TextView;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.activities.ThreadActivity;
+import com.everfox.aozoraforums.activities.TimelinePostActivity;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.AoThreadTag;
 import com.everfox.aozoraforums.models.TimelinePost;
+import com.everfox.aozoraforums.utils.AoConstants;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.everfox.aozoraforums.utils.PostUtils;
 import com.everfox.aozoraforums.utils.ThreadUtils;
@@ -44,7 +48,8 @@ public class ForumsAdapter extends RecyclerView.Adapter {
     public static final int VIEW_AOART = 1;
     public static final int VIEW_AONEWS = 2;
     public static final int VIEW_AOTALK = 3;
-    public static final int VIEW_AOGUROFFICIAL = 4;
+    public static final int VIEW_AOGUR = 4;
+    public static final int VIEW_AOOFFICIAL = 5;
 
     public int viewType = 1;
     private List<AoThread> aoThreads;
@@ -73,7 +78,14 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         } else if (viewType == VIEW_AONEWS)  {
             View v = LayoutInflater.from(context).inflate(R.layout.layout_aonews_thread,parent,false);
             vh = new AoNewsViewHolder(v);
-        } else {
+        } else if (viewType == VIEW_AOGUR || viewType == VIEW_AOOFFICIAL)  {
+            View v = LayoutInflater.from(context).inflate(R.layout.layout_aogurofficial_thread,parent,false);
+            vh = new AoGurOfficialViewHolder(v);
+        }  else if (viewType == VIEW_AOTALK)  {
+            View v = LayoutInflater.from(context).inflate(R.layout.layout_aogurofficial_thread,parent,false);
+            vh = new AoTalkViewHolder(v);
+        }
+        else {
 
             View v = LayoutInflater.from(context)
                     .inflate(R.layout.progress_item, parent, false);
@@ -99,7 +111,116 @@ public class ForumsAdapter extends RecyclerView.Adapter {
 
             StickyViewHolder viewHolder = (StickyViewHolder)holder;
             bindStickyTread(viewHolder,aoThread);
+        }  else if(holder instanceof AoGurOfficialViewHolder) {
+
+            AoGurOfficialViewHolder viewHolder = (AoGurOfficialViewHolder)holder;
+            bindAoGurOfficialTread(viewHolder,aoThread);
+        } else if(holder instanceof AoTalkViewHolder) {
+
+            AoTalkViewHolder viewHolder = (AoTalkViewHolder)holder;
+            bindAoTalkThread(viewHolder,aoThread);
         }
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                AozoraForumsApp.setThreadToPass(aoThread);
+                Intent i = new Intent(context, ThreadActivity.class);
+                context.startActivity(i);
+            }
+        });
+    }
+
+
+    private void bindAoTalkThread(AoTalkViewHolder viewHolder, AoThread aoThread) {
+
+        //INITIALIZE
+        viewHolder.ivThreadImage.setImageDrawable(null);
+        viewHolder.ivThreadImage.setVisibility(View.GONE);
+        viewHolder.sdvThreadImageGif.setVisibility(View.GONE);
+        viewHolder.ivPlay.setVisibility(View.GONE);
+        viewHolder.llLinkLayout.setVisibility(View.GONE);
+
+        //ThreadTag
+        viewHolder.tvThreadTagPostedWhen.setText(ThreadUtils.getThreadTagWhenPosted(aoThread));
+        viewHolder.tvThreadTitle.setText(aoThread.getString(AoThread.TITLE));
+        viewHolder.tvThreadText.setText(aoThread.getString(AoThread.CONTENT));
+
+        viewHolder.rlThreadContent.setVisibility(View.VISIBLE);
+        //Load Video/Link/Image
+        if(aoThread.getParseFile(TimelinePost.IMAGE) != null) {
+            //File
+            ThreadUtils.loadThreadImageFileToImageView(context,aoThread,viewHolder.sdvThreadImageGif,viewHolder.ivThreadImage, viewHolder.ivPlay,false,true);
+        } else if(aoThread.getJSONArray(TimelinePost.IMAGES) != null  && aoThread.getJSONArray(TimelinePost.IMAGES) .length()>0 ) {
+            ThreadUtils.loadThreadImageURLToImageView(context,aoThread,viewHolder.sdvThreadImageGif,viewHolder.ivThreadImage, viewHolder.ivPlay,false,true);
+        } else if(aoThread.getString(TimelinePost.YOUTUBE_ID) != null) {
+            PostUtils.loadYoutubeImageIntoImageView(context,aoThread,viewHolder.ivThreadImage, viewHolder.ivPlay);
+        }else if (aoThread.getJSONObject(TimelinePost.LINK) != null) {
+            viewHolder.rlThreadContent.setVisibility(View.INVISIBLE);
+            PostUtils.loadLinkIntoLinkLayout(context,aoThread,viewHolder.llLinkLayout);
+        }
+
+        //Load Upvote/Downvote/Comments
+        List<ParseUser> listLiked = aoThread.getList(TimelinePost.LIKED_BY);
+        if(listLiked != null && listLiked.contains(currentUser)) {
+            viewHolder.ivUpvotes.setImageResource(R.drawable.icon_upvote_filled);
+        }
+        viewHolder.tvUpvotes.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.LIKE_COUNT)));
+        List<ParseUser> listUnliked = aoThread.getList(AoThread.UNLIKED_BY);
+        if(listUnliked != null && listUnliked.contains(currentUser)) {
+            viewHolder.ivDownvotes.setImageResource(R.drawable.icon_downvote_filled);
+        }
+        viewHolder.tvDownvotes.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(AoThread.UNLIKE_COUNT)));
+        viewHolder.tvComments.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.REPLY_COUNT)));
+    }
+
+
+    private void bindAoGurOfficialTread(AoGurOfficialViewHolder viewHolder, final AoThread aoThread) {
+
+        //INITIALIZE
+        viewHolder.ivThreadImage.setImageDrawable(null);
+        viewHolder.ivThreadImage.setVisibility(View.GONE);
+        viewHolder.sdvThreadImageGif.setVisibility(View.GONE);
+        viewHolder.ivPlay.setVisibility(View.GONE);
+        viewHolder.llLinkLayout.setVisibility(View.GONE);
+
+        //ThreadTag
+        viewHolder.tvThreadTagPostedWhen.setText(ThreadUtils.getThreadTagWhenPosted(aoThread));
+        if(viewType == VIEW_AOGUR) {
+            viewHolder.tvThreadTitle.setText(aoThread.getString(AoThread.TITLE));
+            viewHolder.tvThreadText.setVisibility(View.GONE);
+        }
+        else {
+            viewHolder.tvThreadTitle.setText(aoThread.getString(AoThread.TITLE));
+            viewHolder.tvThreadText.setText(aoThread.getString(AoThread.CONTENT));
+        }
+        viewHolder.rlThreadContent.setVisibility(View.VISIBLE);
+        //Load Video/Link/Image
+        if(aoThread.getParseFile(TimelinePost.IMAGE) != null) {
+            //File
+            ThreadUtils.loadThreadImageFileToImageView(context,aoThread,viewHolder.sdvThreadImageGif,viewHolder.ivThreadImage, viewHolder.ivPlay,false,false);
+        } else if(aoThread.getJSONArray(TimelinePost.IMAGES) != null  && aoThread.getJSONArray(TimelinePost.IMAGES) .length()>0 ) {
+            ThreadUtils.loadThreadImageURLToImageView(context,aoThread,viewHolder.sdvThreadImageGif,viewHolder.ivThreadImage, viewHolder.ivPlay,false,false);
+        } else if(aoThread.getString(TimelinePost.YOUTUBE_ID) != null) {
+            PostUtils.loadYoutubeImageIntoImageView(context,aoThread,viewHolder.ivThreadImage, viewHolder.ivPlay);
+        }else if (aoThread.getJSONObject(TimelinePost.LINK) != null) {
+            viewHolder.rlThreadContent.setVisibility(View.INVISIBLE);
+            PostUtils.loadLinkIntoLinkLayout(context,aoThread,viewHolder.llLinkLayout);
+        }
+
+        //Load Upvote/Downvote/Comments
+        List<ParseUser> listLiked = aoThread.getList(TimelinePost.LIKED_BY);
+        if(listLiked != null && listLiked.contains(currentUser)) {
+            viewHolder.ivUpvotes.setImageResource(R.drawable.icon_upvote_filled);
+        }
+        viewHolder.tvUpvotes.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.LIKE_COUNT)));
+        List<ParseUser> listUnliked = aoThread.getList(AoThread.UNLIKED_BY);
+        if(listUnliked != null && listUnliked.contains(currentUser)) {
+            viewHolder.ivDownvotes.setImageResource(R.drawable.icon_downvote_filled);
+        }
+        viewHolder.tvDownvotes.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(AoThread.UNLIKE_COUNT)));
+        viewHolder.tvComments.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.REPLY_COUNT)));
+
     }
 
     private void bindNewsThread(AoNewsViewHolder viewHolder, AoThread aoThread) {
@@ -114,7 +235,6 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         //ThreadTag
         viewHolder.tvNewsTagPostedWhen.setText(ThreadUtils.getThreadTagWhenPosted(aoThread));
         viewHolder.tvNewsTitle.setText(aoThread.getString(AoThread.TITLE));
-
         viewHolder.rlNewsImage.setVisibility(View.VISIBLE);
         //Load Video/Link/Image
         if(aoThread.getParseFile(TimelinePost.IMAGE) != null) {
@@ -158,9 +278,9 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         //LOAD VIDEO/LINK/IMAGE FOR THREAD
         if(aoThread.getParseFile(TimelinePost.IMAGE) != null) {
             //File
-            ThreadUtils.loadThreadImageFileToImageView(context,aoThread,viewHolder.sdvThreadImageGif,viewHolder.ivThreadImage, viewHolder.ivPlay,false);
+            ThreadUtils.loadThreadImageFileToImageView(context,aoThread,viewHolder.sdvThreadImageGif,viewHolder.ivThreadImage, viewHolder.ivPlay,false,false);
         } else if(aoThread.getJSONArray(TimelinePost.IMAGES) != null  && aoThread.getJSONArray(TimelinePost.IMAGES) .length()>0 ) {
-            ThreadUtils.loadThreadImageURLToImageView(context,aoThread,viewHolder.sdvThreadImageGif,viewHolder.ivThreadImage, viewHolder.ivPlay,false);
+            ThreadUtils.loadThreadImageURLToImageView(context,aoThread,viewHolder.sdvThreadImageGif,viewHolder.ivThreadImage, viewHolder.ivPlay,false,false);
         } else if(aoThread.getString(TimelinePost.YOUTUBE_ID) != null) {
             PostUtils.loadYoutubeImageIntoImageView(context,aoThread,viewHolder.ivThreadImage, viewHolder.ivPlay);
         }
@@ -189,7 +309,7 @@ public class ForumsAdapter extends RecyclerView.Adapter {
     @Override
     public int getItemViewType(int position) {
         return aoThreads.get(position).getObjectId() != null ?
-                aoThreads.get(position).getShowAsPinned() ? VIEW_GLOBAL : viewType : VIEW_PROG;
+                aoThreads.get(position).getShowAsPinned()  && viewType != VIEW_AOOFFICIAL ? VIEW_GLOBAL : viewType : VIEW_PROG;
     }
 
     @Override
@@ -302,6 +422,116 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         ImageView ivGoToLink;
 
         public AoNewsViewHolder(View view) {
+            super(view);
+            ButterKnife.bind(this, view);
+        }
+    }
+
+    public static class AoGurOfficialViewHolder extends RecyclerView.ViewHolder{
+
+        @BindView(R.id.tvThreadTagPostedWhen)
+        TextView tvThreadTagPostedWhen;
+
+        @BindView(R.id.tvThreadTitle)
+        TextView tvThreadTitle;
+        @BindView(R.id.tvThreadText)
+        TextView tvThreadText;
+
+        @BindView(R.id.sdvThreadImageGif)
+        SimpleDraweeView sdvThreadImageGif;
+        @BindView(R.id.ivThreadImage)
+        ImageView ivThreadImage;
+        @BindView(R.id.ivPlay)
+        ImageView ivPlay;
+
+        @BindView(R.id.rlThreadContent)
+        RelativeLayout rlThreadContent;
+
+        @BindView(R.id.ivUpvotes)
+        ImageView ivUpvotes;
+        @BindView(R.id.tvUpvotes)
+        TextView tvUpvotes;
+        @BindView(R.id.ivComments)
+        ImageView ivComments;
+        @BindView(R.id.tvComments)
+        TextView tvComments;
+        @BindView(R.id.ivDownvotes)
+        ImageView ivDownvotes;
+        @BindView(R.id.tvDownvotes)
+        TextView tvDownvotes;
+        @BindView(R.id.ivAddReply)
+        ImageView ivAddReply;
+
+        @BindView(R.id.llLinkLayout)
+        LinearLayout llLinkLayout;
+        @BindView(R.id.ivLinkImage)
+        ImageView ivLinkImage;
+        @BindView(R.id.tvLinkTitle)
+        TextView tvLinkTitle;
+        @BindView(R.id.tvLinkDesc)
+        TextView tvLinkDesc;
+        @BindView(R.id.tvLinkURL)
+        TextView tvLinkURL;
+
+        @BindView(R.id.ivGoToLink)
+        ImageView ivGoToLink;
+
+        public AoGurOfficialViewHolder(View view) {
+            super(view);
+            ButterKnife.bind(this, view);
+        }
+    }
+
+    public static class AoTalkViewHolder extends RecyclerView.ViewHolder{
+
+        @BindView(R.id.tvThreadTagPostedWhen)
+        TextView tvThreadTagPostedWhen;
+
+        @BindView(R.id.tvThreadTitle)
+        TextView tvThreadTitle;
+        @BindView(R.id.tvThreadText)
+        TextView tvThreadText;
+
+        @BindView(R.id.sdvThreadImageGif)
+        SimpleDraweeView sdvThreadImageGif;
+        @BindView(R.id.ivThreadImage)
+        ImageView ivThreadImage;
+        @BindView(R.id.ivPlay)
+        ImageView ivPlay;
+
+        @BindView(R.id.rlThreadContent)
+        RelativeLayout rlThreadContent;
+
+        @BindView(R.id.ivUpvotes)
+        ImageView ivUpvotes;
+        @BindView(R.id.tvUpvotes)
+        TextView tvUpvotes;
+        @BindView(R.id.ivComments)
+        ImageView ivComments;
+        @BindView(R.id.tvComments)
+        TextView tvComments;
+        @BindView(R.id.ivDownvotes)
+        ImageView ivDownvotes;
+        @BindView(R.id.tvDownvotes)
+        TextView tvDownvotes;
+        @BindView(R.id.ivAddReply)
+        ImageView ivAddReply;
+
+        @BindView(R.id.llLinkLayout)
+        LinearLayout llLinkLayout;
+        @BindView(R.id.ivLinkImage)
+        ImageView ivLinkImage;
+        @BindView(R.id.tvLinkTitle)
+        TextView tvLinkTitle;
+        @BindView(R.id.tvLinkDesc)
+        TextView tvLinkDesc;
+        @BindView(R.id.tvLinkURL)
+        TextView tvLinkURL;
+
+        @BindView(R.id.ivGoToLink)
+        ImageView ivGoToLink;
+
+        public AoTalkViewHolder(View view) {
             super(view);
             ButterKnife.bind(this, view);
         }

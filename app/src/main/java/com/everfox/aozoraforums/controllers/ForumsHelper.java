@@ -1,6 +1,7 @@
 package com.everfox.aozoraforums.controllers;
 
 import android.content.Context;
+import android.provider.SyncStateContract;
 import android.support.v4.app.Fragment;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
@@ -71,7 +72,7 @@ public class ForumsHelper {
         });
     }
 
-    public void GetThreads(String selectedList, String selectedSort,int skip, int limit) {
+    public void GetThreads(final String selectedList, String selectedSort, int skip, int limit) {
 
         ParseQuery<AoThread> query = ParseQuery.getQuery(AoThread.class);
         query.whereEqualTo(AoThread.TYPE,AoConstants.USERTHREAD);
@@ -101,11 +102,11 @@ public class ForumsHelper {
         query.findInBackground(new FindCallback<AoThread>() {
             @Override
             public void done(List<AoThread> objects, ParseException e) {
-                if(e== null)
+                if(e== null) {
                     mGetThreadsCallback.onGetThreads(objects);
+                }
             }
         });
-
 
     }
 

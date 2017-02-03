@@ -1,6 +1,5 @@
 package com.everfox.aozoraforums.activities;
 
-import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -11,7 +10,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -19,10 +17,9 @@ import android.widget.Toast;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
-import com.everfox.aozoraforums.adapters.ProfileTimelineAdapter;
 import com.everfox.aozoraforums.adapters.TimelinePostsAdapter;
 import com.everfox.aozoraforums.controllers.PostParseHelper;
-import com.everfox.aozoraforums.controllers.ProfileParseHelper;
+import com.everfox.aozoraforums.fragments.FollowersFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
@@ -32,7 +29,6 @@ import com.parse.ParseException;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,11 +46,11 @@ public class TimelinePostActivity extends AppCompatActivity implements PostParse
 
     @BindView(R.id.pbLoading)
     ProgressBar pbLoading;
-    @BindView(R.id.rvPostComments)
+    @BindView(R.id.rvComments)
     RecyclerView rvPostComments;
     @BindView(R.id.llAddComment)
     LinearLayout llAddComment;
-    @BindView(R.id.swipeRefreshPost)
+    @BindView(R.id.swipeRefresh)
     SwipeRefreshLayout swipeRefreshPost;
     @BindView(R.id.rlContent)
     RelativeLayout rlContent;
@@ -64,7 +60,7 @@ public class TimelinePostActivity extends AppCompatActivity implements PostParse
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_timeline_post);
+        setContentView(R.layout.activity_thread_post);
         ButterKnife.bind(this);
         parentPost = AozoraForumsApp.getTimelinePostToPass();
         llm = new LinearLayoutManager(TimelinePostActivity.this);
@@ -103,21 +99,13 @@ public class TimelinePostActivity extends AppCompatActivity implements PostParse
 
             new PostParseHelper(this, this)
                     .GetTimelinePostComments(parentPost, 0, 2000);
-            swipeRefreshPost.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                @Override
-                public void onRefresh() {
-                    if (!isLoading)
-                        reloadPosts();
-                }
-            });
         }
-
 
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
-                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.flContent);
-                if (currentFragment != null && currentFragment instanceof ProfileFragment) {
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.flNewFragments);
+                if (currentFragment != null && currentFragment instanceof ProfileFragment  || currentFragment instanceof FollowersFragment) {
                     currentFragment.onResume();
                 }
             }

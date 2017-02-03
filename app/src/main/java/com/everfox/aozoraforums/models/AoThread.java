@@ -48,4 +48,6 @@ public class AoThread extends ParseObject {
     public static final String UNLIKE_COUNT = "unlikeCount";
     public static final String UNLIKED_BY = "unlikedBy";
     public static final String TITLE = "title";
+    public static final String CONTENT = "content";
+    public static final String VIEWS = "views";
 }
