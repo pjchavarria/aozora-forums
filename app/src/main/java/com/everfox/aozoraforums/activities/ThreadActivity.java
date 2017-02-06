@@ -20,10 +20,12 @@ import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.adapters.AoThreadAdapter;
 import com.everfox.aozoraforums.adapters.TimelinePostsAdapter;
 import com.everfox.aozoraforums.controllers.ThreadHelper;
+import com.everfox.aozoraforums.fragments.CommentPostFragment;
 import com.everfox.aozoraforums.fragments.FollowersFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.ParseUserColumns;
+import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.parse.ParseObject;
@@ -74,7 +76,7 @@ AoThreadAdapter.OnCommentTappedListener{
                     reloadThread();
             }
         });
-        new ThreadHelper(this,this).GetThreadComments(parentThread,0,2000);
+        new ThreadHelper(this,this,null).GetThreadComments(parentThread,0,2000);
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
@@ -89,7 +91,7 @@ AoThreadAdapter.OnCommentTappedListener{
 
     private void reloadThread() {
         isLoading = true;
-        new ThreadHelper(this,this).GetThreadComments(parentThread,0,2000);
+        new ThreadHelper(this,this,null).GetThreadComments(parentThread,0,2000);
     }
 
     @Override
@@ -98,10 +100,6 @@ AoThreadAdapter.OnCommentTappedListener{
         if(parentThread != null)
             setTitle(parentThread.getString(AoThread.TITLE));
 
-        //TEST
-        ArrayList<ParseObject> lstItems = new ArrayList<>();
-        lstItems.add(parentThread);
-        onGetThreadComments(lstItems);
     }
 
 
@@ -113,7 +111,8 @@ AoThreadAdapter.OnCommentTappedListener{
         aoThreadAdapter = new AoThreadAdapter(this,comments,this);
         rvThreadComments.setAdapter(aoThreadAdapter);
         pbLoading.setVisibility(View.GONE);
-        rvThreadComments.setVisibility(View.VISIBLE);
+        swipeRefresh.setVisibility(View.VISIBLE);
+        llAddComment.setVisibility(View.VISIBLE);
         if(aoThreadAdapter.getItemCount() == 0){
             RecyclerView.RecycledViewPool recycledViewPool = rvThreadComments.getRecycledViewPool();
             recycledViewPool.setMaxRecycledViews(TimelinePostsAdapter.ITEM_FIRST_POST,0);
@@ -142,6 +141,12 @@ AoThreadAdapter.OnCommentTappedListener{
 
     @Override
     public void onCommentTapped(ParseObject commentTapped) {
-
+        if(!AoUtils.isActivityInvalid(this)) {
+            CommentPostFragment commentPostFragment = null;
+            commentPostFragment = CommentPostFragment.newInstance((Post)commentTapped);
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.add(R.id.flNewFragments, commentPostFragment).addToBackStack(null).commitAllowingStateLoss();
+        }
     }
 }

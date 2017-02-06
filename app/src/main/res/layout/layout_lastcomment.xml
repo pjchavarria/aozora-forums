@@ -54,30 +54,6 @@
                 android:autoLink="all"
                 />
 
-            <TextView
-                android:id="@+id/tvLastCommentSpoilerOpen"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/gray3C"
-                android:textSize="16sp"
-                android:visibility="gone"
-                android:text="[Show Spoilers]"
-                />
-
-            <TextView
-                android:id="@+id/tvLastCommentSpoilerText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/gray3C"
-                android:textSize="16sp"
-                android:visibility="gone"
-                android:text=""
-                android:layout_marginTop="5dp"
-                android:textColorLink="@color/inapp_blue"
-                android:linksClickable="false"
-                android:autoLink="all"
-                />
-
 
             <RelativeLayout
                 android:id="@+id/rlLastCommentContent"

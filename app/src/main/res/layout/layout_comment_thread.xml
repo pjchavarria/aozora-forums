@@ -54,30 +54,6 @@
                 android:autoLink="all"
                 />
 
-            <TextView
-                android:id="@+id/tvCommentSpoilerOpen"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/gray3C"
-                android:textSize="16sp"
-                android:visibility="gone"
-                android:text="[Show Spoilers]"
-                />
-
-            <TextView
-                android:id="@+id/tvCommentSpoilerText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/gray3C"
-                android:textSize="16sp"
-                android:visibility="gone"
-                android:text=""
-                android:layout_marginTop="5dp"
-                android:textColorLink="@color/inapp_blue"
-                android:linksClickable="false"
-                android:autoLink="all"
-                />
-
 
             <RelativeLayout
                 android:id="@+id/rlCommentContent"
@@ -158,13 +134,15 @@
         android:id="@+id/llLastComment"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        >
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
             android:background="@color/grayE5"
             android:layout_marginTop="5dp"
-            android:layout_marginBottom="10dp"
+            android:layout_marginBottom="5dp"
             ></View>
 
         <TextView
@@ -178,11 +156,9 @@
 
         <include
             android:layout_marginLeft="40dp"
-            android:layout_marginTop="10dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             layout="@layout/layout_lastcomment"></include>
-
 
     </LinearLayout>
 </LinearLayout>

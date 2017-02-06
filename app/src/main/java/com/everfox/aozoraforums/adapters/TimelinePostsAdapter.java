@@ -351,8 +351,6 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         SimpleDraweeView sdvCommentImageGif;
         @BindView(R.id.ivCommentPlay)
         ImageView ivCommentPlay;
-        @BindView(R.id.llLinkLayout)
-        LinearLayout llLinkLayout;
 
         public ViewHolderComment(View itemView) {
             super(itemView);

@@ -59,6 +59,7 @@
                 android:visibility="gone"
                 fresco:viewAspectRatio="2"
                 fresco:actualImageScaleType="fitCenter"
+                android:adjustViewBounds="true"
                 />
 
             <ImageView

@@ -9,6 +9,7 @@ import com.everfox.aozoraforums.models.AoNotification;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.AoThreadTag;
 import com.everfox.aozoraforums.models.PUser;
+import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.models.UserDetails;
 import com.everfox.aozoraforums.utils.AoUtils;
@@ -103,6 +104,7 @@ public class AozoraForumsApp extends Application {
         ParseObject.registerSubclass(AoThread.class);
         ParseObject.registerSubclass(AoThreadTag.class);
         ParseObject.registerSubclass(Anime.class);
+        ParseObject.registerSubclass(Post.class);
 
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId("AneKeKPLygTGmVmqWsY6totXXTQfk8")

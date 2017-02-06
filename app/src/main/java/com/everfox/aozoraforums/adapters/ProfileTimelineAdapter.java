@@ -220,6 +220,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         //LastReply
         if(post.getParseObject(TimelinePost.LAST_REPLY) != null) {
 
+            holder.llLastComment.setVisibility(View.VISIBLE);
             if(post.getInt(TimelinePost.REPLY_COUNT)>1) {
                 holder.tvViewPreviousComments.setVisibility(View.VISIBLE);
             }

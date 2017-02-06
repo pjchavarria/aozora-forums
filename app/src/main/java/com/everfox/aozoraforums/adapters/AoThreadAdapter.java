@@ -2,8 +2,13 @@ package com.everfox.aozoraforums.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +20,8 @@ import android.widget.TextView;
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.models.AoThread;
+import com.everfox.aozoraforums.models.ParseUserColumns;
+import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.everfox.aozoraforums.utils.PostUtils;
@@ -56,6 +63,7 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
         this.currentUser = ParseUser.getCurrentUser();
         awesomeTypeface = AozoraForumsApp.getAwesomeTypeface();
         mOnUsernameTappedCallback = (OnUsernameTappedListener) callback;
+        mOnCommentTappedCallback = (OnCommentTappedListener) callback;
     }
 
     @Override
@@ -88,7 +96,7 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
                 break;
             case ITEM_COMMENT:
                 ViewHolderComment vhComment = (ViewHolderComment) holder;
-                configureViewHolderComment(vhComment,position);
+                configureViewHolderComment(vhComment,(Post)parseObject);
                 break;
         }
     }
@@ -142,7 +150,101 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
     }
 
 
-    private void configureViewHolderComment(ViewHolderComment vhComment, int position) {
+    private void configureViewHolderComment(ViewHolderComment vhComment, final Post post) {
+
+        vhComment.ivCommentImage.setImageDrawable(null);
+        vhComment.ivCommentImage.setVisibility(View.GONE);
+        vhComment.sdvCommentImageGif.setVisibility(View.GONE);
+        vhComment.ivCommentPlay.setVisibility(View.GONE);
+        vhComment.tvViewPreviousComments.setVisibility(View.GONE);
+
+        ParseUser userComment = (ParseUser)post.getParseObject(TimelinePost.POSTED_BY);
+        PostUtils.loadAvatarPic(userComment.getParseFile(ParseUserColumns.AVATAR_THUMB), vhComment.ivCommentAvatar);
+        if (userComment.getBoolean(ParseUserColumns.ACTIVE)) {
+            vhComment.tvCommentUserActive.setVisibility(View.VISIBLE);
+        }
+        Spannable username = new SpannableString(userComment.getString(ParseUserColumns.AOZORA_USERNAME));
+        username.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context,R.color.inapp_blue)), 0, username.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        vhComment.tvCommentText.setText(username);
+        Spannable content = new SpannableString(" " + post.getString(TimelinePost.CONTENT));
+        content.setSpan(new ForegroundColorSpan(Color.BLACK), 0, content.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        vhComment.tvCommentText.append(content);
+
+        if(post.getParseFile(TimelinePost.IMAGE) != null) {
+            //File
+            PostUtils.loadTimelinePostImageFileToImageView(context,post,vhComment.sdvCommentImageGif,vhComment.ivCommentImage, vhComment.ivCommentPlay,false);
+        } else if(post.getJSONArray(TimelinePost.IMAGES) != null  && post.getJSONArray(TimelinePost.IMAGES) .length()>0 ) {
+            PostUtils.loadTimelinePostImageURLToImageView(context,post,vhComment.sdvCommentImageGif,vhComment.ivCommentImage, vhComment.ivCommentPlay,false);
+        } else if(post.getString(TimelinePost.YOUTUBE_ID) != null) {
+            PostUtils.loadYoutubeImageIntoImageView(context,post,vhComment.ivCommentImage,vhComment.ivCommentPlay);
+        }
+
+        vhComment.tvCommentWhen.setText(PostUtils.getWhenWasPosted(post));
+        vhComment.tvCommentNumberLikes.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.LIKE_COUNT)));
+        List<ParseUser> listLastCommentLiked = post.getList(TimelinePost.LIKED_BY);
+        if(listLastCommentLiked != null && listLastCommentLiked.contains(currentUser)) {
+            vhComment.ivCommentLikes.setImageResource(R.drawable.icon_like_small);
+        }
+
+
+        //LastReply
+        if(post.getParseObject(TimelinePost.LAST_REPLY) != null) {
+
+            vhComment.llLastComment.setVisibility(View.VISIBLE);
+            if(post.getInt(TimelinePost.REPLY_COUNT)>1) {
+                vhComment.tvViewPreviousComments.setVisibility(View.VISIBLE);
+            }
+            //Load info last comment
+            LoadInfoLastReply(vhComment,(Post) post.getParseObject(TimelinePost.LAST_REPLY));
+
+
+        } else {
+            vhComment.llLastComment.setVisibility(View.GONE);
+        }
+
+        vhComment.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnCommentTappedCallback.onCommentTapped(post);
+            }
+        });
+    }
+
+    private void LoadInfoLastReply(ViewHolderComment vhComment, Post lastComment) {
+
+        vhComment.ivLastCommentImage.setImageDrawable(null);
+        vhComment.ivLastCommentImage.setVisibility(View.GONE);
+        vhComment.sdvLastCommentImageGif.setVisibility(View.GONE);
+        vhComment.ivLastCommentPlay.setVisibility(View.GONE);
+
+        ParseUser userComment = (ParseUser)lastComment.getParseObject(TimelinePost.POSTED_BY);
+        PostUtils.loadAvatarPic(userComment.getParseFile(ParseUserColumns.AVATAR_THUMB), vhComment.ivLastCommentAvatar);
+        if (userComment.getBoolean(ParseUserColumns.ACTIVE)) {
+            vhComment.tvLastCommentUserActive.setVisibility(View.VISIBLE);
+        }
+        Spannable username = new SpannableString(userComment.getString(ParseUserColumns.AOZORA_USERNAME));
+        username.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context,R.color.inapp_blue)), 0, username.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        vhComment.tvLastCommentText.setText(username);
+        Spannable content = new SpannableString(" " + lastComment.getString(TimelinePost.CONTENT));
+        content.setSpan(new ForegroundColorSpan(Color.BLACK), 0, content.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        vhComment.tvLastCommentText.append(content);
+
+        if(lastComment.getParseFile(TimelinePost.IMAGE) != null) {
+            //File
+            PostUtils.loadTimelinePostImageFileToImageView(context,lastComment,vhComment.sdvLastCommentImageGif,vhComment.ivLastCommentImage, vhComment.ivLastCommentPlay,false);
+        } else if(lastComment.getJSONArray(TimelinePost.IMAGES) != null  && lastComment.getJSONArray(TimelinePost.IMAGES) .length()>0 ) {
+            PostUtils.loadTimelinePostImageURLToImageView(context,lastComment,vhComment.sdvLastCommentImageGif,vhComment.ivLastCommentImage, vhComment.ivLastCommentPlay,false);
+        } else if(lastComment.getString(TimelinePost.YOUTUBE_ID) != null) {
+            PostUtils.loadYoutubeImageIntoImageView(context,lastComment,vhComment.ivLastCommentImage,vhComment.ivLastCommentPlay);
+        }
+
+        vhComment.tvLastCommentWhen.setText(PostUtils.getWhenWasPosted(lastComment));
+        vhComment.tvLastCommentNumberLikes.setText(AoUtils.numberToStringOrZero(lastComment.getNumber(TimelinePost.LIKE_COUNT)));
+        List<ParseUser> listLastCommentLiked = lastComment.getList(TimelinePost.LIKED_BY);
+        if(listLastCommentLiked != null && listLastCommentLiked.contains(currentUser)) {
+            vhComment.ivLastCommentLikes.setImageResource(R.drawable.icon_like_small);
+        }
+
     }
 
 
@@ -168,8 +270,6 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
         @BindView(R.id.ivCommentAvatar) ImageView ivCommentAvatar;
         @BindView(R.id.tvCommentUserActive) View tvCommentUserActive;
         @BindView(R.id.tvCommentText) TextView tvCommentText;
-        @BindView(R.id.tvCommentSpoilerOpen) TextView tvCommentSpoilerOpen;
-        @BindView(R.id.tvCommentSpoilerText) TextView tvCommentSpoilerText;
         @BindView(R.id.rlCommentContent) RelativeLayout rlCommentContent;
         @BindView(R.id.ivCommentImage) ImageView ivCommentImage;
         @BindView(R.id.tvCommentWhen) TextView tvCommentWhen;
@@ -187,8 +287,6 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
         @BindView(R.id.ivLastCommentAvatar) ImageView ivLastCommentAvatar;
         @BindView(R.id.tvLastCommentUserActive) View tvLastCommentUserActive;
         @BindView(R.id.tvLastCommentText) TextView tvLastCommentText;
-        @BindView(R.id.tvLastCommentSpoilerOpen) TextView tvLastCommentSpoilerOpen;
-        @BindView(R.id.tvLastCommentSpoilerText) TextView tvLastCommentSpoilerText;
         @BindView(R.id.ivLastCommentImage) ImageView ivLastCommentImage;
         @BindView(R.id.tvLastCommentWhen) TextView tvLastCommentWhen;
         @BindView(R.id.ivLastCommentLikes) ImageView ivLastCommentLikes;
