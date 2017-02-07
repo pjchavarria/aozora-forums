@@ -109,9 +109,9 @@ FollowersAdapter.OnFollowTappedListener, FollowersAdapter.OnUserTappedListener{
                 rvFollowers.setVisibility(View.GONE);
                 ProfileFragment pf = null;
                 if(ParseUser.getCurrentUser().getObjectId().equals(userTapped.getObjectId()))
-                    pf = ProfileFragment.newInstance(userTapped, true, true,null);
+                    pf = ProfileFragment.newInstance(userTapped, true, true,null,true);
                 else
-                    pf = ProfileFragment.newInstance(userTapped, true, false,null);
+                    pf = ProfileFragment.newInstance(userTapped, true, false,null,true);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.add(R.id.flContent, pf).addToBackStack(null).commitAllowingStateLoss();

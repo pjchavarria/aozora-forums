@@ -1,10 +1,13 @@
 package com.everfox.aozoraforums.activities;
 
+import android.content.Intent;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -14,10 +17,12 @@ import android.widget.TextView;
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.controllers.FriendsController;
+import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
 import com.everfox.aozoraforums.fragments.FollowersFragment;
 import com.everfox.aozoraforums.fragments.ForumsFragment;
 import com.everfox.aozoraforums.fragments.NotificationsFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
+import com.everfox.aozoraforums.utils.AoConstants;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.parse.ParseUser;
@@ -33,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     ProfileFragment feedFragment;
     NotificationsFragment notificationsFragment;
     LinearLayout llNavBar;
+    Boolean hasMenu=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
                     //cambiamos el icono del boton a "selected"
 
                     //Cargamos AnimeInfoFragment
-                    OpenProfileFragment(ParseUser.getCurrentUser());
+                    OpenProfileFragment(ParseUser.getCurrentUser(),true);
                 }
             }
         });
@@ -105,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
 
         if(AozoraForumsApp.getProfileToPass()!= null) {
             llNavBar.setVisibility(View.GONE);
-            OpenProfileFragment(AozoraForumsApp.getProfileToPass());
+            OpenProfileFragment(AozoraForumsApp.getProfileToPass(),false);
             AozoraForumsApp.setProfileToPass(null);
         }
         FriendsController.fetchFollowing();
@@ -130,11 +136,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-
     private void OpenFeedFragment(ParseUser user) {
         if(!AoUtils.isActivityInvalid(MainActivity.this)) {
             if (feedFragment == null)
-                feedFragment = ProfileFragment.newInstance(user, false, true,null);
+                feedFragment = ProfileFragment.newInstance(user, false, true,null,true);
             else
                 feedFragment.scrollFeedToStart();
             FragmentManager fragmentManager = getSupportFragmentManager();
@@ -156,13 +161,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void OpenProfileFragment(ParseUser user) {
+    private void OpenProfileFragment(ParseUser user,Boolean hasMenu) {
         if(!AoUtils.isActivityInvalid(MainActivity.this)) {
             if (profileFragment == null)
                 if(ParseUser.getCurrentUser().getObjectId().equals(user.getObjectId()))
-                    profileFragment = ProfileFragment.newInstance(user, true, true,null);
+                    profileFragment = ProfileFragment.newInstance(user, true, true,null,hasMenu);
                 else
-                    profileFragment = ProfileFragment.newInstance(user, true, false,null);
+                    profileFragment = ProfileFragment.newInstance(user, true, false,null,hasMenu);
             else
                 profileFragment.scrollProfileToStart();
             FragmentManager fragmentManager = getSupportFragmentManager();
@@ -171,5 +176,21 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.search_menu, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch(item.getItemId()) {
+            case R.id.search:
+                Intent i = new Intent(this,SearchActivity.class);
+                startActivity(i);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 }

@@ -151,19 +151,11 @@ public class TimelinePostActivity extends AppCompatActivity implements PostParse
     public void onUsernameTapped(ParseUser userTapped) {
 
         if(!AoUtils.isActivityInvalid(TimelinePostActivity.this)) {
-            //Abrimos Main Activity y le mandamos usuario
-
-            /*
-            AozoraForumsApp.setProfileToPass(userTapped);
-            Toast.makeText(this,userTapped.getString(ParseUserColumns.AOZORA_USERNAME),Toast.LENGTH_SHORT).show();
-            Intent i = new Intent(this,MainActivity.class);
-            startActivity(i);
-            */
             ProfileFragment profileFragment = null;
             if(ParseUser.getCurrentUser().getObjectId().equals(userTapped.getObjectId()))
-                profileFragment = ProfileFragment.newInstance(ParseUser.getCurrentUser(), true, true,null);
+                profileFragment = ProfileFragment.newInstance(ParseUser.getCurrentUser(), true, true,null,true);
             else
-                profileFragment = ProfileFragment.newInstance(userTapped, true, false,null);
+                profileFragment = ProfileFragment.newInstance(userTapped, true, false,null,true);
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.add(R.id.flNewFragments, profileFragment).addToBackStack(null).commitAllowingStateLoss();

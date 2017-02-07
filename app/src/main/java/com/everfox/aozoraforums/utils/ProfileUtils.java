@@ -58,6 +58,7 @@ public class ProfileUtils {
             return "ACTIVE NOW";
         else {
             Date dateCreated = user.getDate(ParseUserColumns.ACTIVE_END);
+            if(dateCreated == null) return "";
             Date currentDate = Calendar.getInstance().getTime();
 
 

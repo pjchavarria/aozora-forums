@@ -111,9 +111,9 @@ public class CommentPostFragment extends Fragment implements ThreadHelper.OnGetP
         if(!AoUtils.isActivityInvalid(getActivity())) {
             ProfileFragment profileFragment = null;
             if(ParseUser.getCurrentUser().getObjectId().equals(userTapped.getObjectId()))
-                profileFragment = ProfileFragment.newInstance(ParseUser.getCurrentUser(), true, true,null);
+                profileFragment = ProfileFragment.newInstance(ParseUser.getCurrentUser(), true, true,null,true);
             else
-                profileFragment = ProfileFragment.newInstance(userTapped, true, false,null);
+                profileFragment = ProfileFragment.newInstance(userTapped, true, false,null,true);
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.add(R.id.flNewFragments, profileFragment).addToBackStack(null).commitAllowingStateLoss();

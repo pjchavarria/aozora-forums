@@ -40,6 +40,7 @@ import butterknife.ButterKnife;
 public class ThreadActivity extends AppCompatActivity implements AoThreadAdapter.OnUsernameTappedListener, ThreadHelper.OnGetThreadCommentsListener,
 AoThreadAdapter.OnCommentTappedListener{
 
+    Boolean hasMenu = true;
     AoThread parentThread;
     LinearLayoutManager llm;
     AoThreadAdapter aoThreadAdapter;
@@ -64,6 +65,7 @@ AoThreadAdapter.OnCommentTappedListener{
         setContentView(R.layout.activity_thread_post);
         ButterKnife.bind(this);
         parentThread = AozoraForumsApp.getThreadToPass();
+        hasMenu = parentThread.getHasMenu();
         llm = new LinearLayoutManager(this);
         rvThreadComments.setLayoutManager(llm);
         aoThreadAdapter = new AoThreadAdapter(this,new ArrayList<ParseObject>(),this);
@@ -129,9 +131,9 @@ AoThreadAdapter.OnCommentTappedListener{
         if(!AoUtils.isActivityInvalid(this)) {
             ProfileFragment profileFragment = null;
             if(ParseUser.getCurrentUser().getObjectId().equals(userTapped.getObjectId()))
-                profileFragment = ProfileFragment.newInstance(ParseUser.getCurrentUser(), true, true,null);
+                profileFragment = ProfileFragment.newInstance(ParseUser.getCurrentUser(), true, true,null,hasMenu);
             else
-                profileFragment = ProfileFragment.newInstance(userTapped, true, false,null);
+                profileFragment = ProfileFragment.newInstance(userTapped, true, false,null,hasMenu);
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.add(R.id.flNewFragments, profileFragment).addToBackStack(null).commitAllowingStateLoss();

@@ -59,6 +59,7 @@ OptionListDialogFragment.OnListSelectedListener{
     LinearLayoutManager llm;
     ForumsHelper forumsHelper;
     ArrayList<AoThread> lstThreads = new ArrayList<>();
+    Boolean hasMenu = true;
 
 
     @BindView(R.id.rlAoArt)
@@ -105,7 +106,6 @@ OptionListDialogFragment.OnListSelectedListener{
         View view = inflater.inflate(R.layout.fragment_forums, container, false);
         ButterKnife.bind(this,view);
         setHasOptionsMenu(true);
-
         forumsHelper = new ForumsHelper(getActivity(),this);
         if(AozoraForumsApp.getGlobalThreads().size()==0) {
             forumsHelper.GetGlobalThreads();
@@ -294,6 +294,7 @@ OptionListDialogFragment.OnListSelectedListener{
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        menu.clear();
         inflater.inflate(R.menu.forums_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
 

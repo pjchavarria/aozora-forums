@@ -10,6 +10,17 @@ import com.parse.ParseObject;
 @ParseClassName("Thread")
 public class AoThread extends ParseObject {
 
+    public Boolean getHasMenu() {
+        if(hasMenu == null)
+            return true;
+        return hasMenu;
+    }
+
+    public void setHasMenu(Boolean hasMenu) {
+        this.hasMenu = hasMenu;
+    }
+
+    private Boolean hasMenu;
 
     public Boolean getHideDivider() {
         if(hideDivider == null)
@@ -50,4 +61,5 @@ public class AoThread extends ParseObject {
     public static final String TITLE = "title";
     public static final String CONTENT = "content";
     public static final String VIEWS = "views";
+    public static final String UPDATEDAT = "updatedAt";
 }

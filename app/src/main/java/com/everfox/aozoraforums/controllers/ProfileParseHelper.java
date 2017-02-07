@@ -36,7 +36,6 @@ public class ProfileParseHelper {
     public static final String AOZORA_ACCOUNT = "bR0T6mStO";
 
     private OnGetProfilePostsListener mOnGetProfilePostsCallback;
-
     public interface OnGetProfilePostsListener {
         public void onGetProfilePosts(List<TimelinePost> timelinePosts);
     }

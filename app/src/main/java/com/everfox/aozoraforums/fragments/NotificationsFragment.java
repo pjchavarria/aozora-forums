@@ -238,9 +238,9 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
                 String userID = notificationTaped.getString(AoNotification.TARGET_ID);
                 ProfileFragment profileFragment = null;
                 if(ParseUser.getCurrentUser().getObjectId().equals(userID))
-                    profileFragment = ProfileFragment.newInstance(ParseUser.getCurrentUser(), true, true,null);
+                    profileFragment = ProfileFragment.newInstance(ParseUser.getCurrentUser(), true, true,null,true);
                 else
-                    profileFragment = ProfileFragment.newInstance(null, true, false,userID);
+                    profileFragment = ProfileFragment.newInstance(null, true, false,userID,true);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.add(R.id.flContent, profileFragment).addToBackStack(null).commitAllowingStateLoss();

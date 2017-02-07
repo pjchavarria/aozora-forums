@@ -15,6 +15,8 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -82,6 +84,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
     int selectedList;
     String userID = null;
     Date lastItemDate = null;
+    Boolean hasMenu = true;
 
     RecyclerView rvTimeline;
 
@@ -126,12 +129,13 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
     @BindView(R.id.llFollowing)
     LinearLayout llFollowing;
 
-    public static ProfileFragment newInstance(ParseUser user,Boolean isProfile, Boolean isCurrentUser, String userID) {
+    public static ProfileFragment newInstance(ParseUser user,Boolean isProfile, Boolean isCurrentUser, String userID, Boolean hasMenu) {
         ProfileFragment fragment = new ProfileFragment();
         fragment.user = user;
         fragment.isProfile = isProfile;
         fragment.isCurrentUser = isCurrentUser;
         fragment.userID = userID;
+        fragment.hasMenu = hasMenu;
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
@@ -158,7 +162,17 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         llProfileTimeline.setVisibility(View.GONE);
         if(user != null)
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(user.getString(ParseUserColumns.AOZORA_USERNAME));
+        setHasOptionsMenu(true);
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+
+        if(!hasMenu) {
+            menu.clear();
+        }
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -304,29 +318,47 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         else
             tvLastActive.setText(ProfileUtils.lastActiveFromUser(user));
 
-        user.getParseObject(ParseUserColumns.DETAILS).fetchIfNeededInBackground(new GetCallback<UserDetails>() {
-            @Override
-            public void done(UserDetails object, ParseException e) {
+        ParseObject details =user.getParseObject(ParseUserColumns.DETAILS);
+        if(details == null) {
 
-                if(object == null) {
-                    ParseQuery<UserDetails> queryDetails = ParseQuery.getQuery(UserDetails.class);
-                    queryDetails.setLimit(1);
-                    queryDetails.whereEqualTo(UserDetails.DETAILS_USER,user);
-                    queryDetails.findInBackground(new FindCallback<UserDetails>() {
-                        @Override
-                        public void done(List<UserDetails> objects, ParseException e) {
-                            if(objects != null && e != null && objects.size()>0) {
-                                userDetails = objects.get(0);
-                                loadUserDetails();
-                            }
-                        }
-                    });
-                } else {
-                    userDetails = object;
-                    loadUserDetails();
+            ParseQuery<UserDetails> queryDetails = ParseQuery.getQuery(UserDetails.class);
+            queryDetails.setLimit(1);
+            queryDetails.whereEqualTo(UserDetails.DETAILS_USER, user);
+            queryDetails.findInBackground(new FindCallback<UserDetails>() {
+                @Override
+                public void done(List<UserDetails> objects, ParseException e) {
+                    if (objects != null && e == null && objects.size() > 0) {
+                        userDetails = objects.get(0);
+                        loadUserDetails();
+                    }
                 }
-            }
-        });
+            });
+
+        } else {
+            details.fetchIfNeededInBackground(new GetCallback<UserDetails>() {
+                @Override
+                public void done(UserDetails object, ParseException e) {
+
+                    if (object == null) {
+                        ParseQuery<UserDetails> queryDetails = ParseQuery.getQuery(UserDetails.class);
+                        queryDetails.setLimit(1);
+                        queryDetails.whereEqualTo(UserDetails.DETAILS_USER, user);
+                        queryDetails.findInBackground(new FindCallback<UserDetails>() {
+                            @Override
+                            public void done(List<UserDetails> objects, ParseException e) {
+                                if (objects != null && e == null && objects.size() > 0) {
+                                    userDetails = objects.get(0);
+                                    loadUserDetails();
+                                }
+                            }
+                        });
+                    } else {
+                        userDetails = object;
+                        loadUserDetails();
+                    }
+                }
+            });
+        }
         ivMoreOptions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -568,9 +600,9 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
                 rvTimeline.setVisibility(View.GONE);
                 ProfileFragment pf = null;
                 if(ParseUser.getCurrentUser().getObjectId().equals(userTapped.getObjectId()))
-                    pf = ProfileFragment.newInstance(userTapped, true, true,null);
+                    pf = ProfileFragment.newInstance(userTapped, true, true,null,hasMenu);
                 else
-                    pf = ProfileFragment.newInstance(userTapped, true, false,null);
+                    pf = ProfileFragment.newInstance(userTapped, true, false,null,hasMenu);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.add(R.id.flContent, pf).addToBackStack(null).commitAllowingStateLoss();

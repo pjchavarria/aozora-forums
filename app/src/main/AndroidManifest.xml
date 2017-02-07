@@ -71,7 +71,13 @@
             android:name=".activities.AoTubeActivity"
             android:configChanges="orientation"
             android:screenOrientation="landscape" />
-        <activity android:name=".activities.ThreadActivity"></activity>
+        <activity android:name=".activities.ThreadActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" ></activity>
+        <activity android:name=".activities.SearchActivity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" ></activity>
     </application>
 
 </manifest>
