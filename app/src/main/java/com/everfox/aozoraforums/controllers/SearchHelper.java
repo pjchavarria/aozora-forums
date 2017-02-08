@@ -23,7 +23,7 @@ import java.util.List;
 
 public class SearchHelper {
 
-    private static int RESULT_MAX = 30;
+    private static int RESULT_MAX = 20;
 
     private OnGetSearchUsersListener mOnGetSearchUsersCallback;
     public interface OnGetSearchUsersListener {
@@ -35,11 +35,17 @@ public class SearchHelper {
         public void onGetSearchThreadCallback(List<AoThread> results);
     }
 
+    private OnGetSearchPopularThreadsListener mOnGetSearchPopularThreadCallback;
+    public interface OnGetSearchPopularThreadsListener {
+        public void onGetSearchPopularThreadCallback(List<AoThread> results);
+    }
+
     private Context context;
     public SearchHelper (Context context, Activity callback) {
         this.context = context;
         this.mOnGetSearchUsersCallback = (OnGetSearchUsersListener) callback;
         this.mOnGetSearchThreadCallback = (OnGetSearchThreadsListener) callback;
+        this.mOnGetSearchPopularThreadCallback = (OnGetSearchPopularThreadsListener) callback;
     }
 
     public void SearchUsers(String text) {
@@ -63,6 +69,7 @@ public class SearchHelper {
         query.setLimit(RESULT_MAX);
         query.whereMatches(AoThread.TITLE,"^"+text,"i");
         query.whereEqualTo(AoThread.TYPE, AoConstants.USERTHREAD);
+        query.whereEqualTo(AoThread.VISIBILITY, AoConstants.VISIBLE);
         query.orderByAscending(AoThread.UPDATEDAT);
         query.include(AoThread.TAGS);
         query.include(AoThread.STARTEDBY);
@@ -73,6 +80,27 @@ public class SearchHelper {
             public void done(List<AoThread> objects, ParseException e) {
                 if(e==null)
                     mOnGetSearchThreadCallback.onGetSearchThreadCallback(objects);
+            }
+        });
+    }
+
+    public void SearchPopularThreads() {
+        ParseQuery<AoThread> query = ParseQuery.getQuery(AoThread.class);
+        query.setLimit(RESULT_MAX);
+        query.whereEqualTo(AoThread.TYPE, AoConstants.USERTHREAD);
+        query.whereEqualTo(AoThread.SUBTYPE, AoConstants.AOTALK);
+        query.whereEqualTo(AoThread.VISIBILITY, AoConstants.VISIBLE);
+        query.whereGreaterThan(AoThread.REPLIES_COUNT, RESULT_MAX);
+        query.orderByDescending(AoThread.CREATED_AT);
+        query.include(AoThread.TAGS);
+        query.include(AoThread.STARTEDBY);
+        query.include(AoThread.POSTEDBY);
+        query.include(AoThread.LASTPOSTEDBY);
+        query.findInBackground(new FindCallback<AoThread>() {
+            @Override
+            public void done(List<AoThread> objects, ParseException e) {
+                if(e==null)
+                    mOnGetSearchPopularThreadCallback.onGetSearchPopularThreadCallback(objects);
             }
         });
     }

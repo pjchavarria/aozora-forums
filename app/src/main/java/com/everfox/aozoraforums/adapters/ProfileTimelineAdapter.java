@@ -235,7 +235,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             username.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context,R.color.inapp_blue)), 0, username.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             holder.tvCommentText.setText(username);
             Spannable content = new SpannableString(" " + lastReply.getString(TimelinePost.CONTENT));
-            content.setSpan(new ForegroundColorSpan(Color.BLACK), 0, content.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            content.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context,R.color.gray3C)), 0, content.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             holder.tvCommentText.append(content);
 
             //SPOILERS NO ABREN EN COMMENTS

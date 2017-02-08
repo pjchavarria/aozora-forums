@@ -1,5 +1,6 @@
 package com.everfox.aozoraforums.fragments;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
@@ -28,6 +29,7 @@ import android.widget.Toast;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.activities.EditProfileActivity;
 import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.activities.TimelinePostActivity;
 import com.everfox.aozoraforums.adapters.ProfileTimelineAdapter;
@@ -62,7 +64,6 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-import static com.everfox.aozoraforums.utils.AoUtils.getOptionListFromID;
 
 /**
  * Created by daniel.soto on 1/10/2017.
@@ -318,6 +319,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         else
             tvLastActive.setText(ProfileUtils.lastActiveFromUser(user));
 
+
         ParseObject details =user.getParseObject(ParseUserColumns.DETAILS);
         if(details == null) {
 
@@ -359,6 +361,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
                 }
             });
         }
+
         ivMoreOptions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -554,6 +557,8 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
                     fRep.show(getFragmentManager(),"");
                     break;
                 case AoConstants.MY_PROFILE_EDIT:
+                    Intent i = new Intent(getActivity(), EditProfileActivity.class);
+                    startActivity(i);
                     break;
                 case AoConstants.MY_PROFILE_THREADS:
                     break;

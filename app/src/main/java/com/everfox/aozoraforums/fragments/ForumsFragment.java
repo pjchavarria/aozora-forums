@@ -261,8 +261,10 @@ OptionListDialogFragment.OnListSelectedListener{
             swipeRefreshForums.setRefreshing(false);
         } else {
             swipeRefreshForums.setRefreshing(false);
-            lstThreads.remove(lstThreads.size()-1);
-            forumsAdapter.notifyItemRemoved(lstThreads.size());
+            if(lstThreads.size()>0) {
+                lstThreads.remove(lstThreads.size() - 1);
+                forumsAdapter.notifyItemRemoved(lstThreads.size());
+            }
             if(threads.size()>0) {
                 int currentPosition = lstThreads.size();
                 lstThreads.addAll(threads);

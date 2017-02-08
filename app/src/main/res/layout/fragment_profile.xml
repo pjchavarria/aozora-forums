@@ -107,7 +107,7 @@ z
                 android:id="@+id/ivProfileBanner"
                 android:src="@drawable/placeholder_banner"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="140dp"
                 android:scaleType="centerCrop"
                 android:visibility="visible"
                 />
@@ -116,7 +116,7 @@ z
                 android:id="@+id/llProfileContent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="90dp"
+                android:layout_marginTop="130dp"
                 android:orientation="vertical"
                 android:visibility="visible"
                 android:background="@color/colorWhite"

@@ -30,8 +30,10 @@ import com.everfox.aozoraforums.utils.AoUtils;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -43,8 +45,9 @@ import butterknife.ButterKnife;
  */
 
 public class SearchActivity extends AppCompatActivity implements SearchHelper.OnGetSearchThreadsListener, SearchHelper.OnGetSearchUsersListener,
-SearchResultsUserAdapter.OnUsernameTappedListener{
+SearchResultsUserAdapter.OnUsernameTappedListener, SearchHelper.OnGetSearchPopularThreadsListener{
 
+    ArrayList<AoThread> popularThreads;
     int milisecondsToSearch = 500;
     int selectedSearchIndex = 0;
     MenuItem searchMenuItem;
@@ -54,6 +57,9 @@ SearchResultsUserAdapter.OnUsernameTappedListener{
     SearchResultsUserAdapter userAdapter;
     LinearLayoutManager llm;
     SearchHelper searchHelper;
+    String currentSearch;
+    List<String> noMessagesResults;
+    int zeroResultsCount = -1;
 
     @BindView(R.id.pbLoading)
     ProgressBar pbLoading;
@@ -78,6 +84,7 @@ SearchResultsUserAdapter.OnUsernameTappedListener{
         tool_bar.setTitle("Search");
         setSupportActionBar(tool_bar);
 
+        noMessagesResults = Arrays.asList(getResources().getStringArray(R.array.no_results_message));
         llm = new LinearLayoutManager(this);
         rvSearchResults.setLayoutManager(llm);
         threadAdapter = new SearchResultsThreadAdapter(this,new ArrayList<AoThread>());
@@ -113,9 +120,14 @@ SearchResultsUserAdapter.OnUsernameTappedListener{
         });
 
         searchHelper = new SearchHelper(this,this);
+        searchHelper.SearchPopularThreads();
     }
 
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        zeroResultsCount = -1;
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -170,16 +182,24 @@ SearchResultsUserAdapter.OnUsernameTappedListener{
                 userAdapter = new SearchResultsUserAdapter(this,new ArrayList<ParseUser>(),this);
                 rvSearchResults.setAdapter(userAdapter);
             } else {
-                if (newText.length() > 2)
+                if (newText.length() > 2) {
                     searchHelper.SearchUsers(newText);
+                    currentSearch = newText;
+                    pbLoading.setVisibility(View.VISIBLE);
+                    rvSearchResults.setVisibility(View.GONE);
+                }
             }
         } else {
             if(newText == ""){
                 threadAdapter = new SearchResultsThreadAdapter(this,new ArrayList<AoThread>());
                 rvSearchResults.setAdapter(threadAdapter);
             } else {
-                if (newText.length() > 2)
+                if (newText.length() > 2) {
                     searchHelper.SearchThreads(newText);
+                    currentSearch = newText;
+                    pbLoading.setVisibility(View.VISIBLE);
+                    rvSearchResults.setVisibility(View.GONE);
+                }
             }
         }
     }
@@ -187,19 +207,39 @@ SearchResultsUserAdapter.OnUsernameTappedListener{
     @Override
     public void onGetSearchThreadCallback(List<AoThread> results) {
 
-        threadAdapter = new SearchResultsThreadAdapter(this,results);
-        rvSearchResults.setAdapter(threadAdapter);
         pbLoading.setVisibility(View.GONE);
         rvSearchResults.setVisibility(View.VISIBLE);
+        if(results.size() == 0 && popularThreads != null) {
+            zeroResultsCount++;
+            loadPopularThreads();
+        } else {
+            zeroResultsCount = -1;
+            threadAdapter = new SearchResultsThreadAdapter(this, results);
+            rvSearchResults.setAdapter(threadAdapter);
+            if(currentSearch != null) {
+                tvSearchTitle.setText("Threads matching " + currentSearch);
+            }
+        }
     }
 
     @Override
     public void onGetSearchUsersListener(List<ParseUser> results) {
 
-        userAdapter = new SearchResultsUserAdapter(this,results,this);
-        rvSearchResults.setAdapter(userAdapter);
         pbLoading.setVisibility(View.GONE);
         rvSearchResults.setVisibility(View.VISIBLE);
+        if(results.size() == 0 && popularThreads != null) {
+            zeroResultsCount++;
+            loadPopularThreads();
+        } else {
+            zeroResultsCount = -1;
+            userAdapter = new SearchResultsUserAdapter(this, results, this);
+            rvSearchResults.setAdapter(userAdapter);
+            pbLoading.setVisibility(View.GONE);
+            rvSearchResults.setVisibility(View.VISIBLE);
+            if(currentSearch != null) {
+                tvSearchTitle.setText("Users matching " + currentSearch);
+            }
+        }
     }
 
     @Override
@@ -217,5 +257,25 @@ SearchResultsUserAdapter.OnUsernameTappedListener{
 
         }
 
+    }
+
+    @Override
+    public void onGetSearchPopularThreadCallback(List<AoThread> results) {
+        popularThreads = new ArrayList<>(results);
+    }
+
+    private void loadPopularThreads() {
+        threadAdapter = new SearchResultsThreadAdapter(this,popularThreads);
+        rvSearchResults.setAdapter(threadAdapter);
+        pbLoading.setVisibility(View.GONE);
+        rvSearchResults.setVisibility(View.VISIBLE);
+        Random rand = new Random();
+        String message;
+        if(zeroResultsCount > 1) {
+            message = noMessagesResults.get(rand.nextInt(noMessagesResults.size()));
+        } else {
+            message = noMessagesResults.get(0);
+        }
+        tvSearchTitle.setText(message);
     }
 }

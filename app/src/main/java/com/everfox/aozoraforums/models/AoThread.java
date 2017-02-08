@@ -54,6 +54,7 @@ public class AoThread extends ParseObject {
     public static final String SUBTYPE = "subType";
     public static final String VISIBILITY = "visibility";
     public static final String LIKED_BY = "likedBy";
+    public static final String REPLIES_COUNT = "replyCount";
     public static final String CREATED_AT = "createdAt";
     public static final String LIKE_COUNT = "likeCount";
     public static final String UNLIKE_COUNT = "unlikeCount";

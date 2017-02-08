@@ -19,4 +19,5 @@ public class ParseUserColumns {
     public static String FOLLOWING = "following";
     public static String OBJECT_ID = "objectId";
     public static String TABLE_NAME = "_User";
+    public static String EMAIL = "email";
 }

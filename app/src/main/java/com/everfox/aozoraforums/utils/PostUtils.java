@@ -31,6 +31,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.engine.cache.ExternalCacheDiskCacheFactory;
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.adapters.AoThreadAdapter;
 import com.everfox.aozoraforums.adapters.ProfileTimelineAdapter;
 import com.everfox.aozoraforums.adapters.TimelinePostsAdapter;
 import com.everfox.aozoraforums.controls.CustomTypefaceSpan;
@@ -298,8 +299,9 @@ public class PostUtils {
         return "Just now";
     }
 
-    public static void setCommentUsernameAndText(final TimelinePost comment, TextView tvComment,
-                                                 final TimelinePostsAdapter.OnUsernameTappedListener mPostCallback) {
+    public static void setCommentUsernameAndText(Context context, final ParseObject comment, TextView tvComment,
+                                                 final TimelinePostsAdapter.OnUsernameTappedListener mPostCallback
+                                                 ) {
 
         final ParseUser userComment = (ParseUser)comment.getParseObject(TimelinePost.POSTED_BY);
         Spannable username = new SpannableString(userComment.getString(ParseUserColumns.AOZORA_USERNAME));
@@ -313,12 +315,12 @@ public class PostUtils {
             public void updateDrawState(TextPaint ds) {
                 super.updateDrawState(ds);
                 ds.setUnderlineText(false);
+
             }
         },0,username.length(),0);
         tvComment.setText(username);
-
         Spannable content = new SpannableString(" " + comment.getString(TimelinePost.CONTENT));
-        content.setSpan(new ForegroundColorSpan(Color.BLACK), 0, content.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        content.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context,R.color.gray3C)), 0, content.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         tvComment.append(content);
         tvComment.setMovementMethod(LinkMovementMethod.getInstance());
     }

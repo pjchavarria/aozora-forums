@@ -86,4 +86,16 @@
         <item>Rising</item>
         <item>New</item>
     </string-array>
+
+
+    <string-array name="no_results_message">
+        <item>No results, but check this popular threads!</item>
+        <item>0 results. Read xgeibu essay about it.</item>
+        <item>Sorry senpai, 0 results. Please be gentle.</item>
+        <item>No results, but did you know Raizer is hot!?</item>
+        <item>0 results b-b-a-ka! Yes this is cringy</item>
+        <item>The robot bringing the results died. 0 results</item>
+        <item>I wish i could marry Shaz... i mean 0 results!</item>
+        <item>Sunshine\'s fault, she is the new Umaru. 0 results</item>
+    </string-array>
 </resources>

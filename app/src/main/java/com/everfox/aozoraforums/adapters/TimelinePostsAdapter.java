@@ -236,7 +236,7 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         if (userLastComment.getBoolean(ParseUserColumns.ACTIVE)) {
             holder.tvCommentUserActive.setVisibility(View.VISIBLE);
         }
-        PostUtils.setCommentUsernameAndText(comment,holder.tvCommentText,mOnUsernameTappedCallback);
+        PostUtils.setCommentUsernameAndText(context,comment,holder.tvCommentText,mOnUsernameTappedCallback);
 
         //SPOILERS ABREN EN COMMENTS
         if(comment.getBoolean(TimelinePost.HAS_SPOILERS)) {

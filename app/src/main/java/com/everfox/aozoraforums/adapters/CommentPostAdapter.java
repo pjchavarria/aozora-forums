@@ -23,6 +23,7 @@ import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.everfox.aozoraforums.utils.PostUtils;
+import com.everfox.aozoraforums.utils.ThreadUtils;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -89,13 +90,8 @@ public class CommentPostAdapter extends RecyclerView.Adapter<CommentPostAdapter.
         if (userComment.getBoolean(ParseUserColumns.ACTIVE)) {
             vhComment.tvCommentUserActive.setVisibility(View.VISIBLE);
         }
-        Spannable username = new SpannableString(userComment.getString(ParseUserColumns.AOZORA_USERNAME));
-        username.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context,R.color.inapp_blue)), 0, username.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        vhComment.tvCommentText.setText(username);
-        Spannable content = new SpannableString(" " + post.getString(TimelinePost.CONTENT));
-        content.setSpan(new ForegroundColorSpan(Color.BLACK), 0, content.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        vhComment.tvCommentText.append(content);
 
+        ThreadUtils.setCommentPostUsernameAndText(context,post,vhComment.tvCommentText,mOnUsernameTappedCallback);
         if(post.getParseFile(TimelinePost.IMAGE) != null) {
             //File
             PostUtils.loadTimelinePostImageFileToImageView(context,post,vhComment.sdvCommentImageGif,vhComment.ivCommentImage, vhComment.ivCommentPlay,true);

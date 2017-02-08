@@ -152,6 +152,8 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
 
     private void configureViewHolderComment(ViewHolderComment vhComment, final Post post) {
 
+
+
         vhComment.ivCommentImage.setImageDrawable(null);
         vhComment.ivCommentImage.setVisibility(View.GONE);
         vhComment.sdvCommentImageGif.setVisibility(View.GONE);
@@ -163,13 +165,8 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
         if (userComment.getBoolean(ParseUserColumns.ACTIVE)) {
             vhComment.tvCommentUserActive.setVisibility(View.VISIBLE);
         }
-        Spannable username = new SpannableString(userComment.getString(ParseUserColumns.AOZORA_USERNAME));
-        username.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context,R.color.inapp_blue)), 0, username.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        vhComment.tvCommentText.setText(username);
-        Spannable content = new SpannableString(" " + post.getString(TimelinePost.CONTENT));
-        content.setSpan(new ForegroundColorSpan(Color.BLACK), 0, content.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        vhComment.tvCommentText.append(content);
 
+        ThreadUtils.setCommentThreadUsernameAndText(context, post,post,vhComment.tvCommentText,mOnUsernameTappedCallback,mOnCommentTappedCallback);
         if(post.getParseFile(TimelinePost.IMAGE) != null) {
             //File
             PostUtils.loadTimelinePostImageFileToImageView(context,post,vhComment.sdvCommentImageGif,vhComment.ivCommentImage, vhComment.ivCommentPlay,false);
@@ -195,7 +192,7 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
                 vhComment.tvViewPreviousComments.setVisibility(View.VISIBLE);
             }
             //Load info last comment
-            LoadInfoLastReply(vhComment,(Post) post.getParseObject(TimelinePost.LAST_REPLY));
+            LoadInfoLastReply(vhComment,(Post) post.getParseObject(TimelinePost.LAST_REPLY),post);
 
 
         } else {
@@ -208,9 +205,10 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
                 mOnCommentTappedCallback.onCommentTapped(post);
             }
         });
+
     }
 
-    private void LoadInfoLastReply(ViewHolderComment vhComment, Post lastComment) {
+    private void LoadInfoLastReply(ViewHolderComment vhComment, Post lastComment, final Post originalPost) {
 
         vhComment.ivLastCommentImage.setImageDrawable(null);
         vhComment.ivLastCommentImage.setVisibility(View.GONE);
@@ -222,13 +220,8 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
         if (userComment.getBoolean(ParseUserColumns.ACTIVE)) {
             vhComment.tvLastCommentUserActive.setVisibility(View.VISIBLE);
         }
-        Spannable username = new SpannableString(userComment.getString(ParseUserColumns.AOZORA_USERNAME));
-        username.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context,R.color.inapp_blue)), 0, username.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        vhComment.tvLastCommentText.setText(username);
-        Spannable content = new SpannableString(" " + lastComment.getString(TimelinePost.CONTENT));
-        content.setSpan(new ForegroundColorSpan(Color.BLACK), 0, content.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        vhComment.tvLastCommentText.append(content);
 
+        ThreadUtils.setCommentThreadUsernameAndText(context,lastComment,originalPost,vhComment.tvLastCommentText,mOnUsernameTappedCallback,mOnCommentTappedCallback);
         if(lastComment.getParseFile(TimelinePost.IMAGE) != null) {
             //File
             PostUtils.loadTimelinePostImageFileToImageView(context,lastComment,vhComment.sdvLastCommentImageGif,vhComment.ivLastCommentImage, vhComment.ivLastCommentPlay,false);

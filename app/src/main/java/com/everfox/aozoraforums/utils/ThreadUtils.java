@@ -1,11 +1,14 @@
 package com.everfox.aozoraforums.utils;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.util.Base64;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,12 +17,16 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.adapters.AoThreadAdapter;
+import com.everfox.aozoraforums.adapters.CommentPostAdapter;
+import com.everfox.aozoraforums.adapters.TimelinePostsAdapter;
 import com.everfox.aozoraforums.controls.FrescoGifListener;
 import com.everfox.aozoraforums.models.Anime;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.AoThreadTag;
 import com.everfox.aozoraforums.models.ParseUserColumns;
+import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
@@ -27,6 +34,7 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.parse.GetDataCallback;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
+import com.parse.ParseUser;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -362,4 +370,67 @@ public class ThreadUtils {
         }
     }
 
+    public static void setCommentPostUsernameAndText(Context context, final Post comment, TextView tvComment,
+                                                     final CommentPostAdapter.OnUsernameTappedListener mCommentCallback) {
+
+        final ParseUser userComment = (ParseUser)comment.getParseObject(TimelinePost.POSTED_BY);
+        Spannable username = new SpannableString(userComment.getString(ParseUserColumns.AOZORA_USERNAME));
+        username.setSpan(new ClickableSpan() {
+            @Override
+            public void onClick(View view) {
+                mCommentCallback.onUsernameTapped(userComment);
+            }
+
+            @Override
+            public void updateDrawState(TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(false);
+
+            }
+        },0,username.length(),0);
+        tvComment.setText(username);
+        Spannable content = new SpannableString(" " + comment.getString(TimelinePost.CONTENT));
+        content.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context,R.color.gray3C)), 0, content.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        tvComment.append(content);
+        tvComment.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+
+    public static void setCommentThreadUsernameAndText(Context context, final Post comment, final Post parentComment, TextView tvComment,
+                                                 final AoThreadAdapter.OnUsernameTappedListener mPostCallback,
+                                                 final AoThreadAdapter.OnCommentTappedListener mThreadCallback
+    ) {
+        final ParseUser userComment = (ParseUser)comment.getParseObject(TimelinePost.POSTED_BY);
+        Spannable username = new SpannableString(userComment.getString(ParseUserColumns.AOZORA_USERNAME));
+        username.setSpan(new ClickableSpan() {
+            @Override
+            public void onClick(View view) {
+                mPostCallback.onUsernameTapped(userComment);
+            }
+
+            @Override
+            public void updateDrawState(TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(false);
+
+            }
+        },0,username.length(),0);
+        tvComment.setText(username);
+        Spannable content = new SpannableString(" " + comment.getString(TimelinePost.CONTENT));
+        content.setSpan(new ForegroundColorSpan(ContextCompat.getColor(context,R.color.gray3C)), 0, content.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        content.setSpan(new ClickableSpan() {
+            @Override
+            public void onClick(View view) {
+                mThreadCallback.onCommentTapped(parentComment);
+            }
+            @Override
+            public void updateDrawState(TextPaint ds) {
+                super.updateDrawState(ds);
+                ds.setUnderlineText(false);
+                ds.setColor(Color.BLACK);
+
+            }
+        },0,content.length(),0);
+        tvComment.append(content);
+        tvComment.setMovementMethod(LinkMovementMethod.getInstance());
+    }
 }
