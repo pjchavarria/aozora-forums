@@ -136,6 +136,8 @@ public class AozoraForumsApp extends Application {
     public static void cleanValues() {
         parseFacebookNewUser = null;
         timelinePostToPass = null;
+        threadToPass = null;
         profileToPass = null;
+        hiddenGlobalThreads = null;
     }
 }

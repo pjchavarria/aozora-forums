@@ -18,7 +18,6 @@ public class AoConstants {
     public static final String MY_PROFILE_THREADS = "My Threads";
     public static final String MY_PROFILE_REPUTATION= "Reputation Ranks";
     public static final String MY_PROFILE_DISCOVER = "Discover Users";
-    public static final String USER_LIST_FOLLOW= "Who to follow";
     public static final String USER_LIST_ONLINE = "Online Now";
     public static final String USER_LIST_NEW = "New Users";
     public static final String USER_LIST_STAFF = "Aozora Staff";

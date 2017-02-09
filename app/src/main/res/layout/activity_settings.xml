@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/activity_settings"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorWhite"
+    tools:context="com.everfox.aozoraforums.activities.SettingsActivity">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        >
+
+        <TextView
+            android:id="@+id/tvVersion"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="8sp"
+            android:layout_gravity="end"
+            android:gravity="end"
+            android:text="App Version: 1.4.9"
+            />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="ACCOUNT"
+            />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#999999"
+            ></View>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1"
+            >
+            <TextView
+                android:id="@+id/tvLogout"
+                android:layout_weight="0.9"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Logout Aozora"
+                android:textSize="18sp"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:textColor="@color/gray3C"
+                />
+
+            <ProgressBar
+                android:id="@+id/pbLoading"
+                android:layout_weight="0.1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:indeterminate="true"
+                android:visibility="invisible"
+                style="?android:attr/progressBarStyleSmall"
+
+                />
+
+        </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="IN-APP PURCHASES"
+            android:paddingTop="16dp"
+            />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#999999"
+            ></View>
+
+        <TextView
+            android:id="@+id/tvRemoveAds"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Remove Ads"
+            android:textSize="18sp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:textColor="@color/gray3C"
+            />
+
+        <TextView
+            android:id="@+id/tvChangeUsername"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Change username"
+            android:textSize="18sp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:textColor="@color/gray3C"
+            />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DO YOU LIKE ANIME?"
+            android:paddingTop="16dp"
+            />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#999999"
+            ></View>
+
+        <TextView
+            android:id="@+id/tvRate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Rate on PlayStore"
+            android:textSize="18sp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:textColor="@color/gray3C"
+            />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="1"
+            >
+            <TextView
+                android:id="@+id/tvAotracking"
+                android:layout_weight="0.9"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="Go to AoTracking"
+                android:textSize="18sp"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+                android:textColor="@color/gray3C"
+                />
+            <TextView
+                android:id="@+id/tvAoTrackingWhat"
+                android:layout_weight="0.1"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:text="@string/fa_questionmark"
+                android:textSize="18sp"
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp"
+
+                />
+        </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        >
+
+        <TextView
+            android:id="@+id/tvAoDiscover"
+            android:layout_weight="0.9"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Go to AoDiscover"
+            android:textSize="18sp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:textColor="@color/gray3C"
+            />
+
+        <TextView
+            android:id="@+id/tvAoDiscoverWhat"
+            android:layout_weight="0.1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:text="@string/fa_questionmark"
+            android:textSize="18sp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+
+            />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:weightSum="1"
+        >
+        <TextView
+            android:id="@+id/tvAoTalk"
+            android:layout_weight="0.9"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Go to AoTalk"
+            android:textSize="18sp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:textColor="@color/gray3C"
+            />
+
+        <TextView
+            android:id="@+id/tvAoTalkWhat"
+            android:layout_weight="0.1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:text="@string/fa_questionmark"
+            android:textSize="18sp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+
+            />
+    </LinearLayout>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="SOCIAL / SUPPORT"
+            android:paddingTop="16dp"
+            />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="#999999"
+            ></View>
+
+        <TextView
+            android:id="@+id/tvLikeFacebook"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Like us on Facebook"
+            android:textSize="18sp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:textColor="@color/gray3C"
+            />
+
+
+
+    </LinearLayout>
+</ScrollView>

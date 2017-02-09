@@ -54,6 +54,7 @@
 
     <string name="fa_plus">&#xf067;</string>
     <string name="fa_check">&#xf00c;</string>
+    <string name="fa_questionmark">&#xf059;</string>
 
     <string-array name="admin_post_options">
         <item>Edit</item>
@@ -68,7 +69,6 @@
     </string-array>
 
     <string-array name="user_lists_options">
-        <item>Who to follow</item>
         <item>Online Now</item>
         <item>New Users</item>
         <item>Aozora Staff</item>
@@ -98,4 +98,9 @@
         <item>I wish i could marry Shaz... i mean 0 results!</item>
         <item>Sunshine\'s fault, she is the new Umaru. 0 results</item>
     </string-array>
+
+    <string name="aotracking_desc">AoTracking helps you to manage your anime life easily, tracking the anime series you are seeing.</string>
+    <string name="aodiscover_desc">Introducing a new way of discovering new anime. Just write a sentence describing the anime you want to find. That\'s it!</string>
+    <string name="aotalk_desc">Chat with anyone! Inside or outside Aozora. Many features chat other apps don\'t have.</string>
+    <string name="app_inconstruction">Sorry! Our robots are still building this app.</string>
 </resources>

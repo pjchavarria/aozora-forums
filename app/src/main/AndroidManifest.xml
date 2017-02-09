@@ -80,9 +80,11 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".activities.EditProfileActivity"
+        <activity
+            android:name=".activities.EditProfileActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait" ></activity>
+            android:screenOrientation="portrait" />
+        <activity android:name=".activities.SettingsActivity"></activity>
     </application>
 
 </manifest>

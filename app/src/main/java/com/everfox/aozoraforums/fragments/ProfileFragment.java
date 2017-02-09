@@ -18,6 +18,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,7 @@ import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.EditProfileActivity;
 import com.everfox.aozoraforums.activities.MainActivity;
+import com.everfox.aozoraforums.activities.SettingsActivity;
 import com.everfox.aozoraforums.activities.TimelinePostActivity;
 import com.everfox.aozoraforums.adapters.ProfileTimelineAdapter;
 import com.everfox.aozoraforums.controllers.PostParseHelper;
@@ -173,6 +175,8 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         if(!hasMenu) {
             menu.clear();
         }
+
+        inflater.inflate(R.menu.profile_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -561,6 +565,11 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
                     startActivity(i);
                     break;
                 case AoConstants.MY_PROFILE_THREADS:
+                    scrollView.setVisibility(View.GONE);
+                    ThreadByUserFragment pf = ThreadByUserFragment.newInstance(user);
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.add(R.id.flContent, pf).addToBackStack(null).commitAllowingStateLoss();
                     break;
             }
         }
@@ -574,8 +583,6 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         }
         if(selectedList == AoConstants.USER_LIST_OPTIONS_DIALOG) {
             switch (selectedOption){
-                case AoConstants.USER_LIST_FOLLOW:
-                    break;
                 case AoConstants.USER_LIST_NEW:
                     break;
                 case AoConstants.USER_LIST_NEWPRO:
@@ -589,10 +596,17 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
             }
         }
         if(selectedList == AoConstants.REPUTATION_RANKS_OPTIONS_DIALOG) {
+            scrollView.setVisibility(View.GONE);
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             switch (selectedOption){
                 case AoConstants.REPUTATION_RANKS_TOP500:
+                    ReputationRankFragment fragment = ReputationRankFragment.newInstance(user,ReputationRankFragment.TOP_500);
+                    fragmentTransaction.add(R.id.flContent, fragment).addToBackStack(null).commitAllowingStateLoss();
                     break;
                 case AoConstants.REPUTATION_RANKS_FOLLOWING:
+                    ReputationRankFragment fragment1 = ReputationRankFragment.newInstance(user,ReputationRankFragment.FRIENDS);
+                    fragmentTransaction.add(R.id.flContent, fragment1).addToBackStack(null).commitAllowingStateLoss();
                     break;
             }
         }
@@ -631,6 +645,20 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
                 scrollView.scrollTo(0,0);
             }
         }, 200);
-
     }
+
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch(item.getItemId()) {
+            case R.id.settings:
+                Intent intent = new Intent(getActivity(), SettingsActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 }

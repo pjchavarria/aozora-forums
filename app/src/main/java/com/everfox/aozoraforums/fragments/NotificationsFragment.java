@@ -52,10 +52,6 @@ import butterknife.ButterKnife;
 
 public class NotificationsFragment extends Fragment implements NotificationsHelper.OnGetNotificationListener, NotificationsAdapter.OnNotificationTappedListener  {
 
-    SharedPreferences sharedPreferences;
-    @BindView(R.id.btnLogout)
-    Button btnLogout;
-
     LinearLayoutManager llm;
     NotificationsAdapter notiAdapter;
     Boolean isLoading = false;
@@ -86,27 +82,6 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_notifications, container, false);
         ButterKnife.bind(this,view);
-
-        btnLogout.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                try {
-                    ParseObject.unpinAll();
-                } catch (ParseException pEx) {
-                }
-
-                sharedPreferences = getActivity().getSharedPreferences("com.everfox.aozoraforums", Context.MODE_PRIVATE);
-                sharedPreferences.edit().remove("MAL_User").apply();
-                sharedPreferences.edit().remove("MAL_Password").apply();
-                AozoraForumsApp.cleanValues();
-                ParseUser.logOut();
-                Intent intent = new Intent(getActivity(), FirstActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-            }
-        });
-
         llm = new LinearLayoutManager(getActivity());
         rvNotifications.setLayoutManager(llm);
         notiAdapter = new NotificationsAdapter(getActivity(),new ArrayList<AoNotification>(),NotificationsFragment.this, ParseUser.getCurrentUser());

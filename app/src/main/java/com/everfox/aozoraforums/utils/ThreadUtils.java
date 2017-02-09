@@ -395,9 +395,9 @@ public class ThreadUtils {
         tvComment.setMovementMethod(LinkMovementMethod.getInstance());
     }
 
-    public static void setCommentThreadUsernameAndText(Context context, final Post comment, final Post parentComment, TextView tvComment,
-                                                 final AoThreadAdapter.OnUsernameTappedListener mPostCallback,
-                                                 final AoThreadAdapter.OnCommentTappedListener mThreadCallback
+    public static void setCommentThreadUsernameAndText(final Context context, final Post comment, final Post parentComment, TextView tvComment,
+                                                       final AoThreadAdapter.OnUsernameTappedListener mPostCallback,
+                                                       final AoThreadAdapter.OnCommentTappedListener mThreadCallback
     ) {
         final ParseUser userComment = (ParseUser)comment.getParseObject(TimelinePost.POSTED_BY);
         Spannable username = new SpannableString(userComment.getString(ParseUserColumns.AOZORA_USERNAME));
@@ -426,7 +426,7 @@ public class ThreadUtils {
             public void updateDrawState(TextPaint ds) {
                 super.updateDrawState(ds);
                 ds.setUnderlineText(false);
-                ds.setColor(Color.BLACK);
+                ds.setColor(ContextCompat.getColor(context,R.color.gray3C));
 
             }
         },0,content.length(),0);

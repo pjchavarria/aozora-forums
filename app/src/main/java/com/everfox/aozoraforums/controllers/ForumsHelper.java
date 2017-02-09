@@ -5,12 +5,14 @@ import android.provider.SyncStateContract;
 import android.support.v4.app.Fragment;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
+import com.everfox.aozoraforums.fragments.ThreadByUserFragment;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.AoConstants;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseQuery;
+import com.parse.ParseUser;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,10 +39,19 @@ public class ForumsHelper {
         public void onGetThreads(List<AoThread> threads);
     }
 
+    private OnGetUserThreadsListener mGetUserThreadsCallback;
+    public interface OnGetUserThreadsListener {
+        public void onGetUserThreads(List<AoThread> threads);
+    }
+
     public ForumsHelper(Context context, Fragment fragment) {
         this.context = context;
-        mGetThreadsCallback = (OnGetThreadsListener) fragment;
-        mGetGlobalThreadsCallback = (OnGetGlobalThreadsListener) fragment;
+        if(fragment instanceof ThreadByUserFragment)
+            mGetUserThreadsCallback =  (OnGetUserThreadsListener) fragment;
+        else {
+            mGetThreadsCallback = (OnGetThreadsListener) fragment;
+            mGetGlobalThreadsCallback = (OnGetGlobalThreadsListener) fragment;
+        }
     }
 
     public void GetGlobalThreads(){
@@ -104,6 +115,32 @@ public class ForumsHelper {
             public void done(List<AoThread> objects, ParseException e) {
                 if(e== null) {
                     mGetThreadsCallback.onGetThreads(objects);
+                }
+            }
+        });
+
+    }
+
+    public void GetUserThreads(ParseUser user, int skip, int limit) {
+
+        ParseQuery<AoThread> query = ParseQuery.getQuery(AoThread.class);
+        query.whereEqualTo(AoThread.TYPE,AoConstants.USERTHREAD);
+        query.whereEqualTo(AoThread.POSTEDBY,user);
+        query.whereEqualTo(AoThread.VISIBILITY, AoConstants.VISIBLE);
+        query.setSkip(skip);
+        query.setLimit(limit);
+        // FILTERING FAVORITES
+        query.include(AoThread.TAGS);
+        query.include(AoThread.STARTEDBY);
+        query.include(AoThread.POSTEDBY);
+        query.include(AoThread.LASTPOSTEDBY);
+        query.include(AoThread.LASTPOSTEDBY);
+
+        query.findInBackground(new FindCallback<AoThread>() {
+            @Override
+            public void done(List<AoThread> objects, ParseException e) {
+                if(e== null) {
+                    mGetUserThreadsCallback.onGetUserThreads(objects);
                 }
             }
         });

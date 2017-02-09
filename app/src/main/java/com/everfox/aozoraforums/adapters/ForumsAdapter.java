@@ -33,6 +33,7 @@ import com.parse.ParseUser;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.ConsoleHandler;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -308,8 +309,31 @@ public class ForumsAdapter extends RecyclerView.Adapter {
 
     @Override
     public int getItemViewType(int position) {
-        return aoThreads.get(position).getObjectId() != null ?
-                aoThreads.get(position).getShowAsPinned()  && viewType != VIEW_AOOFFICIAL ? VIEW_GLOBAL : viewType : VIEW_PROG;
+
+        if(aoThreads.get(position).getObjectId() == null)
+            return VIEW_PROG;
+        else {
+            if(aoThreads.get(position).getString(AoThread.PIN_TYPE) == null) {
+                if (aoThreads.get(position).getString(AoThread.SUBTYPE).equals(AoConstants.AOART))
+                    return VIEW_AOART;
+                if (aoThreads.get(position).getString(AoThread.SUBTYPE).equals(AoConstants.AOGUR))
+                    return VIEW_AOGUR;
+                if (aoThreads.get(position).getString(AoThread.SUBTYPE).equals(AoConstants.AONEWS))
+                    return VIEW_AONEWS;
+                if (aoThreads.get(position).getString(AoThread.SUBTYPE).equals(AoConstants.AOTALK))
+                    return VIEW_AOTALK;
+                if (aoThreads.get(position).getString(AoThread.SUBTYPE).equals(AoConstants.OFFICIAL))
+                    return VIEW_AOOFFICIAL;
+            } else {
+                if(aoThreads.get(position).getString(AoThread.PIN_TYPE).equals(AoConstants.PINTYPE_GLOBAL))
+                    if(viewType != VIEW_AOOFFICIAL)
+                        return VIEW_GLOBAL;
+                    else
+                        return VIEW_AOOFFICIAL;
+            }
+        }
+
+        return VIEW_AOGUR;
     }
 
     @Override

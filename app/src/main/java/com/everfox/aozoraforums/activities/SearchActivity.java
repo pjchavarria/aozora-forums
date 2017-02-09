@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -100,7 +101,7 @@ SearchResultsUserAdapter.OnUsernameTappedListener, SearchHelper.OnGetSearchPopul
                     tvSearchUsers.setBackgroundColor(Color.BLACK);
                     tvSearchUsers.setTextColor(Color.WHITE);
                     tvSearchThreads.setBackgroundColor(Color.WHITE);
-                    tvSearchThreads.setTextColor(Color.BLACK);
+                    tvSearchThreads.setTextColor(ContextCompat.getColor(SearchActivity.this,R.color.gray3C));
                 }
             }
         });
@@ -114,7 +115,7 @@ SearchResultsUserAdapter.OnUsernameTappedListener, SearchHelper.OnGetSearchPopul
                     tvSearchThreads.setBackgroundColor(Color.BLACK);
                     tvSearchThreads.setTextColor(Color.WHITE);
                     tvSearchUsers.setBackgroundColor(Color.WHITE);
-                    tvSearchUsers.setTextColor(Color.BLACK);
+                    tvSearchUsers.setTextColor(ContextCompat.getColor(SearchActivity.this,R.color.gray3C));
                 }
             }
         });
