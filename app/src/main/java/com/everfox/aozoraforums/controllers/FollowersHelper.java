@@ -23,7 +23,6 @@ import java.util.List;
 public class FollowersHelper {
 
     private OnGetFollowersListener mOnGetFollowersCallback;
-
     public interface OnGetFollowersListener {
         public void onGetFollowers(List<PUser> users);
     }

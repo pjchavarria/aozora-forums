@@ -30,6 +30,7 @@ import butterknife.ButterKnife;
 
 public class FollowersAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHolder>  {
 
+    boolean showFollow;
     private final int VIEW_PROG = 0;
     private final int VIEW_ITEM = 1;
     private List<PUser> lstUsers;
@@ -47,10 +48,11 @@ public class FollowersAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHol
         public void onFollowTapped(PUser userTapped, Boolean isFollowing);
     }
 
-    public FollowersAdapter (Context context, List<PUser> users, Fragment callback, ParseUser parseUser) {
+    public FollowersAdapter (Context context, List<PUser> users, Fragment callback, ParseUser parseUser, Boolean showFollow) {
         this.context = context;
         this.lstUsers = users;
         this.userProfile = parseUser;
+        this.showFollow = showFollow;
         awesomeTypeface = AozoraForumsApp.getAwesomeTypeface();
         mOnUserTappedCallback = (OnUserTappedListener) callback;
         mOnFollowTappedCallback = (OnFollowTappedListener) callback;
@@ -83,7 +85,7 @@ public class FollowersAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHol
             vh.ivAvatar.setImageDrawable(null);
             PostUtils.loadAvatarPic(user.getParseFile(ParseUserColumns.AVATAR_THUMB),vh.ivAvatar);
             vh.tvUsername.setText(user.getString(ParseUserColumns.AOZORA_USERNAME));
-            if(!userProfile.equals(ParseUser.getCurrentUser()))
+            if(!userProfile.equals(ParseUser.getCurrentUser()) || showFollow == false)
                 vh.tvFollow.setVisibility(View.GONE);
             else {
                 vh.tvFollow.setVisibility(View.VISIBLE);

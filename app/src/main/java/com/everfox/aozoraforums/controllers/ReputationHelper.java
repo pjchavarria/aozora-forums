@@ -42,6 +42,7 @@ public class ReputationHelper {
         query.orderByDescending(ParseUserColumns.REPUTATION);
         if(active) {
             Calendar c = Calendar.getInstance();
+            c.add(Calendar.DAY_OF_YEAR,-7);
             query.whereGreaterThan(ParseUserColumns.ACTIVE_START,c.getTime());
         }
         query.setLimit(500);

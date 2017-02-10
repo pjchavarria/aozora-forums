@@ -9,6 +9,7 @@ import com.everfox.aozoraforums.models.AoNotification;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.AoThreadTag;
 import com.everfox.aozoraforums.models.PUser;
+import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.models.UserDetails;
@@ -21,6 +22,8 @@ import com.parse.ParseFacebookUtils;
 import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
+
+import org.json.JSONArray;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +75,6 @@ public class AozoraForumsApp extends Application {
     }
 
     private static List<String> hiddenGlobalThreads;
-
     public static List<String> getHiddenGlobalThreads() {
         if(hiddenGlobalThreads == null)
             hiddenGlobalThreads = new ArrayList<>();
@@ -82,8 +84,8 @@ public class AozoraForumsApp extends Application {
         AozoraForumsApp.hiddenGlobalThreads = hiddenGlobalThreads;
     }
 
-    private static List<AoThread> globalThreads;
 
+    private static List<AoThread> globalThreads;
     public static List<AoThread> getGlobalThreads() {
         if(globalThreads == null)
             globalThreads = new ArrayList<>();
@@ -91,6 +93,24 @@ public class AozoraForumsApp extends Application {
     }
     public static void setGlobalThreads(List<AoThread> globalThreads) {
         AozoraForumsApp.globalThreads = globalThreads;
+    }
+
+    private static Boolean isAdmin;
+
+    public static Boolean getIsAdmin() {
+        if(isAdmin == null) {
+            ParseUser currentUser = ParseUser.getCurrentUser();
+            JSONArray jsonArray = currentUser.getJSONArray(ParseUserColumns.BADGES);
+            if (jsonArray.toString().contains("Admin") || jsonArray.toString().contains("Mod"))
+                isAdmin = true;
+            else
+                isAdmin = false;
+        }
+        return isAdmin;
+    }
+
+    public static void setIsAdmin(Boolean isAdmin) {
+        AozoraForumsApp.isAdmin = isAdmin;
     }
 
     @Override

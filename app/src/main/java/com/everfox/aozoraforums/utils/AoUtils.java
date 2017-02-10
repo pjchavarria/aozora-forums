@@ -11,7 +11,10 @@ import android.support.v4.app.FragmentManager;
 import android.text.Html;
 import android.text.Spanned;
 
+import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
+import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.models.AoNotification;
 import com.everfox.aozoraforums.models.PUser;
 import com.everfox.aozoraforums.models.TimelinePost;
@@ -165,7 +168,7 @@ public class AoUtils {
 
     public static List<String> getOptionListFromID (Context context, Integer optionListID) {
         switch (optionListID){
-            case AoConstants.ADMIN_POST_OPTIONS_DIALOG:
+            case AoConstants.EDITDELETE_POST_OPTIONS_DIALOG:
                 return Arrays.asList(context.getResources().getStringArray(R.array.admin_post_options));
             case AoConstants.MY_PROFILE_OPTIONS_DIALOG:
                 return Arrays.asList(context.getResources().getStringArray(R.array.my_profile_options));
@@ -175,6 +178,12 @@ public class AoUtils {
                 return Arrays.asList(context.getResources().getStringArray(R.array.reputation_ranks));
             case AoConstants.SORT_OPTIONS_DIALOG:
                 return Arrays.asList(context.getResources().getStringArray(R.array.sort_options));
+            case AoConstants.MY_PROFILE_OTHER_USER_OPTIONS_DIALOG:
+                return Arrays.asList(context.getResources().getStringArray(R.array.my_profile_other_user_options));
+            case AoConstants.EDIT_POST_OPTIONS_DIALOG:
+                return Arrays.asList(context.getResources().getStringArray(R.array.edit_post_options));
+            case AoConstants.REPORT_POST_OPTIONS_DIALOG:
+                return Arrays.asList(context.getResources().getStringArray(R.array.other_user_post_options));
         }
         return new ArrayList<String>();
     }
@@ -216,5 +225,47 @@ public class AoUtils {
             }
         }
         return filteredNotifications;
+    }
+
+    public static String reputationToString(Number number) {
+        int reputationInt;
+        if(number == null || number == (Number)0)
+            reputationInt = 0;
+        else {
+            reputationInt = number.intValue();
+        }
+        String reputationString ="";
+        if(reputationInt >= 1000000 ) {
+            reputationString = String.format("%.1fM",(float) (reputationInt-49)/1000000.0 );
+        } else if (reputationInt > 1000) {
+
+            reputationString = String.format("%.1fk",(float) (reputationInt-49)/1000.0 );
+        } else {
+            reputationString = String.valueOf(reputationInt);
+        }
+        return reputationString;
+    }
+
+    public static OptionListDialogFragment getDialogFragmentMoreOptions(ParseUser user, Context context, Fragment fragment, Activity activity) {
+        if(AozoraForumsApp.getIsAdmin()) {
+            if (user.getObjectId().equals(ParseUser.getCurrentUser().getObjectId()))
+                return OptionListDialogFragment.newInstance(context, "Editing post", "Only edit posts if they are breaking guidelines",
+                        null, fragment, AoConstants.EDITDELETE_POST_OPTIONS_DIALOG, activity);
+            else
+                return  OptionListDialogFragment.newInstance(context, "Warning! Editing post", "Only edit posts if they are breaking guidelines",
+                        null, fragment, AoConstants.EDITDELETE_POST_OPTIONS_DIALOG, activity);
+        } else {
+
+            if (user.getObjectId().equals(ParseUser.getCurrentUser().getObjectId()))
+                return  OptionListDialogFragment.newInstance(context, "Editing post", "Only edit posts if they are breaking guidelines",
+                        null, fragment, AoConstants.EDITDELETE_POST_OPTIONS_DIALOG, activity);
+            else
+                return  OptionListDialogFragment.newInstance(context, "Warning! Reporting post", "Only report posts if they are breaking guidelines",
+                        null, fragment, AoConstants.REPORT_POST_OPTIONS_DIALOG, activity);
+        }
+    }
+
+    public static List<String> getRedOptionsDialog(Context context) {
+        return Arrays.asList(context.getResources().getStringArray(R.array.red_options_dialog));
     }
 }

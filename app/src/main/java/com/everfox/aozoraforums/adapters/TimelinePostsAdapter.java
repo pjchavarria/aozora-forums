@@ -53,10 +53,16 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
     ParseUser currentUser;
 
     private OnUsernameTappedListener mOnUsernameTappedCallback;
-
     public interface OnUsernameTappedListener {
         public void onUsernameTapped(ParseUser userTapped);
     }
+
+
+    private OnMoreOptionsTappedListener mOnMoreOptionsTappedCallback;
+    public interface OnMoreOptionsTappedListener {
+        public void onMoreOptionsTappedCallback(TimelinePost post);
+    }
+
 
     public TimelinePostsAdapter (Context context, List<TimelinePost> tlps, Activity callback, ParseUser currentUser) {
         this.context = context;
@@ -64,6 +70,7 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         this.currentUser = currentUser;
         awesomeTypeface = AozoraForumsApp.getAwesomeTypeface();
         mOnUsernameTappedCallback = (OnUsernameTappedListener) callback;
+        mOnMoreOptionsTappedCallback = (OnMoreOptionsTappedListener) callback;
     }
 
     @Override
@@ -215,6 +222,15 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
         holder.tvRepost.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.REPOST_COUNT)));
         holder.itemView.setTag("imageLoaded");
+
+
+        holder.ivMoreOptions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnMoreOptionsTappedCallback.onMoreOptionsTappedCallback(post);
+
+            }
+        });
     }
 
 

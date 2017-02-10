@@ -2,6 +2,7 @@ package com.everfox.aozoraforums.adapters;
 
 import android.content.Context;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,13 +64,16 @@ public class ReputationRankAdapter extends RecyclerView.Adapter<ReputationRankAd
         ParseFile profilePic = user.getParseFile(ParseUserColumns.AVATAR_THUMB);
         PostUtils.loadAvatarPic(profilePic, holder.ivAvatar);
         holder.tvUsername.setText(user.getString(ParseUserColumns.AOZORA_USERNAME));
-        holder.tvPopularity.setText(AoUtils.numberToStringOrZero(user.getNumber(ParseUserColumns.REPUTATION)));
+        holder.tvPopularity.setText(AoUtils.reputationToString(user.getNumber(ParseUserColumns.REPUTATION)));
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mOnUsernameTappedCallback.onUsernameTapped(user);
             }
         });
+        if(user.getObjectId().equals(ParseUser.getCurrentUser().getObjectId())) {
+            holder.itemView.setBackgroundColor(ContextCompat.getColor(context,R.color.reputation_currentuser));
+        }
     }
 
     @Override

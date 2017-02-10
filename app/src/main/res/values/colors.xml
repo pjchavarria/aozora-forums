@@ -62,6 +62,7 @@
     <color name="colorAnimeCellCompleted">#709AE1</color>
     <color name="colorAnimeCellDropped">#646464</color>
 
+    <color name="reputation_currentuser">#E2D57C</color>
 
     <color name="filter_list_item_selected">#626262</color>
     <color name="filter_list_item_notselected">#c5c4c4</color>

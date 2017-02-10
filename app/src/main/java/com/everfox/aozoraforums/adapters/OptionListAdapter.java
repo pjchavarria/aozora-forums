@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.utils.AoUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +43,9 @@ public class OptionListAdapter extends RecyclerView.Adapter<OptionListAdapter.Li
     @Override
     public void onBindViewHolder(ListViewHolder holder, int position) {
         String listName = lstOptions.get(position);
+        if(AoUtils.getRedOptionsDialog(mContext).contains(listName)) {
+            holder.tvSeasonTitle.setTextColor(Color.RED);
+        }
         holder.tvSeasonTitle.setText(listName);
     }
 

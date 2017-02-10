@@ -1,5 +1,6 @@
 package com.everfox.aozoraforums.dialogfragments;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -62,7 +63,7 @@ public class OptionListDialogFragment extends DialogFragment {
         return dialog;
     }
 
-    public static OptionListDialogFragment newInstance(Context context, String title , String subtitle1, String subtitle2, Fragment callback, Integer selectedList) {
+    public static OptionListDialogFragment newInstance(Context context, String title , String subtitle1, String subtitle2, Fragment callback, Integer selectedList, Activity callbackActivity) {
         OptionListDialogFragment frag = new OptionListDialogFragment();
         frag.selectedList = selectedList;
         frag.mContext = context;
@@ -72,9 +73,14 @@ public class OptionListDialogFragment extends DialogFragment {
         Bundle args = new Bundle();
         List<String> _options = null;
         _options = AoUtils.getOptionListFromID(context,selectedList);
+
         args.putSerializable("options",new ArrayList<>(_options));
         frag.setArguments(args);
-        frag.mListSelectedCallback = (OnListSelectedListener) callback;
+        if(callback != null)
+            frag.mListSelectedCallback = (OnListSelectedListener) callback;
+        else
+            frag.mListSelectedCallback = (OnListSelectedListener) callbackActivity;
+
         return frag;
     }
 

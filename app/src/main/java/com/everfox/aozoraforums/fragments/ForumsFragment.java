@@ -120,7 +120,7 @@ OptionListDialogFragment.OnListSelectedListener{
         pbLoading.setVisibility(View.VISIBLE);
         rvForums.setVisibility(View.GONE);
         isLoading = true;
-        fetchCount++;
+        fetchCount = 1;
         forumsHelper.GetThreads(selectedList,selectedSort,0,ForumsHelper.THREADS_FETCH_LIMIT);
 
         return view;
@@ -252,6 +252,8 @@ OptionListDialogFragment.OnListSelectedListener{
     @Override
     public void onGetThreads(List<AoThread> threads) {
 
+        pbLoading.setVisibility(View.GONE);
+        rvForums.setVisibility(View.VISIBLE);
         if (fetchCount == 1) {
             lstThreads.addAll(threads);
             forumsAdapter = new ForumsAdapter(getActivity(),lstThreads,selectedViewType);
@@ -307,7 +309,7 @@ OptionListDialogFragment.OnListSelectedListener{
 
         switch(item.getItemId()) {
             case R.id.sort:
-                OptionListDialogFragment optionListDialogFragment = OptionListDialogFragment.newInstance(getActivity(),"Current Sort: " + selectedSort,null,null,this,AoConstants.SORT_OPTIONS_DIALOG);
+                OptionListDialogFragment optionListDialogFragment = OptionListDialogFragment.newInstance(getActivity(),"Current Sort: " + selectedSort,null,null,this,AoConstants.SORT_OPTIONS_DIALOG,null);
                 optionListDialogFragment.setCancelable(true);
                 optionListDialogFragment.show(getFragmentManager(),"");
                 return true;

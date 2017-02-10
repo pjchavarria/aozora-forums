@@ -92,7 +92,7 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
         new NotificationsHelper(getActivity(),this)
                 .GetNotifications(ParseUser.getCurrentUser(),0,NotificationsHelper.NOTIFICATION_FETCH_LIMIT);
 
-        fetchCount++;
+        fetchCount = 1;
         return view;
     }
 

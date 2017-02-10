@@ -391,6 +391,8 @@ public class PostUtils {
                     }
                 }
             });
+        } else {
+            ivAvatar.setImageResource(R.drawable.default_avatar);
         }
     }
 }

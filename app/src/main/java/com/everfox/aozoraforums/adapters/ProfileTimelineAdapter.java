@@ -26,8 +26,11 @@ import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.TimelinePostActivity;
 import com.everfox.aozoraforums.controllers.ProfileParseHelper;
+import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
+import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
+import com.everfox.aozoraforums.utils.AoConstants;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.everfox.aozoraforums.utils.PostUtils;
 import com.facebook.drawee.drawable.RoundedCornersDrawable;
@@ -56,6 +59,12 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     private final int VIEW_ITEM = 1;
     private final int VIEW_PROG = 0;
 
+    private OnMoreOptionsTappedListener mOnMoreOptionsTappedCallback;
+    public interface OnMoreOptionsTappedListener {
+        public void onMoreOptionsTappedCallback(TimelinePost post);
+    }
+
+
     private OnUsernameTappedListener mOnUsernameTappedCallback;
     public interface OnUsernameTappedListener {
         public void onUsernameTapped(ParseUser userTapped);
@@ -73,6 +82,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         this.currentUser = parseUser;
         awesomeTypeface = AozoraForumsApp.getAwesomeTypeface();
         mOnUsernameTappedCallback = (OnUsernameTappedListener) callback;
+        mOnMoreOptionsTappedCallback = (OnMoreOptionsTappedListener) callback;
     }
 
 
@@ -216,6 +226,13 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         }
         holder.tvRepost.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.REPOST_COUNT)));
 
+        holder.ivMoreOptions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnMoreOptionsTappedCallback.onMoreOptionsTappedCallback(post);
+
+            }
+        });
 
         //LastReply
         if(post.getParseObject(TimelinePost.LAST_REPLY) != null) {

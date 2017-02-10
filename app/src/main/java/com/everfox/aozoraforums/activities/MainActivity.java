@@ -11,6 +11,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -22,6 +23,7 @@ import com.everfox.aozoraforums.fragments.FollowersFragment;
 import com.everfox.aozoraforums.fragments.ForumsFragment;
 import com.everfox.aozoraforums.fragments.NotificationsFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
+import com.everfox.aozoraforums.fragments.UserListFragment;
 import com.everfox.aozoraforums.utils.AoConstants;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.facebook.drawee.backends.pipeline.Fresco;
@@ -30,7 +32,7 @@ import com.parse.ParseUser;
 public class MainActivity extends AppCompatActivity {
 
     Button btnLogout;
-    TextView btnForum, btnNotifications, btnProfile, btnFeed;
+    ImageView btnForum, btnNotifications, btnProfile, btnFeed;
     FrameLayout flContent;
     Integer selectedFragmentIndex = 0;
     ProfileFragment profileFragment;
@@ -45,44 +47,18 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         llNavBar = (LinearLayout) findViewById(R.id.llNavBar);
-        btnFeed = (TextView) findViewById(R.id.btnFeed);
-        btnForum = (TextView) findViewById(R.id.btnForum);
-        btnNotifications = (TextView) findViewById(R.id.btnNotifications);
-        btnProfile = (TextView) findViewById(R.id.btnProfile);
-        btnProfile.setOnClickListener(new View.OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-                if (selectedFragmentIndex != 3 ) {
-                    selectedFragmentIndex = 3;
-                    //cambiamos el icono del boton a "selected"
-
-                    //Cargamos AnimeInfoFragment
-                    OpenProfileFragment(ParseUser.getCurrentUser(),true);
-                }
-            }
-        });
+        btnFeed = (ImageView) findViewById(R.id.btnFeed);
+        btnForum = (ImageView) findViewById(R.id.btnForum);
+        btnNotifications = (ImageView) findViewById(R.id.btnNotifications);
+        btnProfile = (ImageView) findViewById(R.id.btnProfile);
         btnForum.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (selectedFragmentIndex != 0 ) {
                     selectedFragmentIndex = 0;
-                    //cambiamos el icono del boton a "selected"
-
-                    //Cargamos AnimeInfoFragment
+                    markMenuAsUnselected();
+                    btnForum.setImageResource(R.drawable.ic_more_filled);
                     OpenForumFragment();
-                }
-            }
-        });
-        btnFeed.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (selectedFragmentIndex != 2 ) {
-                    selectedFragmentIndex = 2;
-                    //cambiamos el icono del boton a "selected"
-
-                    //Cargamos AnimeInfoFragment
-                    OpenFeedFragment(ParseUser.getCurrentUser());
                 }
             }
         });
@@ -91,10 +67,32 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view) {
                 if (selectedFragmentIndex != 1 ) {
                     selectedFragmentIndex = 1;
-                    //cambiamos el icono del boton a "selected"
-
-                    //Cargamos Notification Fragment
+                    markMenuAsUnselected();
+                    btnNotifications.setImageResource(R.drawable.ic_more_filled);
                     OpenNotificationFragment();
+                }
+            }
+        });
+        btnFeed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (selectedFragmentIndex != 2 ) {
+                    selectedFragmentIndex = 2;
+                    markMenuAsUnselected();
+                    btnFeed.setImageResource(R.drawable.ic_more_filled);
+                    OpenFeedFragment(ParseUser.getCurrentUser());
+                }
+            }
+        });
+        btnProfile.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                if (selectedFragmentIndex != 3 ) {
+                    selectedFragmentIndex = 3;
+                    markMenuAsUnselected();
+                    btnProfile.setImageResource(R.drawable.ic_more_filled);
+                    OpenProfileFragment(ParseUser.getCurrentUser(),true);
                 }
             }
         });
@@ -103,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onBackStackChanged() {
                 Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.flContent);
-                if (currentFragment != null && currentFragment instanceof ProfileFragment || currentFragment instanceof FollowersFragment) {
+                if (currentFragment != null && currentFragment instanceof ProfileFragment || currentFragment instanceof FollowersFragment  || currentFragment instanceof UserListFragment) {
                     currentFragment.onResume();
                 }
             }
@@ -117,6 +115,13 @@ public class MainActivity extends AppCompatActivity {
         FriendsController.fetchFollowing();
         OpenForumFragment();
 
+    }
+
+    private void markMenuAsUnselected() {
+        btnForum.setImageResource(R.drawable.ic_notifications);
+        btnNotifications.setImageResource(R.drawable.ic_notifications);
+        btnFeed.setImageResource(R.drawable.ic_notifications);
+        btnProfile.setImageResource(R.drawable.ic_notifications);
     }
 
     @Override

@@ -1,9 +1,11 @@
 package com.everfox.aozoraforums.activities;
 
+import android.content.DialogInterface;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
@@ -19,10 +21,12 @@ import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.adapters.TimelinePostsAdapter;
 import com.everfox.aozoraforums.controllers.PostParseHelper;
+import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
 import com.everfox.aozoraforums.fragments.FollowersFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
+import com.everfox.aozoraforums.utils.AoConstants;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.parse.GetCallback;
 import com.parse.ParseException;
@@ -35,7 +39,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class TimelinePostActivity extends AppCompatActivity implements PostParseHelper.OnGetTimelinePostCommentsListener, TimelinePostsAdapter.OnUsernameTappedListener {
+public class TimelinePostActivity extends AppCompatActivity implements PostParseHelper.OnGetTimelinePostCommentsListener, TimelinePostsAdapter.OnUsernameTappedListener,
+TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnListSelectedListener{
 
     public static String EXTRA_TIMELINEPOST_ID = "TimelinePostID";
 
@@ -43,6 +48,7 @@ public class TimelinePostActivity extends AppCompatActivity implements PostParse
     LinearLayoutManager llm;
     TimelinePostsAdapter postsAdapter;
     Boolean isLoading = false;
+    ParseUser userOP;
 
     @BindView(R.id.pbLoading)
     ProgressBar pbLoading;
@@ -63,12 +69,14 @@ public class TimelinePostActivity extends AppCompatActivity implements PostParse
         setContentView(R.layout.activity_thread_post);
         ButterKnife.bind(this);
         parentPost = AozoraForumsApp.getTimelinePostToPass();
+        userOP = GetOriginalPoster();
         llm = new LinearLayoutManager(TimelinePostActivity.this);
         rvPostComments.setLayoutManager(llm);
         postsAdapter = new TimelinePostsAdapter(TimelinePostActivity.this,new ArrayList<TimelinePost>(),TimelinePostActivity.this, ParseUser.getCurrentUser());
         rvPostComments.setAdapter(postsAdapter);
         pbLoading.setVisibility(View.VISIBLE);
         rvPostComments.setVisibility(View.GONE);
+        swipeRefreshPost.setVisibility(View.GONE);
         swipeRefreshPost.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -114,6 +122,17 @@ public class TimelinePostActivity extends AppCompatActivity implements PostParse
         isLoading = true;
     }
 
+    private ParseUser GetOriginalPoster() {
+
+        if(parentPost.getParseObject(TimelinePost.REPOST_SOURCE) != null) {
+            //OMG ES REPOST SOUND THE FKING ALARM
+            TimelinePost repost = (TimelinePost)parentPost.getParseObject(TimelinePost.REPOST_SOURCE);
+            return  repost.getParseUser(TimelinePost.POSTED_BY);
+        } else {
+            return parentPost.getParseUser(TimelinePost.POSTED_BY);
+        }
+    }
+
     private void reloadPosts() {
 
         isLoading = true;
@@ -136,6 +155,7 @@ public class TimelinePostActivity extends AppCompatActivity implements PostParse
         postsAdapter = new TimelinePostsAdapter(TimelinePostActivity.this, timelinePosts, TimelinePostActivity.this, ParseUser.getCurrentUser());
         rvPostComments.setAdapter(postsAdapter);
         pbLoading.setVisibility(View.GONE);
+        swipeRefreshPost.setVisibility(View.VISIBLE);
         rvPostComments.setVisibility(View.VISIBLE);
         if(postsAdapter.getItemCount() == 0) {
             RecyclerView.RecycledViewPool recycledViewPool = rvPostComments.getRecycledViewPool();
@@ -160,6 +180,49 @@ public class TimelinePostActivity extends AppCompatActivity implements PostParse
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.add(R.id.flNewFragments, profileFragment).addToBackStack(null).commitAllowingStateLoss();
 
+        }
+    }
+
+    @Override
+    public void onMoreOptionsTappedCallback(TimelinePost post) {
+
+        OptionListDialogFragment fragment = AoUtils.getDialogFragmentMoreOptions(userOP,this,null,this);
+        fragment.setCancelable(true);
+        fragment.show(getSupportFragmentManager(),"");
+    }
+
+    @Override
+    public void onListSelected(Integer list, Integer selectedList) {
+
+        List<String> optionList = AoUtils.getOptionListFromID(this,selectedList);
+        String selectedOption = optionList.get(list);
+
+        if(selectedList == AoConstants.EDITDELETE_POST_OPTIONS_DIALOG) {
+            switch (selectedOption){
+                case AoConstants.ADMIN_POST_DELETE:
+                    new AlertDialog.Builder(this)
+                            .setTitle("Delete this post forever?")
+                            .setMessage("You can't undo this")
+                            .setNegativeButton(android.R.string.cancel, null) // dismisses by default
+                            .setPositiveButton(R.string.dialog_delete_post, new DialogInterface.OnClickListener() {
+                                @Override public void onClick(DialogInterface dialog, int which) {
+                                    Toast.makeText(TimelinePostActivity.this,"Delete Admin", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .create()
+                            .show();
+                    break;
+                case AoConstants.POST_EDIT:
+                    Toast.makeText(this,"Edit Admin", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+        if(selectedList == AoConstants.REPORT_POST_OPTIONS_DIALOG) {
+            switch (selectedOption){
+                case AoConstants.REPORT_POST_REPORT_CONTENT:
+                    Toast.makeText(this,"Report Post", Toast.LENGTH_SHORT).show();
+                    break;
+            }
         }
     }
 }

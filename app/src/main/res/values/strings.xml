@@ -56,9 +56,26 @@
     <string name="fa_check">&#xf00c;</string>
     <string name="fa_questionmark">&#xf059;</string>
 
+
+    <string name="dialog_delete_post">Yes, delete it</string>
+
+    <string-array name="red_options_dialog">
+        <item>Report Content</item>
+        <item>Ban Post [Deletes it]</item>
+        <item>Mute</item>
+    </string-array>
+
+    <string-array name="other_user_post_options">
+        <item>Report Content</item>
+    </string-array>
+
+    <string-array name="edit_post_options">
+        <item>Edit</item>
+    </string-array>
+
     <string-array name="admin_post_options">
         <item>Edit</item>
-        <item>Delete</item>
+        <item>Ban Post [Deletes it]</item>
     </string-array>
 
     <string-array name="my_profile_options">
@@ -86,6 +103,14 @@
         <item>Rising</item>
         <item>New</item>
     </string-array>
+
+
+
+    <string-array name="my_profile_other_user_options">
+        <item>Threads created</item>
+        <item>Mute</item>
+    </string-array>
+
 
 
     <string-array name="no_results_message">

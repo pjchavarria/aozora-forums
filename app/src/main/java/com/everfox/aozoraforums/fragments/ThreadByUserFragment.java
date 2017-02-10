@@ -70,8 +70,8 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
         pbLoading.setVisibility(View.VISIBLE);
         rvThreadByUser.setVisibility(View.GONE);
         isLoading = true;
-        fetchCount++;
         forumsHelper.GetUserThreads(user, 0, ForumsHelper.THREADS_FETCH_LIMIT);
+        fetchCount= 1;
         return view;
     }
 

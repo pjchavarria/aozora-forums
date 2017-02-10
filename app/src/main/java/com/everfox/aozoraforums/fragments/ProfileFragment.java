@@ -1,5 +1,6 @@
 package com.everfox.aozoraforums.fragments;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,6 +13,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -38,6 +40,7 @@ import com.everfox.aozoraforums.adapters.ProfileTimelineAdapter;
 import com.everfox.aozoraforums.controllers.PostParseHelper;
 import com.everfox.aozoraforums.controllers.ProfileParseHelper;
 import com.everfox.aozoraforums.controls.EndlessScrollView;
+import com.everfox.aozoraforums.dialogfragments.MuteUserDialogFragment;
 import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
@@ -72,7 +75,7 @@ import butterknife.ButterKnife;
  */
 
 public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGetProfilePostsListener, EndlessScrollView.EndlessScrollListener,
-OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUsernameTappedListener{
+OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUsernameTappedListener, ProfileTimelineAdapter.OnMoreOptionsTappedListener{
 
     ParseUser user;
     UserDetails userDetails;
@@ -149,6 +152,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         ButterKnife.bind(this,view);
+        fetchCount = 0;
         if(isProfile) {
             rvTimeline = (RecyclerView) view.findViewById(R.id.rvTimeline);
         } else {
@@ -255,7 +259,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
 
             new ProfileParseHelper(getActivity(), ProfileFragment.this)
                     .GetProfilePosts(user, fetchCount * ProfileParseHelper.PROFILE_FETCH_LIMIT, ProfileParseHelper.PROFILE_FETCH_LIMIT, selectedList,null);
-            fetchCount++;
+            fetchCount = 1;
         } else {
 
             ParseQuery<ParseUser> userParseQuery = ParseQuery.getQuery(ParseUser.class);
@@ -269,7 +273,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
                         loadProfile();
                         new ProfileParseHelper(getActivity(), ProfileFragment.this)
                                 .GetProfilePosts(user, fetchCount * ProfileParseHelper.PROFILE_FETCH_LIMIT, ProfileParseHelper.PROFILE_FETCH_LIMIT, selectedList,null);
-                        fetchCount++;
+                        fetchCount = 1;
                     } else {
                         Toast.makeText(getActivity(),"A problem occured, try again later",Toast.LENGTH_SHORT).show();
                     }
@@ -288,7 +292,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         ParseFile profilePic = user.getParseFile(ParseUserColumns.AVATAR_THUMB);
         ParseFile bannerPic = user.getParseFile(ParseUserColumns.BANNER);
         loadAvatarAndBanner(profilePic,bannerPic);
-        tvPopularity.setText(AoUtils.numberToStringOrZero(user.getNumber(ParseUserColumns.REPUTATION)));
+        tvPopularity.setText(AoUtils.reputationToString(user.getNumber(ParseUserColumns.REPUTATION)));
         if(!isCurrentUser) {
             tvFollow.setVisibility(View.VISIBLE);
             tvFollow.setTypeface(AozoraForumsApp.getAwesomeTypeface());
@@ -374,7 +378,11 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
                 DateFormat df = new SimpleDateFormat("MMM dd,yyyy");
                 String subtitle1 = "Member since: " + df.format(joinDate) ;
                 String subtitle2 = "Posts: " + postCount;
-                OptionListDialogFragment fragment = OptionListDialogFragment.newInstance(getActivity(),title,subtitle1,subtitle2,ProfileFragment.this, AoConstants.MY_PROFILE_OPTIONS_DIALOG);
+                OptionListDialogFragment fragment;
+                if(isCurrentUser)
+                    fragment = OptionListDialogFragment.newInstance(getActivity(),title,subtitle1,subtitle2,ProfileFragment.this, AoConstants.MY_PROFILE_OPTIONS_DIALOG,null);
+                else
+                    fragment = OptionListDialogFragment.newInstance(getActivity(),title,subtitle1,subtitle2,ProfileFragment.this, AoConstants.MY_PROFILE_OTHER_USER_OPTIONS_DIALOG,null);
                 fragment.setCancelable(true);
                 fragment.show(getFragmentManager(),"");
             }
@@ -551,12 +559,12 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         if(selectedList == AoConstants.MY_PROFILE_OPTIONS_DIALOG) {
             switch (selectedOption){
                 case AoConstants.MY_PROFILE_DISCOVER:
-                    OptionListDialogFragment fUserList = OptionListDialogFragment.newInstance(getActivity(),"User Lists","Find fellow anime fans",null,ProfileFragment.this, AoConstants.USER_LIST_OPTIONS_DIALOG);
+                    OptionListDialogFragment fUserList = OptionListDialogFragment.newInstance(getActivity(),"User Lists","Find fellow anime fans",null,ProfileFragment.this, AoConstants.USER_LIST_OPTIONS_DIALOG,null);
                     fUserList.setCancelable(true);
                     fUserList.show(getFragmentManager(),"");
                     break;
                 case AoConstants.MY_PROFILE_REPUTATION:
-                    OptionListDialogFragment fRep = OptionListDialogFragment.newInstance(getActivity(),null,null,null,ProfileFragment.this, AoConstants.REPUTATION_RANKS_OPTIONS_DIALOG);
+                    OptionListDialogFragment fRep = OptionListDialogFragment.newInstance(getActivity(),null,null,null,ProfileFragment.this, AoConstants.REPUTATION_RANKS_OPTIONS_DIALOG,null);
                     fRep.setCancelable(true);
                     fRep.show(getFragmentManager(),"");
                     break;
@@ -573,25 +581,81 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
                     break;
             }
         }
-        if(selectedList == AoConstants.ADMIN_POST_OPTIONS_DIALOG) {
+        if(selectedList == AoConstants.MY_PROFILE_OTHER_USER_OPTIONS_DIALOG) {
+            switch (selectedOption){
+                case AoConstants.MY_PROFILE_OTHERUSER_THREADS:
+                    scrollView.setVisibility(View.GONE);
+                    ThreadByUserFragment pf = ThreadByUserFragment.newInstance(user);
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    fragmentTransaction.add(R.id.flContent, pf).addToBackStack(null).commitAllowingStateLoss();
+                    break;
+                case AoConstants.MY_PROFILE_OTHERUSER_MUTE:
+                    MuteUserDialogFragment fragment;
+                    fragment = MuteUserDialogFragment.newInstance(getActivity(),user);
+                    fragment.setCancelable(true);
+                    fragment.show(getFragmentManager(),"");
+                    break;
+            }
+        }
+        if(selectedList == AoConstants.EDITDELETE_POST_OPTIONS_DIALOG) {
             switch (selectedOption){
                 case AoConstants.ADMIN_POST_DELETE:
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle("Delete this post forever?")
+                            .setMessage("You can't undo this")
+                            .setNegativeButton(android.R.string.cancel, null) // dismisses by default
+                            .setPositiveButton(R.string.dialog_delete_post, new DialogInterface.OnClickListener() {
+                                @Override public void onClick(DialogInterface dialog, int which) {
+                                    Toast.makeText(getActivity(),"Delete Admin", Toast.LENGTH_SHORT).show();
+                                }
+                            })
+                            .create()
+                            .show();
                     break;
-                case AoConstants.ADMIN_POST_EDIT:
+                case AoConstants.POST_EDIT:
+                    Toast.makeText(getActivity(),"Edit Admin", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+        if(selectedList == AoConstants.EDIT_POST_OPTIONS_DIALOG) {
+            switch (selectedOption){
+                case AoConstants.POST_EDIT:
+                    Toast.makeText(getActivity(),"Edit Post", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+        if(selectedList == AoConstants.REPORT_POST_OPTIONS_DIALOG) {
+            switch (selectedOption){
+                case AoConstants.REPORT_POST_REPORT_CONTENT:
+                    Toast.makeText(getActivity(),"Report Post", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
         if(selectedList == AoConstants.USER_LIST_OPTIONS_DIALOG) {
+            scrollView.setVisibility(View.GONE);
+            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             switch (selectedOption){
                 case AoConstants.USER_LIST_NEW:
+                    UserListFragment fragment = UserListFragment.newInstance(UserListFragment.NEW_USERS);
+                    fragmentTransaction.add(R.id.flContent, fragment).addToBackStack(null).commitAllowingStateLoss();
                     break;
                 case AoConstants.USER_LIST_NEWPRO:
+                    UserListFragment fragment1 = UserListFragment.newInstance(UserListFragment.NEW_PRO_MEMBERS);
+                    fragmentTransaction.add(R.id.flContent, fragment1).addToBackStack(null).commitAllowingStateLoss();
                     break;
                 case AoConstants.USER_LIST_OLDESTACTIVE:
+                    UserListFragment fragment2 = UserListFragment.newInstance(UserListFragment.OLDEST_ACTIVE_USERS);
+                    fragmentTransaction.add(R.id.flContent, fragment2).addToBackStack(null).commitAllowingStateLoss();
                     break;
                 case AoConstants.USER_LIST_ONLINE:
+                    UserListFragment fragment3 = UserListFragment.newInstance(UserListFragment.ONLINE_NOW);
+                    fragmentTransaction.add(R.id.flContent, fragment3).addToBackStack(null).commitAllowingStateLoss();
                     break;
                 case AoConstants.USER_LIST_STAFF:
+                    UserListFragment fragment4 = UserListFragment.newInstance(UserListFragment.AOZORA_STAFF);
+                    fragmentTransaction.add(R.id.flContent, fragment4).addToBackStack(null).commitAllowingStateLoss();
                     break;
             }
         }
@@ -661,4 +725,11 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         }
     }
 
+    @Override
+    public void onMoreOptionsTappedCallback(TimelinePost post) {
+
+        OptionListDialogFragment fragment = AoUtils.getDialogFragmentMoreOptions(user,getActivity(),this,null);
+        fragment.setCancelable(true);
+        fragment.show(getFragmentManager(),"");
+    }
 }
