@@ -2,10 +2,12 @@ package com.everfox.aozoraforums.dialogfragments;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +16,10 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.parse.ParseUser;
+
+import java.util.Calendar;
 
 /**
  * Created by daniel.soto on 2/10/2017.
@@ -57,11 +62,33 @@ public class MuteUserDialogFragment extends DialogFragment {
         view.findViewById(R.id.tvSubmit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                int days = Integer.valueOf(editText.getText().toString());
-                Toast.makeText(context,String.valueOf(days) + "Muted",Toast.LENGTH_SHORT).show();
+                Integer days = isNumeric(editText.getText().toString());
+                if(days == null)
+                    Toast.makeText(context,"Your mute duration is too long or you have entered characters.",Toast.LENGTH_SHORT).show();
+                else {
+                    Calendar c = Calendar.getInstance();
+                    c.add(Calendar.DAY_OF_YEAR,days);
+                    userToMute.getParseObject("details").put("mutedUntil",c.getTime());
+                    userToMute.saveInBackground();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(context).setTitle("Muted user").setMessage("You have muted " + userToMute.getString(ParseUserColumns.AOZORA_USERNAME));
+                    builder.create().show();
+                    dismiss();
+                }
             }
         });
 
         return view;
+    }
+
+    public static Integer isNumeric(String str)
+    {
+        Integer integer = null;
+        try {
+            integer = Integer.parseInt(str);
+        }
+        catch(NumberFormatException nfe) {
+            return null;
+        }
+        return integer;
     }
 }

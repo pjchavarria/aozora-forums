@@ -1,5 +1,7 @@
 package com.everfox.aozoraforums.utils;
 
+import com.parse.ParseUser;
+
 import java.util.Date;
 
 /**

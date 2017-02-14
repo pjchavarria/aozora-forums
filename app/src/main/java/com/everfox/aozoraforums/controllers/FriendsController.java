@@ -20,7 +20,7 @@ import java.util.List;
 public class FriendsController {
 
 
-    static ArrayList<ParseObject> following;
+    public static ArrayList<ParseObject> following;
 
     private static FriendsController friendsController = new FriendsController();
 

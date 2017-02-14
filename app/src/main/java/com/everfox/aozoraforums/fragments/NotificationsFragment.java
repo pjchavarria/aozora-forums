@@ -164,6 +164,8 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
     @Override
     public void onGetNotificationListener(List<AoNotification> _notifications) {
 
+        if(_notifications.size() == 0)
+            fetchCount--;
         if(notiAdapter.getItemCount() == 0) {
             _notifications = AoUtils.filterNotifications(new ArrayList<>(_notifications));
             lstNotifications.addAll(_notifications);

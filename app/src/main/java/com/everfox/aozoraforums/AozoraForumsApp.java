@@ -101,6 +101,10 @@ public class AozoraForumsApp extends Application {
         if(isAdmin == null) {
             ParseUser currentUser = ParseUser.getCurrentUser();
             JSONArray jsonArray = currentUser.getJSONArray(ParseUserColumns.BADGES);
+            if(jsonArray == null) {
+                isAdmin = false;
+                return isAdmin;
+            }
             if (jsonArray.toString().contains("Admin") || jsonArray.toString().contains("Mod"))
                 isAdmin = true;
             else

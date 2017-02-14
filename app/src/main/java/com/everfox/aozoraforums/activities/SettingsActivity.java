@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.FirstActivity;
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.utils.AoUtils;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -25,7 +26,7 @@ import com.parse.ParseUser;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class SettingsActivity extends AppCompatActivity {
+public class SettingsActivity extends AozoraActivity {
 
     String AOTRACKING_PACKAGE ="com.everfox.animetrackerandroid";
     String AODISCOVER_PACKAGE ="";
@@ -77,19 +78,7 @@ public class SettingsActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                try {
-                    ParseObject.unpinAll();
-                } catch (ParseException pEx) {
-                }
-
-                sharedPreferences = getSharedPreferences("com.everfox.aozoraforums", Context.MODE_PRIVATE);
-                sharedPreferences.edit().remove("MAL_User").apply();
-                sharedPreferences.edit().remove("MAL_Password").apply();
-                AozoraForumsApp.cleanValues();
-                ParseUser.logOut();
-                Intent intent = new Intent(SettingsActivity.this, FirstActivity.class);
-                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
+                AoUtils.logout(SettingsActivity.this);
             }
         });
 

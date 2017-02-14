@@ -42,6 +42,7 @@ import com.everfox.aozoraforums.controllers.ProfileParseHelper;
 import com.everfox.aozoraforums.controls.EndlessScrollView;
 import com.everfox.aozoraforums.dialogfragments.MuteUserDialogFragment;
 import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
+import com.everfox.aozoraforums.models.PUser;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.models.UserDetails;
@@ -77,6 +78,7 @@ import butterknife.ButterKnife;
 public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGetProfilePostsListener, EndlessScrollView.EndlessScrollListener,
 OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUsernameTappedListener, ProfileTimelineAdapter.OnMoreOptionsTappedListener{
 
+    Boolean isFollowing;
     ParseUser user;
     UserDetails userDetails;
     Boolean isProfile;
@@ -91,6 +93,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
     String userID = null;
     Date lastItemDate = null;
     Boolean hasMenu = true;
+    Boolean firstTime = true;
 
     RecyclerView rvTimeline;
 
@@ -152,6 +155,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         ButterKnife.bind(this,view);
+        firstTime = true;
         fetchCount = 0;
         if(isProfile) {
             rvTimeline = (RecyclerView) view.findViewById(R.id.rvTimeline);
@@ -304,8 +308,23 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
                 public void done(int count, ParseException e) {
                     if (count > 0) {
                         tvFollow.setText(getString(R.string.fa_check) + " Following");
+                        isFollowing = true;
                     } else {
                         tvFollow.setText(getString(R.string.fa_plus) + " Follow");
+                        isFollowing = false;
+                    }
+                }
+            });
+            tvFollow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    PUser.followUser(user,!isFollowing);
+                    if(isFollowing) {
+                        tvFollow.setText(getString(R.string.fa_plus) + " Follow");
+                        isFollowing = false;
+                    } else {
+                        tvFollow.setText(getString(R.string.fa_check) + " Following");
+                        isFollowing = true;
                     }
                 }
             });
@@ -327,48 +346,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         else
             tvLastActive.setText(ProfileUtils.lastActiveFromUser(user));
 
-
-        ParseObject details =user.getParseObject(ParseUserColumns.DETAILS);
-        if(details == null) {
-
-            ParseQuery<UserDetails> queryDetails = ParseQuery.getQuery(UserDetails.class);
-            queryDetails.setLimit(1);
-            queryDetails.whereEqualTo(UserDetails.DETAILS_USER, user);
-            queryDetails.findInBackground(new FindCallback<UserDetails>() {
-                @Override
-                public void done(List<UserDetails> objects, ParseException e) {
-                    if (objects != null && e == null && objects.size() > 0) {
-                        userDetails = objects.get(0);
-                        loadUserDetails();
-                    }
-                }
-            });
-
-        } else {
-            details.fetchIfNeededInBackground(new GetCallback<UserDetails>() {
-                @Override
-                public void done(UserDetails object, ParseException e) {
-
-                    if (object == null) {
-                        ParseQuery<UserDetails> queryDetails = ParseQuery.getQuery(UserDetails.class);
-                        queryDetails.setLimit(1);
-                        queryDetails.whereEqualTo(UserDetails.DETAILS_USER, user);
-                        queryDetails.findInBackground(new FindCallback<UserDetails>() {
-                            @Override
-                            public void done(List<UserDetails> objects, ParseException e) {
-                                if (objects != null && e == null && objects.size() > 0) {
-                                    userDetails = objects.get(0);
-                                    loadUserDetails();
-                                }
-                            }
-                        });
-                    } else {
-                        userDetails = object;
-                        loadUserDetails();
-                    }
-                }
-            });
-        }
+        getUserDetails();
 
         ivMoreOptions.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -411,13 +389,66 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
             scrollView.setVisibility(View.VISIBLE);
             rvTimeline.setVisibility(View.VISIBLE);
         }
-        if(user != null)
+        if(user != null && !firstTime) {
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(user.getString(ParseUserColumns.AOZORA_USERNAME));
+            if(isProfile && user.getObjectId().equals(ParseUser.getCurrentUser().getObjectId())) {
+                user = ParseUser.getCurrentUser();
+                getUserDetails();
+                ParseFile profilePic = user.getParseFile(ParseUserColumns.AVATAR_THUMB);
+                ParseFile bannerPic = user.getParseFile(ParseUserColumns.BANNER);
+                loadAvatarAndBanner(profilePic, bannerPic);
+            }
+        }
+        firstTime = false;
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+    }
+
+    private void getUserDetails() {
+        ParseObject details =user.getParseObject(ParseUserColumns.DETAILS);
+        if(details == null) {
+
+            ParseQuery<UserDetails> queryDetails = ParseQuery.getQuery(UserDetails.class);
+            queryDetails.setLimit(1);
+            queryDetails.whereEqualTo(UserDetails.DETAILS_USER, user);
+            queryDetails.findInBackground(new FindCallback<UserDetails>() {
+                @Override
+                public void done(List<UserDetails> objects, ParseException e) {
+                    if (objects != null && e == null && objects.size() > 0) {
+                        userDetails = objects.get(0);
+                        loadUserDetails();
+                    }
+                }
+            });
+
+        } else {
+            details.fetchInBackground(new GetCallback<UserDetails>() {
+                @Override
+                public void done(UserDetails object, ParseException e) {
+
+                    if (object == null) {
+                        ParseQuery<UserDetails> queryDetails = ParseQuery.getQuery(UserDetails.class);
+                        queryDetails.setLimit(1);
+                        queryDetails.whereEqualTo(UserDetails.DETAILS_USER, user);
+                        queryDetails.findInBackground(new FindCallback<UserDetails>() {
+                            @Override
+                            public void done(List<UserDetails> objects, ParseException e) {
+                                if (objects != null && e == null && objects.size() > 0) {
+                                    userDetails = objects.get(0);
+                                    loadUserDetails();
+                                }
+                            }
+                        });
+                    } else {
+                        userDetails = object;
+                        loadUserDetails();
+                    }
+                }
+            });
+        }
     }
 
     private void loadUserDetails() {
@@ -484,6 +515,8 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
     @Override
     public void onGetProfilePosts(List<TimelinePost> _timelinePosts) {
 
+        if(_timelinePosts.size() == 0)
+            fetchCount--;
         if(timelineAdapter.getItemCount() == 0) {
             _timelinePosts = AoUtils.clearTimelinePostDuplicates(new ArrayList<>(_timelinePosts));
             lstTimelinePost.addAll(_timelinePosts);

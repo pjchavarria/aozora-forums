@@ -29,7 +29,7 @@ import com.everfox.aozoraforums.utils.AoUtils;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.parse.ParseUser;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AozoraActivity {
 
     Button btnLogout;
     ImageView btnForum, btnNotifications, btnProfile, btnFeed;

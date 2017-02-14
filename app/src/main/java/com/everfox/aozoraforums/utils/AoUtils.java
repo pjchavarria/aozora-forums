@@ -3,6 +3,8 @@ package com.everfox.aozoraforums.utils;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.support.v4.app.DialogFragment;
@@ -12,22 +14,32 @@ import android.text.Html;
 import android.text.Spanned;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
+import com.everfox.aozoraforums.FirstActivity;
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.activities.AozoraActivity;
+import com.everfox.aozoraforums.activities.SettingsActivity;
 import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.models.AoNotification;
 import com.everfox.aozoraforums.models.PUser;
+import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.models.UserDetails;
 import com.parse.GetCallback;
+import com.parse.LogOutCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -268,4 +280,51 @@ public class AoUtils {
     public static List<String> getRedOptionsDialog(Context context) {
         return Arrays.asList(context.getResources().getStringArray(R.array.red_options_dialog));
     }
+
+    public static void logout(final Context context) {
+
+        ParseUser user = ParseUser.getCurrentUser();
+        if(user != null) {
+            user.put(ParseUserColumns.ACTIVE, false);
+            user.put(ParseUserColumns.ACTIVE_END, Calendar.getInstance().getTime());
+            user.saveInBackground();
+        }
+
+        ParseUser.logOutInBackground(new LogOutCallback() {
+            @Override
+            public void done(ParseException e) {
+                if(e== null) {
+                    try {
+                        if(ParseUser.getCurrentUser() != null)
+                            ParseUser.logOut();
+                        ParseObject.unpinAll();
+                    } catch (ParseException pEx) {
+                    }
+
+                    SharedPreferences sharedPreferences = context.getSharedPreferences("com.everfox.aozoraforums", Context.MODE_PRIVATE);
+                    sharedPreferences.edit().remove("MAL_User").apply();
+                    sharedPreferences.edit().remove("MAL_Password").apply();
+                    AozoraForumsApp.cleanValues();
+                    Intent intent = new Intent(context, FirstActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                    context.startActivity(intent);
+                }
+            }
+        });
+    }
+
+
+
+    public static byte[] getBytesFromStream(InputStream inputStream) throws IOException {
+        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
+        int bufferSize = 1024;
+        byte[] buffer = new byte[bufferSize];
+
+        int len = 0;
+        while ((len = inputStream.read(buffer)) != -1) {
+            byteBuffer.write(buffer, 0, len);
+        }
+        return byteBuffer.toByteArray();
+    }
+
 }

@@ -127,8 +127,9 @@ public class UserListFragment extends Fragment implements UserListHelper.OnGetUs
     }
 
     @Override
-    public void onFollowTapped(PUser userTapped, Boolean isFollowing) {
-        Toast.makeText(getActivity(),isFollowing? "Unfollow this user" : "Follow this user",Toast.LENGTH_SHORT).show();
+    public void onFollowTapped(PUser userTapped, Boolean isFollowing, int position) {
+        PUser.followUser(userTapped,!isFollowing);
+        userAdapter.notifyItemChanged(position);
     }
 
     @Override

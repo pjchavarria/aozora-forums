@@ -395,4 +395,22 @@ public class PostUtils {
             ivAvatar.setImageResource(R.drawable.default_avatar);
         }
     }
+
+    public static void loadBannerPic(ParseFile profilePic, final ImageView ivAvatar) {
+        if(profilePic != null) {
+            profilePic.getDataInBackground(new GetDataCallback() {
+
+                @Override
+                public void done(byte[] data, com.parse.ParseException e) {
+                    if (e == null) {
+                        Bitmap bmp = BitmapFactory
+                                .decodeByteArray(data, 0, data.length);
+                        ivAvatar.setImageBitmap(bmp);
+                    }
+                }
+            });
+        } else {
+            ivAvatar.setImageResource(R.drawable.placeholder_banner);
+        }
+    }
 }

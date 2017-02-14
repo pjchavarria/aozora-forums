@@ -93,6 +93,12 @@ FollowersAdapter.OnFollowTappedListener, FollowersAdapter.OnUserTappedListener{
     public void onResume() {
         super.onResume();
         rvFollowers.setVisibility(View.VISIBLE);
+        if(isFollowers) {
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Followers");
+        }
+        else {
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Following");
+        }
     }
 
     @Override
@@ -105,7 +111,7 @@ FollowersAdapter.OnFollowTappedListener, FollowersAdapter.OnUserTappedListener{
     }
 
     @Override
-    public void onFollowTapped(PUser userTapped, Boolean isFollowing) {
+    public void onFollowTapped(PUser userTapped, Boolean isFollowing, int position) {
 
         Toast.makeText(getActivity(),isFollowing? "Unfollow this user" : "Follow this user",Toast.LENGTH_SHORT).show();
     }

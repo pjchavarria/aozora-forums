@@ -30,6 +30,7 @@ import com.everfox.aozoraforums.utils.AoUtils;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 import com.parse.SignUpCallback;
@@ -169,7 +170,7 @@ public class SignUpFormActivity extends AppCompatActivity {
 
                 try {
                     InputStream inputStream = getContentResolver().openInputStream(selectedImageUri);
-                    avatarByteArray = getBytes(inputStream);
+                    avatarByteArray = AoUtils.getBytesFromStream(inputStream);
                     btnChooseAvatar.setVisibility(View.INVISIBLE);
                     ivChooseAvatar.setImageURI(selectedImageUri);
                     ivChooseAvatar.setVisibility(View.VISIBLE);
@@ -185,19 +186,6 @@ public class SignUpFormActivity extends AppCompatActivity {
     }
 
 
-    public byte[] getBytes(InputStream inputStream) throws IOException {
-        ByteArrayOutputStream byteBuffer = new ByteArrayOutputStream();
-        int bufferSize = 1024;
-        byte[] buffer = new byte[bufferSize];
-
-        int len = 0;
-        while ((len = inputStream.read(buffer)) != -1) {
-            byteBuffer.write(buffer, 0, len);
-        }
-        return byteBuffer.toByteArray();
-    }
-
-
     private void SignUp() {
         try {
 
@@ -205,7 +193,7 @@ public class SignUpFormActivity extends AppCompatActivity {
         if(isFacebook)
             user = newUserFacebook;
         else
-            user = new ParseUser();
+            user = ParseObject.create(ParseUser.class);
         final UserDetails userDetails = new UserDetails();
         user.setUsername(etPickUsername.getText().toString().toLowerCase());
         if(!isFacebook)
@@ -269,6 +257,7 @@ public class SignUpFormActivity extends AppCompatActivity {
         }
         catch(Exception ex) {
             simpleLoading.dismissAllowingStateLoss();
+            Toast.makeText(this,ex.getLocalizedMessage(),Toast.LENGTH_SHORT).show();
         }
     }
 

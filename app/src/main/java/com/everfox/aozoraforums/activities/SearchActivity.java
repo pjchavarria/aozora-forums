@@ -45,7 +45,7 @@ import butterknife.ButterKnife;
  * Created by daniel.soto on 2/7/2017.
  */
 
-public class SearchActivity extends AppCompatActivity implements SearchHelper.OnGetSearchThreadsListener, SearchHelper.OnGetSearchUsersListener,
+public class SearchActivity extends AozoraActivity implements SearchHelper.OnGetSearchThreadsListener, SearchHelper.OnGetSearchUsersListener,
 SearchResultsUserAdapter.OnUsernameTappedListener, SearchHelper.OnGetSearchPopularThreadsListener{
 
     ArrayList<AoThread> popularThreads;

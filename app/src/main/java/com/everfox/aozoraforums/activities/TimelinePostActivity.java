@@ -39,7 +39,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class TimelinePostActivity extends AppCompatActivity implements PostParseHelper.OnGetTimelinePostCommentsListener, TimelinePostsAdapter.OnUsernameTappedListener,
+public class TimelinePostActivity extends AozoraActivity implements PostParseHelper.OnGetTimelinePostCommentsListener, TimelinePostsAdapter.OnUsernameTappedListener,
 TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnListSelectedListener{
 
     public static String EXTRA_TIMELINEPOST_ID = "TimelinePostID";
@@ -69,7 +69,8 @@ TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnLis
         setContentView(R.layout.activity_thread_post);
         ButterKnife.bind(this);
         parentPost = AozoraForumsApp.getTimelinePostToPass();
-        userOP = GetOriginalPoster();
+        if(parentPost != null)
+            userOP = GetOriginalPoster();
         llm = new LinearLayoutManager(TimelinePostActivity.this);
         rvPostComments.setLayoutManager(llm);
         postsAdapter = new TimelinePostsAdapter(TimelinePostActivity.this,new ArrayList<TimelinePost>(),TimelinePostActivity.this, ParseUser.getCurrentUser());
@@ -94,6 +95,7 @@ TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnLis
                 public void done(TimelinePost object, ParseException e) {
                     if(object != null && e==null) {
                         parentPost = object;
+                        userOP = GetOriginalPoster();
                         setTitle(parentPost.getParseObject(TimelinePost.POSTED_BY).getString(ParseUserColumns.AOZORA_USERNAME));
                         new PostParseHelper(TimelinePostActivity.this, TimelinePostActivity.this)
                                 .GetTimelinePostComments(parentPost, 0, 2000);

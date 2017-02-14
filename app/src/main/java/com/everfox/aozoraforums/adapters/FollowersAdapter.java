@@ -45,7 +45,7 @@ public class FollowersAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHol
 
     private OnFollowTappedListener mOnFollowTappedCallback;
     public interface OnFollowTappedListener {
-        public void onFollowTapped(PUser userTapped, Boolean isFollowing);
+        public void onFollowTapped(PUser userTapped, Boolean isFollowing, int position);
     }
 
     public FollowersAdapter (Context context, List<PUser> users, Fragment callback, ParseUser parseUser, Boolean showFollow) {
@@ -77,7 +77,7 @@ public class FollowersAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHol
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
 
         if(holder instanceof FollowersAdapter.ItemViewHolder) {
             FollowersAdapter.ItemViewHolder vh = (ItemViewHolder) holder;
@@ -100,7 +100,7 @@ public class FollowersAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHol
                 vh.tvFollow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mOnFollowTappedCallback.onFollowTapped(user,user.getFollowingThisUser());
+                        mOnFollowTappedCallback.onFollowTapped(user,user.getFollowingThisUser(),position);
                     }
                 });
             }

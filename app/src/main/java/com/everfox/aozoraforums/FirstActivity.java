@@ -100,12 +100,6 @@ public class FirstActivity extends AppCompatActivity {
 
         Uri uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.intro);
         vvIntro.setVideoURI(uri);
-        vvIntro.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                mp.setLooping(true);
-            }
-        });
     }
 
     @Override
@@ -121,7 +115,13 @@ public class FirstActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        vvIntro.start();
+        vvIntro.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                mp.setLooping(true);
+                vvIntro.start();
+            }
+        });
         tvAppMessage.setText(AoUtils.fromHtml(getResources().getString(R.string.activity_login_tvAppMessage_Text)));
 
         if(ParseUser.getCurrentUser() != null) {

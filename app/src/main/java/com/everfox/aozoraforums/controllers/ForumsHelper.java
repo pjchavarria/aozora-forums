@@ -124,16 +124,14 @@ public class ForumsHelper {
     public void GetUserThreads(ParseUser user, int skip, int limit) {
 
         ParseQuery<AoThread> query = ParseQuery.getQuery(AoThread.class);
-        query.whereEqualTo(AoThread.TYPE,AoConstants.USERTHREAD);
         query.whereEqualTo(AoThread.POSTEDBY,user);
-        query.whereEqualTo(AoThread.VISIBILITY, AoConstants.VISIBLE);
         query.setSkip(skip);
         query.setLimit(limit);
+        query.orderByDescending(AoThread.CREATED_AT);
         // FILTERING FAVORITES
         query.include(AoThread.TAGS);
         query.include(AoThread.STARTEDBY);
         query.include(AoThread.POSTEDBY);
-        query.include(AoThread.LASTPOSTEDBY);
         query.include(AoThread.LASTPOSTEDBY);
 
         query.findInBackground(new FindCallback<AoThread>() {

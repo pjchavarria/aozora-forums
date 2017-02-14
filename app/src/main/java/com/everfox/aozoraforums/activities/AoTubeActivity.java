@@ -1,6 +1,7 @@
 package com.everfox.aozoraforums.activities;
 
 import android.os.Bundle;
+import android.widget.Toast;
 
 import com.everfox.aozoraforums.R;
 import com.google.android.youtube.player.YouTubeBaseActivity;
@@ -38,5 +39,6 @@ public class AoTubeActivity extends YouTubeBaseActivity implements YouTubePlayer
     @Override
     public void onInitializationFailure(Provider provider, YouTubeInitializationResult youTubeInitializationResult) {
         finish();
+        Toast.makeText(this,"Can't play the video, verify you have the Youtube App installed",Toast.LENGTH_SHORT).show();
     }
 }

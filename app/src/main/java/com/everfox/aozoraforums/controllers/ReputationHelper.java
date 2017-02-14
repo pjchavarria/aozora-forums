@@ -13,6 +13,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -59,12 +60,37 @@ public class ReputationHelper {
 
     public void GetFriendsReputationRank() {
 
-        ArrayList<ParseObject> following = new ArrayList<ParseObject>();
-        following.addAll(FriendsController.following);
+        final ArrayList<ParseObject> following = new ArrayList<ParseObject>();
+        if(FriendsController.following == null) {
+            ParseUser currentUser = ParseUser.getCurrentUser();
+            ParseQuery<ParseObject> query =  currentUser.getRelation(ParseUserColumns.FOLLOWING) .getQuery();
+            query.whereEqualTo(ParseUserColumns.FOLLOWING, currentUser);
+            query.selectKeys(Arrays.asList(new String[]{ParseUserColumns.AOZORA_USERNAME,ParseUserColumns.REPUTATION,ParseUserColumns.AVATAR_THUMB}));
+            query.setLimit(1000);
+            query.orderByDescending(ParseUserColumns.ACTIVE_START);
+            query.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    if (e == null && objects != null && objects.size() > 0) {
+                        FriendsController.following  = (ArrayList<ParseObject>) objects;
+                        onGetFollowing(FriendsController.following);
+                    } else {
+                        FriendsController.following  = null;
+                        onGetFollowing(new ArrayList<ParseObject>());
+                    }
+                }
+            });
+        } else {
+            onGetFollowing(FriendsController.following);
+        }
+    }
+
+    private void onGetFollowing (ArrayList<ParseObject> following) {
+
+        following.addAll(following);
         following.add(ParseUser.getCurrentUser());
         Collections.sort(following,ReputationComparator);
         mOnGetReputationCallback.onGetReputation(following);
-
     }
 
     public static Comparator<ParseObject> ReputationComparator
