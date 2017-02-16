@@ -57,11 +57,11 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         public void onUsernameTapped(ParseUser userTapped);
     }
 
-
     private OnMoreOptionsTappedListener mOnMoreOptionsTappedCallback;
     public interface OnMoreOptionsTappedListener {
         public void onMoreOptionsTappedCallback(TimelinePost post);
     }
+
 
 
     public TimelinePostsAdapter (Context context, List<TimelinePost> tlps, Activity callback, ParseUser currentUser) {
@@ -234,7 +234,7 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
 
-    private void configureViewHolderComment(final ViewHolderComment holder, int position) {
+    private void configureViewHolderComment(final ViewHolderComment holder, final int position) {
 
         //inicializamos imagenes
         holder.ivCommentImage.setImageDrawable(null);
@@ -247,6 +247,7 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         holder.ivCommentImage.setLayoutParams(lp);
 
         final TimelinePost comment = timelinePosts.get(position);
+
         ParseUser userLastComment = (ParseUser)comment.getParseObject(TimelinePost.POSTED_BY);
         PostUtils.loadAvatarPic(userLastComment.getParseFile(ParseUserColumns.AVATAR_THUMB), holder.ivCommentAvatar);
         if (userLastComment.getBoolean(ParseUserColumns.ACTIVE)) {

@@ -21,4 +21,7 @@ public class ParseUserColumns {
     public static String TABLE_NAME = "_User";
     public static String EMAIL = "email";
     public static String CREATED_AT = "createdAt";
+    public static String REPORTEDITEMS = "reportedItems";
+    public static String REPORT_COUNT = "reportCount";
+    public static String POST_COUNT = "postCount";
 }

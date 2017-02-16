@@ -6,6 +6,8 @@ import android.support.v4.app.Fragment;
 import com.everfox.aozoraforums.models.PUser;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
+import com.everfox.aozoraforums.utils.PostUtils;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -35,6 +37,8 @@ public class ProfileParseHelper {
     public static final String DARKCIRIUS_ACCOUNT = "Bt5dy11isC";
     public static final String AOZORA_ACCOUNT = "bR0T6mStO";
 
+    PostUtils.OnDeletePostCallback mOnDeletePost;
+
     private OnGetProfilePostsListener mOnGetProfilePostsCallback;
     public interface OnGetProfilePostsListener {
         public void onGetProfilePosts(List<TimelinePost> timelinePosts);
@@ -44,6 +48,7 @@ public class ProfileParseHelper {
     public ProfileParseHelper (Context context, Fragment profileFragment) {
         this.context = context;
         this.mOnGetProfilePostsCallback = (OnGetProfilePostsListener) profileFragment;
+        mOnDeletePost = (PostUtils.OnDeletePostCallback) profileFragment;
     }
 
     public void GetProfilePosts(ParseUser userProfile, int skip, int limit,int selectedList, Date createdDate) {
@@ -119,6 +124,10 @@ public class ProfileParseHelper {
             }
         });
 
+    }
+
+    public void deletePost(ParseObject post, ParseObject parseObject) {
+        PostUtils.deletePost(post,parseObject,mOnDeletePost);
     }
 
 

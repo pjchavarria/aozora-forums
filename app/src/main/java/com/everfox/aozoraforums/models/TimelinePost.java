@@ -3,6 +3,9 @@ package com.everfox.aozoraforums.models;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by daniel.soto on 1/12/2017.
  */
@@ -10,14 +13,22 @@ import com.parse.ParseObject;
 @ParseClassName("TimelinePost")
 public class TimelinePost extends ParseObject {
 
+
+    private List<TimelinePost> replies = new ArrayList<>();
+    public List<TimelinePost> getReplies() {
+        return replies;
+    }
+
+    public void setReplies(List<TimelinePost> replies) {
+        this.replies = replies;
+    }
+
     public TimelinePost getRepostFather() {
         return repostFather;
     }
-
     public void setRepostFather(TimelinePost repostFather) {
         this.repostFather = repostFather;
     }
-
     private TimelinePost repostFather;
 
     public static String NON_SPOILER_CONTENT = "nonSpoilerContent";

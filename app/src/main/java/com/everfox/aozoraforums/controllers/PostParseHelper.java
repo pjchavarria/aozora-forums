@@ -5,8 +5,10 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 
 import com.everfox.aozoraforums.models.TimelinePost;
+import com.everfox.aozoraforums.utils.PostUtils;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
@@ -20,6 +22,8 @@ import java.util.List;
 public class PostParseHelper {
 
 
+    private PostUtils.OnDeletePostCallback mOnDeletePost;
+
     private OnGetTimelinePostCommentsListener mOnGetTimelinePostCommentsCallback;
     public interface OnGetTimelinePostCommentsListener {
         public void onTimelinePostComments(List<TimelinePost> timelinePosts);
@@ -30,6 +34,7 @@ public class PostParseHelper {
     public PostParseHelper(Context context, Activity timelinePostAct) {
         this.context = context;
         this.mOnGetTimelinePostCommentsCallback = (OnGetTimelinePostCommentsListener) timelinePostAct;
+        this.mOnDeletePost = (PostUtils.OnDeletePostCallback) timelinePostAct;
     }
 
     public void GetTimelinePostComments(TimelinePost timelinePost, int skip, int limit) {
@@ -65,4 +70,11 @@ public class PostParseHelper {
             }
         });
     }
+
+    public void deletePost(ParseObject post, ParseObject parseObject) {
+        PostUtils.deletePost(post,parseObject,mOnDeletePost);
+    }
+
+
+
 }

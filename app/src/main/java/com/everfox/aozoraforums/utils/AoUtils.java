@@ -3,6 +3,7 @@ package com.everfox.aozoraforums.utils;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
@@ -10,8 +11,10 @@ import android.net.NetworkInfo;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.Spanned;
+import android.widget.Toast;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.FirstActivity;
@@ -258,24 +261,58 @@ public class AoUtils {
         return reputationString;
     }
 
-    public static OptionListDialogFragment getDialogFragmentMoreOptions(ParseUser user, Context context, Fragment fragment, Activity activity) {
-        if(AozoraForumsApp.getIsAdmin()) {
-            if (user.getObjectId().equals(ParseUser.getCurrentUser().getObjectId()))
+    public static OptionListDialogFragment getDialogFragmentMoreOptions(ParseUser userWhoPosted,  Context context, Fragment fragment, Activity activity) {
+
+        int userType = AozoraForumsApp.getIsAdmin(ParseUser.getCurrentUser());
+        if(userType == 0) {
+            //NormalUser
+            if(ParseUser.getCurrentUser().getObjectId().equals(userWhoPosted.getObjectId())) {
+                //Himself
                 return OptionListDialogFragment.newInstance(context, "Editing post", "Only edit posts if they are breaking guidelines",
                         null, fragment, AoConstants.EDITDELETE_POST_OPTIONS_DIALOG, activity);
-            else
-                return  OptionListDialogFragment.newInstance(context, "Warning! Editing post", "Only edit posts if they are breaking guidelines",
-                        null, fragment, AoConstants.EDITDELETE_POST_OPTIONS_DIALOG, activity);
-        } else {
-
-            if (user.getObjectId().equals(ParseUser.getCurrentUser().getObjectId()))
-                return  OptionListDialogFragment.newInstance(context, "Editing post", "Only edit posts if they are breaking guidelines",
-                        null, fragment, AoConstants.EDITDELETE_POST_OPTIONS_DIALOG, activity);
-            else
+            } else {
+                //Other
                 return  OptionListDialogFragment.newInstance(context, "Warning! Reporting post", "Only report posts if they are breaking guidelines",
                         null, fragment, AoConstants.REPORT_POST_OPTIONS_DIALOG, activity);
+            }
+        } else if (userType == 1) {
+
+            if(ParseUser.getCurrentUser().getObjectId().equals(userWhoPosted.getObjectId())) {
+                //Himself
+                return OptionListDialogFragment.newInstance(context, "Editing post", "Only edit posts if they are breaking guidelines",
+                        null, fragment, AoConstants.EDITDELETE_POST_OPTIONS_DIALOG, activity);
+            } else {
+                //Other
+                if (AozoraForumsApp.getIsAdmin(userWhoPosted) > 0) {
+                    //Admin - TopAdmin
+                    return  OptionListDialogFragment.newInstance(context, "Warning! Reporting post", "Only report posts if they are breaking guidelines",
+                            null, fragment, AoConstants.REPORT_POST_OPTIONS_DIALOG, activity);
+                } else {
+                    //Normal Other
+                    return OptionListDialogFragment.newInstance(context, "Editing post", "Only edit posts if they are breaking guidelines",
+                            null, fragment, AoConstants.EDITDELETE_POST_OPTIONS_DIALOG, activity);
+                }
+            }
+        } else {
+
+            return OptionListDialogFragment.newInstance(context, "Editing post", "Only edit posts if they are breaking guidelines",
+                    null, fragment, AoConstants.EDITDELETE_POST_OPTIONS_DIALOG, activity);
+        }
+
+    }
+
+
+    public static ParseUser GetOriginalPoster(TimelinePost parentPost) {
+
+        if(parentPost.getParseObject(TimelinePost.REPOST_SOURCE) != null) {
+            //OMG ES REPOST SOUND THE FKING ALARM
+            TimelinePost repost = (TimelinePost)parentPost.getParseObject(TimelinePost.REPOST_SOURCE);
+            return  repost.getParseUser(TimelinePost.POSTED_BY);
+        } else {
+            return parentPost.getParseUser(TimelinePost.POSTED_BY);
         }
     }
+
 
     public static List<String> getRedOptionsDialog(Context context) {
         return Arrays.asList(context.getResources().getStringArray(R.array.red_options_dialog));
@@ -326,5 +363,37 @@ public class AoUtils {
         }
         return byteBuffer.toByteArray();
     }
+
+    public static void reportObject(ParseObject objectToReport) {
+        ParseUser userWhoReported = ParseUser.getCurrentUser();
+        objectToReport.addUnique(TimelinePost.REPORTED_BY,userWhoReported);
+        objectToReport.increment(TimelinePost.REPORT_COUNT);
+        objectToReport.saveInBackground();
+        userWhoReported.getParseObject(ParseUserColumns.DETAILS).addUnique(ParseUserColumns.REPORTEDITEMS,objectToReport);
+        userWhoReported.getParseObject(ParseUserColumns.DETAILS).increment(ParseUserColumns.REPORT_COUNT);
+        userWhoReported.saveInBackground();
+    }
+
+
+    public static void showAlertWithTitleAndText(Context context,String title, String text) {
+
+        new AlertDialog.Builder(context)
+                .setTitle("title")
+                .setMessage(text)
+                .create()
+                .show();
+    }
+
+    public static TimelinePost GetOriginalPost(TimelinePost parentPost) {
+
+        if(parentPost.getParseObject(TimelinePost.REPOST_SOURCE) != null) {
+            //OMG ES REPOST SOUND THE FKING ALARM
+            return (TimelinePost)parentPost.getParseObject(TimelinePost.REPOST_SOURCE);
+        } else {
+            return parentPost;
+        }
+    }
+
+
 
 }

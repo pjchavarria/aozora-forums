@@ -114,7 +114,7 @@
     </RelativeLayout>
 
     <FrameLayout
-        android:id="@+id/flNewFragments"
+        android:id="@+id/flContent"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         ></FrameLayout>

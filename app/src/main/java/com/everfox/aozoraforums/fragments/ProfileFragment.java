@@ -42,12 +42,14 @@ import com.everfox.aozoraforums.controllers.ProfileParseHelper;
 import com.everfox.aozoraforums.controls.EndlessScrollView;
 import com.everfox.aozoraforums.dialogfragments.MuteUserDialogFragment;
 import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
+import com.everfox.aozoraforums.dialogfragments.SimpleLoadingDialogFragment;
 import com.everfox.aozoraforums.models.PUser;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.models.UserDetails;
 import com.everfox.aozoraforums.utils.AoConstants;
 import com.everfox.aozoraforums.utils.AoUtils;
+import com.everfox.aozoraforums.utils.PostUtils;
 import com.everfox.aozoraforums.utils.ProfileUtils;
 import com.parse.CountCallback;
 import com.parse.FindCallback;
@@ -76,8 +78,11 @@ import butterknife.ButterKnife;
  */
 
 public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGetProfilePostsListener, EndlessScrollView.EndlessScrollListener,
-OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUsernameTappedListener, ProfileTimelineAdapter.OnMoreOptionsTappedListener{
+OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUsernameTappedListener, ProfileTimelineAdapter.OnMoreOptionsTappedListener,
+PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener
+{
 
+    SimpleLoadingDialogFragment simpleLoadingDialogFragment = new SimpleLoadingDialogFragment();
     Boolean isFollowing;
     ParseUser user;
     UserDetails userDetails;
@@ -155,6 +160,7 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
         ButterKnife.bind(this,view);
+        lstTimelinePost = new ArrayList<>();
         firstTime = true;
         fetchCount = 0;
         if(isProfile) {
@@ -183,8 +189,8 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         if(!hasMenu) {
             menu.clear();
         }
-
-        inflater.inflate(R.menu.profile_menu, menu);
+        if(menu.findItem(R.id.settings) == null)
+            inflater.inflate(R.menu.profile_menu, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -640,7 +646,8 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
                             .setNegativeButton(android.R.string.cancel, null) // dismisses by default
                             .setPositiveButton(R.string.dialog_delete_post, new DialogInterface.OnClickListener() {
                                 @Override public void onClick(DialogInterface dialog, int which) {
-                                    Toast.makeText(getActivity(),"Delete Admin", Toast.LENGTH_SHORT).show();
+                                    simpleLoadingDialogFragment.show(getFragmentManager(),"loading");
+                                    new ProfileParseHelper(getActivity(),ProfileFragment.this).deletePost(selectedPost,null);
                                 }
                             })
                             .create()
@@ -661,7 +668,8 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         if(selectedList == AoConstants.REPORT_POST_OPTIONS_DIALOG) {
             switch (selectedOption){
                 case AoConstants.REPORT_POST_REPORT_CONTENT:
-                    Toast.makeText(getActivity(),"Report Post", Toast.LENGTH_SHORT).show();
+                    AoUtils.reportObject(selectedPost);
+                    AoUtils.showAlertWithTitleAndText(getActivity(),"Report Sent!","The report will be reviewed by an admin and deleted/updated if needed.");
                     break;
             }
         }
@@ -758,11 +766,42 @@ OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUserna
         }
     }
 
-    @Override
-    public void onMoreOptionsTappedCallback(TimelinePost post) {
+    TimelinePost selectedPost = null;
+    int selectedPosition = -1;
 
-        OptionListDialogFragment fragment = AoUtils.getDialogFragmentMoreOptions(user,getActivity(),this,null);
+    @Override
+    public void onMoreOptionsTappedCallback(TimelinePost post,int selectedPosition) {
+        selectedPost = AoUtils.GetOriginalPost(post);
+        this.selectedPosition = selectedPosition;
+        OptionListDialogFragment fragment = AoUtils.getDialogFragmentMoreOptions(AoUtils.GetOriginalPoster(post),getActivity(),this,null);
         fragment.setCancelable(true);
         fragment.show(getFragmentManager(),"");
+    }
+
+    @Override
+    public void onDeletePost() {
+        if (simpleLoadingDialogFragment.isVisible())
+            simpleLoadingDialogFragment.dismissAllowingStateLoss();
+        lstTimelinePost.remove(selectedPosition);
+        timelineAdapter.notifyItemRemoved(selectedPosition);
+    }
+
+    int OPEN_TIMELINE_POST = 100;
+
+    @Override
+    public void onItemTappedListener(TimelinePost post, int position) {
+        selectedPosition = position;
+        AozoraForumsApp.setTimelinePostToPass(post);
+        Intent i = new Intent(getActivity(), TimelinePostActivity.class);
+        startActivityForResult(i,OPEN_TIMELINE_POST);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == OPEN_TIMELINE_POST) {
+            if(resultCode == TimelinePostActivity.PARENT_POST_DELETED)
+                onDeletePost();
+        }
+
     }
 }

@@ -82,6 +82,7 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_notifications, container, false);
         ButterKnife.bind(this,view);
+        lstNotifications = new ArrayList<>();
         llm = new LinearLayoutManager(getActivity());
         rvNotifications.setLayoutManager(llm);
         notiAdapter = new NotificationsAdapter(getActivity(),new ArrayList<AoNotification>(),NotificationsFragment.this, ParseUser.getCurrentUser());
@@ -139,17 +140,19 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
 
     private void scrolledToEnd() {
 
-        isLoading = true;
-        lstNotifications.add(new AoNotification());
-        rvNotifications.post(new Runnable() {
-            @Override
-            public void run() {
-                notiAdapter.notifyItemInserted(lstNotifications.size());
-            }
-        });
-        new NotificationsHelper(getActivity(),this)
-                .GetNotifications(ParseUser.getCurrentUser(),fetchCount * NotificationsHelper.NOTIFICATION_FETCH_LIMIT,NotificationsHelper.NOTIFICATION_FETCH_LIMIT);
-        fetchCount++;
+        if(lstNotifications.size()>= NotificationsHelper.NOTIFICATION_FETCH_LIMIT) {
+            isLoading = true;
+            lstNotifications.add(new AoNotification());
+            rvNotifications.post(new Runnable() {
+                @Override
+                public void run() {
+                    notiAdapter.notifyItemInserted(lstNotifications.size());
+                }
+            });
+            new NotificationsHelper(getActivity(), this)
+                    .GetNotifications(ParseUser.getCurrentUser(), fetchCount * NotificationsHelper.NOTIFICATION_FETCH_LIMIT, NotificationsHelper.NOTIFICATION_FETCH_LIMIT);
+            fetchCount++;
+        }
     }
 
     private void reloadNotifications() {

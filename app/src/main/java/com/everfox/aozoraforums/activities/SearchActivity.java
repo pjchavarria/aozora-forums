@@ -3,6 +3,7 @@ package com.everfox.aozoraforums.activities;
 import android.app.Activity;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
@@ -25,7 +26,9 @@ import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.adapters.SearchResultsThreadAdapter;
 import com.everfox.aozoraforums.adapters.SearchResultsUserAdapter;
 import com.everfox.aozoraforums.controllers.SearchHelper;
+import com.everfox.aozoraforums.fragments.FollowersFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
+import com.everfox.aozoraforums.fragments.UserListFragment;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.parse.ParseUser;
@@ -122,6 +125,17 @@ SearchResultsUserAdapter.OnUsernameTappedListener, SearchHelper.OnGetSearchPopul
 
         searchHelper = new SearchHelper(this,this);
         searchHelper.SearchPopularThreads();
+
+
+        getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.flContent);
+                if (currentFragment != null && currentFragment instanceof ProfileFragment || currentFragment instanceof FollowersFragment || currentFragment instanceof UserListFragment) {
+                    currentFragment.onResume();
+                }
+            }
+        });
     }
 
     @Override
@@ -254,7 +268,7 @@ SearchResultsUserAdapter.OnUsernameTappedListener, SearchHelper.OnGetSearchPopul
                 profileFragment = ProfileFragment.newInstance(userTapped, true, false,null,false);
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.add(R.id.flNewFragments, profileFragment).addToBackStack(null).commitAllowingStateLoss();
+            fragmentTransaction.add(R.id.flContent, profileFragment).addToBackStack(null).commitAllowingStateLoss();
 
         }
 

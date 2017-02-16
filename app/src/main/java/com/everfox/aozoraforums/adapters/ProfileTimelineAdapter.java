@@ -59,11 +59,16 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     private final int VIEW_ITEM = 1;
     private final int VIEW_PROG = 0;
 
-    private OnMoreOptionsTappedListener mOnMoreOptionsTappedCallback;
-    public interface OnMoreOptionsTappedListener {
-        public void onMoreOptionsTappedCallback(TimelinePost post);
+    private OnItemTappedListener mOnItemTappedListener;
+    public interface OnItemTappedListener {
+        public void onItemTappedListener(TimelinePost post, int position);
     }
 
+
+    private OnMoreOptionsTappedListener mOnMoreOptionsTappedCallback;
+    public interface OnMoreOptionsTappedListener {
+        public void onMoreOptionsTappedCallback(TimelinePost post, int position);
+    }
 
     private OnUsernameTappedListener mOnUsernameTappedCallback;
     public interface OnUsernameTappedListener {
@@ -83,6 +88,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         awesomeTypeface = AozoraForumsApp.getAwesomeTypeface();
         mOnUsernameTappedCallback = (OnUsernameTappedListener) callback;
         mOnMoreOptionsTappedCallback = (OnMoreOptionsTappedListener) callback;
+        mOnItemTappedListener = (OnItemTappedListener) callback;
     }
 
 
@@ -106,7 +112,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
 
         if(holder instanceof ProgressViewHolder) {
 
@@ -123,21 +129,22 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 loadPicOriginalPoster(itemViewHolder, userWhoPosted);
                 itemViewHolder.tvRepostedBy.setText(context.getString(R.string.fa_icon_reposted_by) + " " + userWhoPostedRepost.getString(ParseUserColumns.AOZORA_USERNAME) + " Reposted");
                 itemViewHolder.tvRepostedBy.setTypeface(awesomeTypeface);
-                loadTimelinePostInfo(repost, itemViewHolder);
+                loadTimelinePostInfo(repost, itemViewHolder,position);
+
             } else {
 
                 ParseUser userWhoPosted = timelinePost.getParseUser(TimelinePost.POSTED_BY);
                 loadPicOriginalPoster(itemViewHolder, userWhoPosted);
-                loadTimelinePostInfo(timelinePost, itemViewHolder);
+                loadTimelinePostInfo(timelinePost, itemViewHolder, position);
             }
+
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    AozoraForumsApp.setTimelinePostToPass(timelinePost);
-                    Intent i = new Intent(context, TimelinePostActivity.class);
-                    context.startActivity(i);
+                    mOnItemTappedListener.onItemTappedListener(timelinePost,position);
                 }
             });
+
         }
     }
 
@@ -149,7 +156,8 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         }
     }
 
-    private void loadTimelinePostInfo(final TimelinePost post, final ViewHolder holder) {
+    private void loadTimelinePostInfo(final TimelinePost post, final ViewHolder holder, final int position) {
+
 
         //inicialamos imagenes
         holder.ivPostImage.setImageDrawable(null);
@@ -229,7 +237,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         holder.ivMoreOptions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mOnMoreOptionsTappedCallback.onMoreOptionsTappedCallback(post);
+                mOnMoreOptionsTappedCallback.onMoreOptionsTappedCallback(post,position);
 
             }
         });

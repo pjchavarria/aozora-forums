@@ -95,27 +95,27 @@ public class AozoraForumsApp extends Application {
         AozoraForumsApp.globalThreads = globalThreads;
     }
 
-    private static Boolean isAdmin;
+    private static int userType = -1;
 
-    public static Boolean getIsAdmin() {
-        if(isAdmin == null) {
-            ParseUser currentUser = ParseUser.getCurrentUser();
-            JSONArray jsonArray = currentUser.getJSONArray(ParseUserColumns.BADGES);
+    public static int getIsAdmin(ParseUser user) {
+        if(userType == -1) {
+            JSONArray jsonArray = user.getJSONArray(ParseUserColumns.BADGES);
             if(jsonArray == null) {
-                isAdmin = false;
-                return isAdmin;
+                userType = 0;
+                return userType;
+            }
+            if (jsonArray.toString().contains("Admin")) {
+                userType = 2;
+                return userType;
             }
             if (jsonArray.toString().contains("Admin") || jsonArray.toString().contains("Mod"))
-                isAdmin = true;
+                userType = 1;
             else
-                isAdmin = false;
+                userType = 0;
         }
-        return isAdmin;
+        return userType;
     }
 
-    public static void setIsAdmin(Boolean isAdmin) {
-        AozoraForumsApp.isAdmin = isAdmin;
-    }
 
     @Override
     public void onCreate() {

@@ -48,9 +48,13 @@ import com.facebook.imagepipeline.animated.base.AbstractAnimatedDrawable;
 import com.facebook.imagepipeline.animated.base.AnimatedDrawable;
 import com.facebook.imagepipeline.image.ImageInfo;
 import com.facebook.imagepipeline.request.ImageRequest;
+import com.parse.DeleteCallback;
+import com.parse.FindCallback;
 import com.parse.GetDataCallback;
+import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import org.json.JSONArray;
@@ -65,6 +69,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by daniel.soto on 1/12/2017.
@@ -412,5 +417,71 @@ public class PostUtils {
         } else {
             ivAvatar.setImageResource(R.drawable.placeholder_banner);
         }
+    }
+
+    public interface OnDeletePostCallback {
+        public void onDeletePost();
+    }
+
+    public static void deletePost(final ParseObject post, ParseObject parentPost, final OnDeletePostCallback onDeletePostCallback) {
+
+        if(parentPost == null) {
+            //Delete everything
+            ParseQuery<ParseObject> queryPosts = new ParseQuery<>("TimelinePost");
+            queryPosts.whereEqualTo(TimelinePost.PARENT_POST,post);
+            queryPosts.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+                    if(e==null)
+                        deletePosts(objects,post,true,onDeletePostCallback);
+                }
+            });
+
+        } else {
+            //Just delete Child Post
+            ArrayList<ParseObject> lst = new ArrayList<>();
+            lst.add(post);
+            deletePosts(lst,parentPost,false,onDeletePostCallback);
+        }
+    }
+
+    private static void deletePosts(final List<ParseObject> posts, final ParseObject parentPost, final Boolean removeParent, final OnDeletePostCallback onDeletePostCallback) {
+
+        if(removeParent)
+            posts.add(parentPost);
+
+        ParseObject.deleteAllInBackground(posts, new DeleteCallback() {
+            @Override
+            public void done(ParseException e) {
+
+                for(int i=0;i<posts.size();i++) {
+                    posts.get(i).getParseObject(TimelinePost.POSTED_BY).increment(ParseUserColumns.POST_COUNT,-1);
+                }
+
+                if(removeParent) {
+                    onDeletePostCallback.onDeletePost();
+                } else {
+                    ParseObject lastReply = posts.get(posts.size()-1);
+                    List<TimelinePost> replies = ((TimelinePost) parentPost).getReplies();
+                    int index = replies.indexOf(lastReply);
+                    if(index != -1) {
+                        replies.remove(index);
+                        ((TimelinePost) parentPost).setReplies(replies);
+                    }
+                    parentPost.increment(TimelinePost.REPLY_COUNT,-posts.size());
+
+                    if(replies.size() > 0) {
+                        parentPost.put(TimelinePost.LAST_REPLY,replies.get(replies.size()-1));
+                    } else {
+                        parentPost.remove(TimelinePost.LAST_REPLY);
+                    }
+                    parentPost.saveInBackground();
+                    onDeletePostCallback.onDeletePost();
+                }
+
+            }
+        });
+
+
     }
 }

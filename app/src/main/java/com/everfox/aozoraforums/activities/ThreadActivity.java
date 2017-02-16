@@ -23,6 +23,7 @@ import com.everfox.aozoraforums.controllers.ThreadHelper;
 import com.everfox.aozoraforums.fragments.CommentPostFragment;
 import com.everfox.aozoraforums.fragments.FollowersFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
+import com.everfox.aozoraforums.fragments.UserListFragment;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.Post;
@@ -56,8 +57,8 @@ AoThreadAdapter.OnCommentTappedListener{
     SwipeRefreshLayout swipeRefresh;
     @BindView(R.id.rlContent)
     RelativeLayout rlContent;
-    @BindView(R.id.flNewFragments)
-    FrameLayout flNewFragments;
+    @BindView(R.id.flContent)
+    FrameLayout flContent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,12 +83,14 @@ AoThreadAdapter.OnCommentTappedListener{
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
-                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.flNewFragments);
-                if (currentFragment != null && currentFragment instanceof ProfileFragment || currentFragment instanceof FollowersFragment) {
+                Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.flContent);
+                if (currentFragment != null && currentFragment instanceof ProfileFragment || currentFragment instanceof FollowersFragment || currentFragment instanceof UserListFragment) {
                     currentFragment.onResume();
                 }
             }
         });
+
+
         isLoading = true;
     }
 
@@ -136,7 +139,7 @@ AoThreadAdapter.OnCommentTappedListener{
                 profileFragment = ProfileFragment.newInstance(userTapped, true, false,null,hasMenu);
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.add(R.id.flNewFragments, profileFragment).addToBackStack(null).commitAllowingStateLoss();
+            fragmentTransaction.add(R.id.flContent, profileFragment).addToBackStack(null).commitAllowingStateLoss();
 
         }
     }
@@ -148,7 +151,7 @@ AoThreadAdapter.OnCommentTappedListener{
             commentPostFragment = CommentPostFragment.newInstance((Post)commentTapped);
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.add(R.id.flNewFragments, commentPostFragment).addToBackStack(null).commitAllowingStateLoss();
+            fragmentTransaction.add(R.id.flContent, commentPostFragment).addToBackStack(null).commitAllowingStateLoss();
         }
     }
 }

@@ -116,7 +116,7 @@ public class CommentPostFragment extends Fragment implements ThreadHelper.OnGetP
                 profileFragment = ProfileFragment.newInstance(userTapped, true, false,null,true);
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.add(R.id.flNewFragments, profileFragment).addToBackStack(null).commitAllowingStateLoss();
+            fragmentTransaction.add(R.id.flContent, profileFragment).addToBackStack(null).commitAllowingStateLoss();
 
         }
     }
