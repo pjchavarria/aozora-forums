@@ -64,7 +64,6 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         public void onItemTappedListener(TimelinePost post, int position);
     }
 
-
     private OnMoreOptionsTappedListener mOnMoreOptionsTappedCallback;
     public interface OnMoreOptionsTappedListener {
         public void onMoreOptionsTappedCallback(TimelinePost post, int position);
@@ -74,6 +73,17 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     public interface OnUsernameTappedListener {
         public void onUsernameTapped(ParseUser userTapped);
     }
+
+    private OnLikeTappedListener mOnLikeTappedListener;
+    public interface OnLikeTappedListener {
+        public void onLikeTappedListener(TimelinePost post, int position);
+    }
+
+    private OnRepostTappedListener mOnRepostTappedListener;
+    public interface OnRepostTappedListener {
+        public void onRepostTappedListener(TimelinePost post, int position);
+    }
+
 
     private List<TimelinePost> timelinePosts;
     private Context context;
@@ -89,6 +99,8 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         mOnUsernameTappedCallback = (OnUsernameTappedListener) callback;
         mOnMoreOptionsTappedCallback = (OnMoreOptionsTappedListener) callback;
         mOnItemTappedListener = (OnItemTappedListener) callback;
+        mOnLikeTappedListener = (OnLikeTappedListener) callback;
+        mOnRepostTappedListener = (OnRepostTappedListener) callback;
     }
 
 
@@ -137,6 +149,14 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 loadPicOriginalPoster(itemViewHolder, userWhoPosted);
                 loadTimelinePostInfo(timelinePost, itemViewHolder, position);
             }
+            View.OnClickListener repostListener = new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mOnRepostTappedListener.onRepostTappedListener(timelinePost,position);
+                }
+            };
+            ((ViewHolder) holder).ivRepost.setOnClickListener(repostListener);
+            ((ViewHolder) holder).tvRepost.setOnClickListener(repostListener);
 
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -144,6 +164,8 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                     mOnItemTappedListener.onItemTappedListener(timelinePost,position);
                 }
             });
+
+
 
         }
     }
@@ -225,14 +247,30 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         List<ParseUser> listLiked = post.getList(TimelinePost.LIKED_BY);
         if(listLiked != null && listLiked.contains(currentUser)) {
             holder.ivLikes.setImageResource(R.drawable.icon_like_filled_small);
+        } else {
+            holder.ivLikes.setImageResource(R.drawable.icon_like_small);
         }
         holder.tvLikes.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.LIKE_COUNT)));
+        View.OnClickListener likeListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnLikeTappedListener.onLikeTappedListener(post,position);
+            }
+        };
+        holder.ivLikes.setOnClickListener(likeListener);
+        holder.tvLikes.setOnClickListener(likeListener);
+
         holder.tvComments.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.REPLY_COUNT)));
         List<ParseUser> listRepostedBy = post.getList(TimelinePost.REPOSTED_BY);
         if(listRepostedBy != null && listRepostedBy.contains(currentUser)) {
             holder.ivRepost.setImageResource(R.drawable.icon_repost_filled);
+        } else {
+            holder.ivRepost.setImageResource(R.drawable.icon_repost);
         }
         holder.tvRepost.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.REPOST_COUNT)));
+
+
+
 
         holder.ivMoreOptions.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -297,6 +335,8 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         }
 
     }
+
+
 
     @Override
     public int getItemViewType(int position) {

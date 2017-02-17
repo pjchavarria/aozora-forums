@@ -101,7 +101,8 @@ public class MainActivity extends AozoraActivity {
             @Override
             public void onBackStackChanged() {
                 Fragment currentFragment = getSupportFragmentManager().findFragmentById(R.id.flContent);
-                if (currentFragment != null && currentFragment instanceof ProfileFragment || currentFragment instanceof FollowersFragment  || currentFragment instanceof UserListFragment) {
+                if (currentFragment != null && currentFragment instanceof ProfileFragment || currentFragment instanceof FollowersFragment
+                        || currentFragment instanceof UserListFragment  || currentFragment instanceof NotificationsFragment) {
                     currentFragment.onResume();
                 }
             }

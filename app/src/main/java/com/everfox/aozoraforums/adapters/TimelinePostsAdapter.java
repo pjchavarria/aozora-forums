@@ -62,7 +62,15 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         public void onMoreOptionsTappedCallback(TimelinePost post);
     }
 
+    private OnRepostTappedListener mOnRepostTappedListener;
+    public interface OnRepostTappedListener {
+        public void onRepostTappedListener(TimelinePost post, int position);
+    }
 
+    private OnLikeTappedListener mOnLikeTappedListener;
+    public interface OnLikeTappedListener {
+        public void onLikeTappedListener(TimelinePost post, int position);
+    }
 
     public TimelinePostsAdapter (Context context, List<TimelinePost> tlps, Activity callback, ParseUser currentUser) {
         this.context = context;
@@ -71,6 +79,8 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         awesomeTypeface = AozoraForumsApp.getAwesomeTypeface();
         mOnUsernameTappedCallback = (OnUsernameTappedListener) callback;
         mOnMoreOptionsTappedCallback = (OnMoreOptionsTappedListener) callback;
+        mOnLikeTappedListener = (OnLikeTappedListener) callback;
+        mOnRepostTappedListener = (OnRepostTappedListener) callback;
     }
 
     @Override
@@ -107,9 +117,9 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
-    private void configureViewHolderFirstPost(ViewHolderFirstPost holder, int position) {
+    private void configureViewHolderFirstPost(ViewHolderFirstPost holder, final int position) {
 
-        TimelinePost timelinePost = timelinePosts.get(position);
+        final TimelinePost timelinePost = timelinePosts.get(position);
 
         //inicializamos imagenes
 
@@ -120,12 +130,20 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
             loadPicOriginalPoster(holder,userWhoPosted);
             holder.tvRepostedBy.setText(context.getString(R.string.fa_icon_reposted_by)+ " " + timelinePost.getParseObject(TimelinePost.POSTED_BY).getString(ParseUserColumns.AOZORA_USERNAME) + " Reposted");
             holder.tvRepostedBy.setTypeface(awesomeTypeface);
-            loadFirstPostInfo(repost,holder);
+            loadFirstPostInfo(repost,holder,position);
         } else {
             ParseUser userWhoPosted = timelinePost.getParseUser(TimelinePost.POSTED_BY);
             loadPicOriginalPoster(holder,userWhoPosted);
-            loadFirstPostInfo(timelinePost,holder);
+            loadFirstPostInfo(timelinePost,holder,position);
         }
+        View.OnClickListener repostListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnRepostTappedListener.onRepostTappedListener(timelinePost,position);
+            }
+        };
+        holder.ivRepost.setOnClickListener(repostListener);
+        holder.tvRepost.setOnClickListener(repostListener);
 
     }
 
@@ -138,7 +156,7 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
     }
 
 
-    private void loadFirstPostInfo(final TimelinePost post, final ViewHolderFirstPost holder) {
+    private void loadFirstPostInfo(final TimelinePost post, final ViewHolderFirstPost holder, final int position) {
         if(!post.getParseObject(TimelinePost.USER_TIMELINE).equals(post.getParseObject(TimelinePost.POSTED_BY))) {
             // Es un post en el muro de otra persona
             PostUtils.setPostedByFromPost(context,post,holder.tvPostedBy,null,mOnUsernameTappedCallback);
@@ -215,6 +233,14 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
             holder.ivLikes.setImageResource(R.drawable.icon_like_filled_small);
         }
         holder.tvLikes.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.LIKE_COUNT)));
+        View.OnClickListener likeListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnLikeTappedListener.onLikeTappedListener(post,position);
+            }
+        };
+        holder.ivLikes.setOnClickListener(likeListener);
+        holder.tvLikes.setOnClickListener(likeListener);
         holder.tvComments.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.REPLY_COUNT)));
         List<ParseUser> listRepostedBy = post.getList(TimelinePost.REPOSTED_BY);
         if(listRepostedBy != null && listRepostedBy.contains(currentUser)) {
@@ -297,8 +323,19 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         holder.tvCommentNumberLikes.setText(AoUtils.numberToStringOrZero(comment.getNumber(TimelinePost.LIKE_COUNT)));
         List<ParseUser> listLastCommentLiked = comment.getList(TimelinePost.LIKED_BY);
         if(listLastCommentLiked != null && listLastCommentLiked.contains(currentUser)) {
+            holder.ivCommentLikes.setImageResource(R.drawable.icon_like_filled_small);
+        } else {
             holder.ivCommentLikes.setImageResource(R.drawable.icon_like_small);
         }
+        View.OnClickListener likeListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnLikeTappedListener.onLikeTappedListener(comment,position);
+            }
+        };
+        holder.tvCommentNumberLikes.setOnClickListener(likeListener);
+        holder.ivCommentLikes.setOnClickListener(likeListener);
+
     }
 
     @Override

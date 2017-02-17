@@ -65,8 +65,14 @@ public class PostParseHelper {
         query.findInBackground(new FindCallback<TimelinePost>() {
             @Override
             public void done(List<TimelinePost> objects, ParseException e) {
-                if(e== null)
+                if(e== null) {
+                    for(int i=0;i<objects.size();i++) {
+                        objects.get(i).setReplies(null);
+                        objects.get(i).setRepostFather(null);
+                    }
                     mOnGetTimelinePostCommentsCallback.onTimelinePostComments(objects);
+
+                }
             }
         });
     }

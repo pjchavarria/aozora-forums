@@ -79,7 +79,7 @@ import butterknife.ButterKnife;
 
 public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGetProfilePostsListener, EndlessScrollView.EndlessScrollListener,
 OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUsernameTappedListener, ProfileTimelineAdapter.OnMoreOptionsTappedListener,
-PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener
+PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, ProfileTimelineAdapter.OnLikeTappedListener, ProfileTimelineAdapter.OnRepostTappedListener
 {
 
     SimpleLoadingDialogFragment simpleLoadingDialogFragment = new SimpleLoadingDialogFragment();
@@ -802,6 +802,35 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener
             if(resultCode == TimelinePostActivity.PARENT_POST_DELETED)
                 onDeletePost();
         }
+    }
 
+    @Override
+    public void onLikeTappedListener(TimelinePost post, int position) {
+        ParseObject newPost = PostUtils.likePost(post);
+        lstTimelinePost.set(position,(TimelinePost)newPost);
+        timelineAdapter.notifyItemChanged(position);
+    }
+
+    @Override
+    public void onRepostTappedListener(TimelinePost post, int position) {
+            ArrayList<ParseObject> repost = PostUtils.repostPost(post);
+        if(isProfile) {
+            if(repost.size()==1) {
+                //Se borro el repost
+                lstTimelinePost.remove(position);
+                timelineAdapter.notifyItemRemoved(position);
+            } else {
+                //Reemplazamos para que se actualize icono de repost
+                lstTimelinePost.set(position,(TimelinePost)repost.get(0));
+                timelineAdapter.notifyItemChanged(position);
+                //Agregamos post al comienzo
+                lstTimelinePost.add(0,(TimelinePost) repost.get(1));
+                if(repost.get(1).getObjectId() != null)
+                    timelineAdapter.notifyItemInserted(0);
+            }
+        } else {
+            lstTimelinePost.set(position,(TimelinePost)repost.get(0));
+            timelineAdapter.notifyItemChanged(position);
+        }
     }
 }

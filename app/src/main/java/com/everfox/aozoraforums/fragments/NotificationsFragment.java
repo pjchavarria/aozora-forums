@@ -1,6 +1,7 @@
 package com.everfox.aozoraforums.fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -11,6 +12,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
@@ -58,6 +61,8 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
     ArrayList<AoNotification> lstNotifications = new ArrayList<>();
     int fetchCount = 0;
 
+    @BindView(R.id.tvReadAll)
+    TextView tvReadAll;
     @BindView(R.id.fabReadAll)
     FloatingActionButton fabReadAll;
 
@@ -84,11 +89,14 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
         ButterKnife.bind(this,view);
         lstNotifications = new ArrayList<>();
         llm = new LinearLayoutManager(getActivity());
+        tvReadAll.setTypeface(AozoraForumsApp.getAwesomeTypeface());
         rvNotifications.setLayoutManager(llm);
         notiAdapter = new NotificationsAdapter(getActivity(),new ArrayList<AoNotification>(),NotificationsFragment.this, ParseUser.getCurrentUser());
         rvNotifications.setAdapter(notiAdapter);
         pbLoading.setVisibility(View.VISIBLE);
         rvNotifications.setVisibility(View.GONE);
+        fabReadAll.setVisibility(View.GONE);
+        tvReadAll.setVisibility(View.GONE);
         isLoading = true;
         new NotificationsHelper(getActivity(),this)
                 .GetNotifications(ParseUser.getCurrentUser(),0,NotificationsHelper.NOTIFICATION_FETCH_LIMIT);
@@ -126,10 +134,35 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
         fabReadAll.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Toast.makeText(getActivity(),"Read all tapped",Toast.LENGTH_SHORT).show();
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Notifications")
+                        .setMessage("Read all notifications?")
+                        .setNegativeButton(android.R.string.cancel, null) // dismisses by default
+                        .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override public void onClick(DialogInterface dialog, int which) {
+                                readAllNotifications();
+
+                            }
+                        })
+                        .create()
+                        .show();
             }
         });
 
+    }
+
+    private void readAllNotifications() {
+        ArrayList<AoNotification> unreadNotifications = new ArrayList<>();
+        for(int i=0;i<lstNotifications.size();i++) {
+            if(!lstNotifications.get(i).getList(AoNotification.READ_BY).contains(ParseUser.getCurrentUser())) {
+                ArrayList<ParseUser> userList = new ArrayList<>();
+                userList.add(ParseUser.getCurrentUser());
+                lstNotifications.get(i).addAllUnique(AoNotification.READ_BY,userList);
+                unreadNotifications.add(lstNotifications.get(i));
+            }
+        }
+        ParseObject.saveAllInBackground(unreadNotifications);
+        notiAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -177,6 +210,7 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
             pbLoading.setVisibility(View.GONE);
             rvNotifications.setVisibility(View.VISIBLE);
             fabReadAll.setVisibility(View.VISIBLE);
+            tvReadAll.setVisibility(View.VISIBLE);
             swipeRefreshNoti.setRefreshing(false);
         } else {
             lstNotifications.remove(lstNotifications.size()-1);
@@ -209,11 +243,21 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
     @Override
     public void mOnNotificationTapped(AoNotification notificationTaped) {
 
+        int index = lstNotifications.indexOf(notificationTaped);
+        List<ParseUser> userList = notificationTaped.getList(AoNotification.READ_BY);
+        if(!userList.contains(ParseUser.getCurrentUser())){
+            userList.add(ParseUser.getCurrentUser());
+            notificationTaped.addAllUnique(AoNotification.READ_BY,userList);
+            notificationTaped.saveInBackground();
+            lstNotifications.set(index,notificationTaped);
+            notiAdapter.notifyItemChanged(index);
+        }
         if(notificationTaped.getString(AoNotification.TARGET_CLASS).equals(TimelinePost.TABLE_NAME)) {
             Intent i = new Intent(getActivity(), TimelinePostActivity.class);
             i.putExtra(TimelinePostActivity.EXTRA_TIMELINEPOST_ID, notificationTaped.getString(AoNotification.TARGET_ID));
             startActivity(i);
         } else if (notificationTaped.getString(AoNotification.TARGET_CLASS).equals(ParseUserColumns.TABLE_NAME)) {
+
             if(!AoUtils.isActivityInvalid(getActivity())) {
                 String userID = notificationTaped.getString(AoNotification.TARGET_ID);
                 ProfileFragment profileFragment = null;

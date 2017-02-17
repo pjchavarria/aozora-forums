@@ -35,6 +35,7 @@ import com.everfox.aozoraforums.utils.PostUtils;
 import com.everfox.aozoraforums.utils.RecyclerItemClickListener;
 import com.parse.GetCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
@@ -46,7 +47,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class TimelinePostActivity extends AozoraActivity implements PostParseHelper.OnGetTimelinePostCommentsListener, TimelinePostsAdapter.OnUsernameTappedListener,
-TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnListSelectedListener, PostUtils.OnDeletePostCallback{
+TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnListSelectedListener, PostUtils.OnDeletePostCallback, TimelinePostsAdapter.OnLikeTappedListener, TimelinePostsAdapter.OnRepostTappedListener{
 
     SimpleLoadingDialogFragment simpleLoadingDialogFragment = new SimpleLoadingDialogFragment();
     public static String EXTRA_TIMELINEPOST_ID = "TimelinePostID";
@@ -174,7 +175,7 @@ TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnLis
         swipeRefreshPost.setRefreshing(false);
         timelinePosts.add(0,parentPost);
         allComments.addAll(timelinePosts);
-        postsAdapter = new TimelinePostsAdapter(TimelinePostActivity.this, timelinePosts, TimelinePostActivity.this, ParseUser.getCurrentUser());
+        postsAdapter = new TimelinePostsAdapter(TimelinePostActivity.this, allComments, TimelinePostActivity.this, ParseUser.getCurrentUser());
         rvPostComments.setAdapter(postsAdapter);
         pbLoading.setVisibility(View.GONE);
         swipeRefreshPost.setVisibility(View.VISIBLE);
@@ -282,5 +283,22 @@ TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnLis
         OptionListDialogFragment fragment = AoUtils.getDialogFragmentMoreOptions(AoUtils.GetOriginalPoster(post), TimelinePostActivity.this, null, TimelinePostActivity.this);
         fragment.setCancelable(true);
         fragment.show(getSupportFragmentManager(), "");
+    }
+
+    @Override
+    public void onLikeTappedListener(TimelinePost post, int position) {
+
+        actionTapped = true;
+        ParseObject newPost = PostUtils.likePost(post);
+        allComments.set(position,(TimelinePost)newPost);
+        postsAdapter.notifyItemChanged(position);
+    }
+
+    @Override
+    public void onRepostTappedListener(TimelinePost post, int position) {
+
+        ArrayList<ParseObject> repost = PostUtils.repostPost(post);
+        allComments.set(position,(TimelinePost)repost.get(0));
+        postsAdapter.notifyItemChanged(position);
     }
 }

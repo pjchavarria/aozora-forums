@@ -38,6 +38,7 @@ import com.everfox.aozoraforums.controls.CustomTypefaceSpan;
 import com.everfox.aozoraforums.controls.FrescoGifListener;
 import com.everfox.aozoraforums.models.AoNotification;
 import com.everfox.aozoraforums.models.ParseUserColumns;
+import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.controller.BaseControllerListener;
@@ -50,12 +51,14 @@ import com.facebook.imagepipeline.image.ImageInfo;
 import com.facebook.imagepipeline.request.ImageRequest;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
+import com.parse.GetCallback;
 import com.parse.GetDataCallback;
 import com.parse.ParseException;
 import com.parse.ParseFile;
 import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -423,6 +426,10 @@ public class PostUtils {
         public void onDeletePost();
     }
 
+    public interface OnLikePostCallback {
+        public void onLikePost();
+    }
+
     public static void deletePost(final ParseObject post, ParseObject parentPost, final OnDeletePostCallback onDeletePostCallback) {
 
         if(parentPost == null) {
@@ -481,7 +488,77 @@ public class PostUtils {
 
             }
         });
+    }
 
+    static Boolean savingLike = false;
+    public static ParseObject likePost(ParseObject post) {
+        if(savingLike)
+            return null;
+        List<ParseUser> lst = post.getList(TimelinePost.LIKED_BY);
+        if(lst == null) lst = new ArrayList<>();
+        ParseUser user = ParseUser.getCurrentUser();
+        ArrayList<ParseUser> userArrayList = new ArrayList<>();
+        if(lst.contains(user)){
+            userArrayList.add(user);
+            post.removeAll(TimelinePost.LIKED_BY,userArrayList);
+            post.increment(TimelinePost.LIKE_COUNT,-1);
+        } else {
+            post.addUnique(TimelinePost.LIKED_BY,user);
+            post.increment(TimelinePost.LIKE_COUNT,1);
+            //Quitar de unlike
+        }
+        post.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                savingLike = false;
+            }
+        });
+        return post;
+    }
 
+    public static ArrayList<ParseObject> repostPost(ParseObject post) {
+        ArrayList<ParseObject> resultRepost = new ArrayList<>();
+        ParseObject sourceObject = post.getParseObject(TimelinePost.REPOST_SOURCE);
+        if(sourceObject == null)
+            sourceObject = post;
+        List<ParseUser> lstRepostedBy  = sourceObject.getList(TimelinePost.REPOSTED_BY);
+        if(lstRepostedBy == null) lstRepostedBy = new ArrayList<>();
+        ParseUser currentUser = ParseUser.getCurrentUser();
+        if(lstRepostedBy.contains(currentUser)) {
+            lstRepostedBy.add(currentUser);
+            sourceObject.removeAll(TimelinePost.REPOSTED_BY,lstRepostedBy);
+            sourceObject.increment(TimelinePost.REPOST_COUNT,-1);
+            sourceObject.saveInBackground();
+            ParseQuery<TimelinePost> query = ParseQuery.getQuery(TimelinePost.class);
+            query.whereEqualTo(TimelinePost.REPOST_SOURCE,sourceObject);
+            query.whereEqualTo(TimelinePost.USER_TIMELINE,currentUser);
+            query.getFirstInBackground(new GetCallback<TimelinePost>() {
+                @Override
+                public void done(TimelinePost object, ParseException e) {
+                    if(e==null && object!=null)
+                        object.deleteInBackground();
+                }
+            });
+            resultRepost.add(sourceObject);
+            return resultRepost;
+        } else {
+            sourceObject.addUnique(TimelinePost.REPOSTED_BY,currentUser);
+            sourceObject.increment(TimelinePost.REPOST_COUNT,1);
+            sourceObject.saveInBackground();
+            TimelinePost timelinePost = new TimelinePost();
+            timelinePost.put(TimelinePost.REPOST_SOURCE,sourceObject);
+            timelinePost.put(TimelinePost.REPLY_LEVEL,0);
+            timelinePost.put(TimelinePost.POSTED_BY,currentUser);
+            timelinePost.put(TimelinePost.EDITED,false);
+            timelinePost.put(TimelinePost.USER_TIMELINE,currentUser);
+            try {
+                timelinePost.save();
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            resultRepost.add(sourceObject);
+            resultRepost.add(timelinePost);
+            return resultRepost;
+        }
     }
 }

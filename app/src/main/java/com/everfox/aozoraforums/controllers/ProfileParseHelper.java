@@ -28,7 +28,7 @@ public class ProfileParseHelper {
 
 
     public static final int PROFILE_SKIP_STEP = 5;
-    public static final int PROFILE_FETCH_LIMIT = 10;
+    public static final int PROFILE_FETCH_LIMIT = 5;
 
     public static final int FOLLOWING_LIST = 0;
     public static final int AOZORA_LIST = 1;
@@ -119,8 +119,13 @@ public class ProfileParseHelper {
         query.findInBackground(new FindCallback<TimelinePost>() {
             @Override
             public void done(List<TimelinePost> objects, ParseException e) {
-                if(e== null)
+                if(e== null) {
+                    for(int i=0;i<objects.size();i++) {
+                        objects.get(i).setReplies(null);
+                        objects.get(i).setRepostFather(null);
+                    }
                     mOnGetProfilePostsCallback.onGetProfilePosts(objects);
+                }
             }
         });
 
