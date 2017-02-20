@@ -170,6 +170,37 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         }
     }
 
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position, List<Object> payloads) {
+        if(!payloads.isEmpty()) {
+            if (payloads.get(0) instanceof TimelinePost) {
+                TimelinePost timelinePost = (TimelinePost)payloads.get(0);
+                ViewHolder viewHolder = (ViewHolder)holder;
+                updateLikeRepost(viewHolder.ivLikes,viewHolder.tvLikes,viewHolder.ivRepost,viewHolder.tvRepost,timelinePost);
+            }
+        }else {
+            super.onBindViewHolder(holder,position, payloads);
+        }
+    }
+
+    private void updateLikeRepost(ImageView ivLikes, TextView tvLikes, ImageView ivRepost, TextView tvRepost, TimelinePost post) {
+        //Like/Share/Comment
+        List<ParseUser> listLiked = post.getList(TimelinePost.LIKED_BY);
+        if(listLiked != null && listLiked.contains(currentUser)) {
+            ivLikes.setImageResource(R.drawable.icon_like_filled_small);
+        } else {
+            ivLikes.setImageResource(R.drawable.icon_like_small);
+        }
+        tvLikes.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.LIKE_COUNT)));
+        List<ParseUser> listRepostedBy = post.getList(TimelinePost.REPOSTED_BY);
+        if(listRepostedBy != null && listRepostedBy.contains(currentUser)) {
+            ivRepost.setImageResource(R.drawable.icon_repost_filled);
+        } else {
+            ivRepost.setImageResource(R.drawable.icon_repost);
+        }
+        tvRepost.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.REPOST_COUNT)));
+    }
+
     private void loadPicOriginalPoster(ViewHolder holder, ParseUser user) {
         ParseFile profilePic = user.getParseFile(ParseUserColumns.AVATAR_THUMB);
         PostUtils.loadAvatarPic(profilePic, holder.ivAvatar);
@@ -244,34 +275,17 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         }
 
         //Like/Share/Comment
-        List<ParseUser> listLiked = post.getList(TimelinePost.LIKED_BY);
-        if(listLiked != null && listLiked.contains(currentUser)) {
-            holder.ivLikes.setImageResource(R.drawable.icon_like_filled_small);
-        } else {
-            holder.ivLikes.setImageResource(R.drawable.icon_like_small);
-        }
-        holder.tvLikes.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.LIKE_COUNT)));
+        updateLikeRepost(holder.ivLikes,holder.tvLikes,holder.ivRepost,holder.tvRepost,post);
         View.OnClickListener likeListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mOnLikeTappedListener.onLikeTappedListener(post,position);
             }
         };
+
         holder.ivLikes.setOnClickListener(likeListener);
         holder.tvLikes.setOnClickListener(likeListener);
-
         holder.tvComments.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.REPLY_COUNT)));
-        List<ParseUser> listRepostedBy = post.getList(TimelinePost.REPOSTED_BY);
-        if(listRepostedBy != null && listRepostedBy.contains(currentUser)) {
-            holder.ivRepost.setImageResource(R.drawable.icon_repost_filled);
-        } else {
-            holder.ivRepost.setImageResource(R.drawable.icon_repost);
-        }
-        holder.tvRepost.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.REPOST_COUNT)));
-
-
-
-
         holder.ivMoreOptions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -335,8 +349,6 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         }
 
     }
-
-
 
     @Override
     public int getItemViewType(int position) {

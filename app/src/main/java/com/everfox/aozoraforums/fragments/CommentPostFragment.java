@@ -21,6 +21,7 @@ import com.everfox.aozoraforums.adapters.TimelinePostsAdapter;
 import com.everfox.aozoraforums.controllers.ThreadHelper;
 import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.utils.AoUtils;
+import com.everfox.aozoraforums.utils.PostUtils;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
@@ -34,7 +35,7 @@ import butterknife.ButterKnife;
  * Created by daniel.soto on 2/6/2017.
  */
 
-public class CommentPostFragment extends Fragment implements ThreadHelper.OnGetPostCommentsListener, CommentPostAdapter.OnUsernameTappedListener {
+public class CommentPostFragment extends Fragment implements ThreadHelper.OnGetPostCommentsListener, CommentPostAdapter.OnUsernameTappedListener, CommentPostAdapter.OnLikeListener {
 
     Post post;
     LinearLayoutManager llm;
@@ -119,5 +120,12 @@ public class CommentPostFragment extends Fragment implements ThreadHelper.OnGetP
             fragmentTransaction.add(R.id.flContent, profileFragment).addToBackStack(null).commitAllowingStateLoss();
 
         }
+    }
+
+    @Override
+    public void onLike(ParseObject object, int position) {
+        ParseObject newPost = PostUtils.likePost(object);
+        if(newPost != null)
+            commentPostAdapter.notifyItemChanged(position,newPost);
     }
 }

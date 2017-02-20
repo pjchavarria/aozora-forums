@@ -37,6 +37,7 @@ import com.everfox.aozoraforums.adapters.TimelinePostsAdapter;
 import com.everfox.aozoraforums.controls.CustomTypefaceSpan;
 import com.everfox.aozoraforums.controls.FrescoGifListener;
 import com.everfox.aozoraforums.models.AoNotification;
+import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
@@ -506,7 +507,18 @@ public class PostUtils {
             post.addUnique(TimelinePost.LIKED_BY,user);
             post.increment(TimelinePost.LIKE_COUNT,1);
             //Quitar de unlike
+            if(post.has(AoThread.UNLIKED_BY)) {
+                List<ParseUser> lstUnlike = post.getList(AoThread.UNLIKED_BY);
+                if(lstUnlike == null) lstUnlike = new ArrayList<>();
+                userArrayList = new ArrayList<>();
+                userArrayList.add(user);
+                if(lstUnlike.contains(user)) {
+                    post.removeAll(AoThread.UNLIKED_BY,userArrayList);
+                    post.increment(AoThread.UNLIKE_COUNT,-1);
+                }
+            }
         }
+        savingLike = true;
         post.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
@@ -514,6 +526,45 @@ public class PostUtils {
             }
         });
         return post;
+    }
+
+    public static ParseObject unlikeThread(ParseObject thread) {
+
+        if(savingLike)
+            return null;
+
+        List<ParseUser> lstUnlike = thread.getList(AoThread.UNLIKED_BY);
+        if(lstUnlike == null) lstUnlike = new ArrayList<>();
+        ArrayList<ParseUser> userArrayList = new ArrayList<>();
+        ParseUser user = ParseUser.getCurrentUser();
+        userArrayList.add(user);
+        if(lstUnlike.contains(user)) {
+            userArrayList.add(user);
+            thread.removeAll(AoThread.UNLIKED_BY,userArrayList);
+            thread.increment(AoThread.UNLIKE_COUNT,-1);
+        } else {
+            thread.addUnique(AoThread.UNLIKED_BY,user);
+            thread.increment(AoThread.UNLIKE_COUNT,1);
+            //Quitar de like
+            if(thread.has(AoThread.LIKED_BY)) {
+                List<ParseUser> lstLike = thread.getList(AoThread.LIKED_BY);
+                if(lstLike == null) lstLike = new ArrayList<>();
+                userArrayList = new ArrayList<>();
+                userArrayList.add(user);
+                if(lstLike.contains(user)) {
+                    thread.removeAll(AoThread.LIKED_BY,userArrayList);
+                    thread.increment(AoThread.LIKE_COUNT,-1);
+                }
+            }
+        }
+        savingLike = true;
+        thread.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                savingLike = false;
+            }
+        });
+        return thread;
     }
 
     public static ArrayList<ParseObject> repostPost(ParseObject post) {

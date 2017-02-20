@@ -66,13 +66,11 @@ public class ForumsHelper {
             @Override
             public void done(List<AoThread> objects, ParseException e) {
                 if(e==null) {
-                    List<String> hiddenThreads = AozoraForumsApp.getHiddenGlobalThreads();
                     ArrayList<AoThread> globalThreads = new ArrayList<AoThread>();
 
                     for(int i=0;i<objects.size();i++) {
                         objects.get(i).setShowAsPinned(true);
-                        if(!hiddenThreads.contains(objects.get(i).getObjectId()))
-                            globalThreads.add(objects.get(i));
+                        globalThreads.add(objects.get(i));
                     }
 
                     globalThreads.get(globalThreads.size()-1).setHideDivider(true);

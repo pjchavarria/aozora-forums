@@ -21,6 +21,8 @@ import com.everfox.aozoraforums.adapters.ForumsAdapter;
 import com.everfox.aozoraforums.controllers.ForumsHelper;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.ParseUserColumns;
+import com.everfox.aozoraforums.utils.PostUtils;
+import com.parse.ParseObject;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
@@ -33,7 +35,7 @@ import butterknife.ButterKnife;
  * Created by daniel.soto on 2/9/2017.
  */
 
-public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGetUserThreadsListener {
+public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGetUserThreadsListener,  ForumsAdapter.OnUpDownVoteListener {
 
     ParseUser user;
     LinearLayoutManager llm;
@@ -65,7 +67,7 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
         forumsHelper = new ForumsHelper(getActivity(), this);
         llm = new LinearLayoutManager(getActivity());
         rvThreadByUser.setLayoutManager(llm);
-        forumsAdapter = new ForumsAdapter(getActivity(), new ArrayList<AoThread>(), -1);
+        forumsAdapter = new ForumsAdapter(getActivity(), new ArrayList<AoThread>(), -1, this);
         rvThreadByUser.setAdapter(forumsAdapter);
         pbLoading.setVisibility(View.VISIBLE);
         rvThreadByUser.setVisibility(View.GONE);
@@ -144,12 +146,12 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
     @Override
     public void onGetUserThreads(List<AoThread> threads) {
 
+        pbLoading.setVisibility(View.GONE);
+        rvThreadByUser.setVisibility(View.VISIBLE);
         if (fetchCount == 1) {
             lstThreads.addAll(threads);
-            forumsAdapter = new ForumsAdapter(getActivity(),lstThreads,-1);
+            forumsAdapter = new ForumsAdapter(getActivity(),lstThreads,-1,this);
             rvThreadByUser.setAdapter(forumsAdapter);
-            pbLoading.setVisibility(View.GONE);
-            rvThreadByUser.setVisibility(View.VISIBLE);
             swipeRefreshForums.setRefreshing(false);
         } else {
             swipeRefreshForums.setRefreshing(false);
@@ -165,5 +167,16 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
 
         }
         isLoading = false;
+    }
+
+    @Override
+    public void onUpDownVote(Boolean upvote, AoThread thread, int position) {
+        ParseObject newPost;
+        if(upvote)
+            newPost = PostUtils.likePost(thread);
+        else
+            newPost = PostUtils.unlikeThread(thread);
+        lstThreads.set(position,(AoThread) newPost);
+        forumsAdapter.notifyItemChanged(position,newPost);
     }
 }

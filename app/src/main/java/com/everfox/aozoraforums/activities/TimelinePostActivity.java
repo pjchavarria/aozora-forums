@@ -290,8 +290,10 @@ TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnLis
 
         actionTapped = true;
         ParseObject newPost = PostUtils.likePost(post);
-        allComments.set(position,(TimelinePost)newPost);
-        postsAdapter.notifyItemChanged(position);
+        if(newPost != null) {
+            allComments.set(position, (TimelinePost) newPost);
+            postsAdapter.notifyItemChanged(position, newPost);
+        }
     }
 
     @Override
@@ -299,6 +301,6 @@ TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnLis
 
         ArrayList<ParseObject> repost = PostUtils.repostPost(post);
         allComments.set(position,(TimelinePost)repost.get(0));
-        postsAdapter.notifyItemChanged(position);
+        postsAdapter.notifyItemChanged(position,repost.get(0));
     }
 }

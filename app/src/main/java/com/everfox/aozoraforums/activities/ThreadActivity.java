@@ -29,6 +29,7 @@ import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.AoUtils;
+import com.everfox.aozoraforums.utils.PostUtils;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
@@ -39,7 +40,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class ThreadActivity extends AozoraActivity implements AoThreadAdapter.OnUsernameTappedListener, ThreadHelper.OnGetThreadCommentsListener,
-AoThreadAdapter.OnCommentTappedListener{
+AoThreadAdapter.OnCommentTappedListener, AoThreadAdapter.OnUpDownVoteListener{
 
     Boolean hasMenu = true;
     AoThread parentThread;
@@ -152,6 +153,24 @@ AoThreadAdapter.OnCommentTappedListener{
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.add(R.id.flContent, commentPostFragment).addToBackStack(null).commitAllowingStateLoss();
+        }
+    }
+
+    @Override
+    public void onUpDownVote(Boolean upvote, ParseObject object, int position) {
+        ParseObject newPost = null;
+        if(object instanceof AoThread) {
+            if(upvote) {
+                newPost = PostUtils.likePost(object);
+            } else {
+                newPost = PostUtils.unlikeThread(object);
+            }
+            if(newPost != null)
+                aoThreadAdapter.notifyItemChanged(position,newPost);
+        } else {
+            newPost = PostUtils.likePost(object);
+            if(newPost != null)
+                aoThreadAdapter.notifyItemChanged(position,newPost);
         }
     }
 }

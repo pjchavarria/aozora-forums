@@ -29,8 +29,11 @@ import com.everfox.aozoraforums.adapters.ForumsAdapter;
 import com.everfox.aozoraforums.controllers.ForumsHelper;
 import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
 import com.everfox.aozoraforums.models.AoThread;
+import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.AoConstants;
 import com.everfox.aozoraforums.utils.AoUtils;
+import com.everfox.aozoraforums.utils.PostUtils;
+import com.everfox.aozoraforums.utils.ThreadUtils;
 import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -46,7 +49,7 @@ import butterknife.ButterKnife;
  */
 
 public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobalThreadsListener, ForumsHelper.OnGetThreadsListener,
-OptionListDialogFragment.OnListSelectedListener{
+OptionListDialogFragment.OnListSelectedListener, ForumsAdapter.OnGlobalThreadHideListener, ForumsAdapter.OnUpDownVoteListener{
 
 
     ForumsAdapter forumsAdapter;
@@ -107,20 +110,17 @@ OptionListDialogFragment.OnListSelectedListener{
         ButterKnife.bind(this,view);
         setHasOptionsMenu(true);
         forumsHelper = new ForumsHelper(getActivity(),this);
-        if(AozoraForumsApp.getGlobalThreads().size()==0) {
-            forumsHelper.GetGlobalThreads();
-            fetchingGlobalThreads = true;
-        } else {
-            lstThreads.addAll(AozoraForumsApp.getGlobalThreads());
-        }
+        forumsHelper.GetGlobalThreads();
+        fetchingGlobalThreads = true;
         llm = new LinearLayoutManager(getActivity());
         rvForums.setLayoutManager(llm);
-        forumsAdapter = new ForumsAdapter(getActivity(),new ArrayList<AoThread>(),selectedViewType);
+        forumsAdapter = new ForumsAdapter(getActivity(),new ArrayList<AoThread>(),selectedViewType,this);
         rvForums.setAdapter(forumsAdapter);
         pbLoading.setVisibility(View.VISIBLE);
         rvForums.setVisibility(View.GONE);
         isLoading = true;
         fetchCount = 1;
+        lstThreads.clear();
         forumsHelper.GetThreads(selectedList,selectedSort,0,ForumsHelper.THREADS_FETCH_LIMIT);
 
         return view;
@@ -196,6 +196,19 @@ OptionListDialogFragment.OnListSelectedListener{
                 }
             }
         });
+
+        HideAllMarks();
+        if(selectedViewType == ForumsAdapter.VIEW_AOART) {
+            vAoArt.setVisibility(View.VISIBLE);
+        } else if(selectedViewType == ForumsAdapter.VIEW_AOGUR) {
+            vAoGur.setVisibility(View.VISIBLE);
+        } else if(selectedViewType == ForumsAdapter.VIEW_AONEWS) {
+            vAoNews.setVisibility(View.VISIBLE);
+        } else if(selectedViewType == ForumsAdapter.VIEW_AOTALK) {
+            vAoTalk.setVisibility(View.VISIBLE);
+        } else if(selectedViewType == ForumsAdapter.VIEW_AOOFFICIAL) {
+            vOffical.setVisibility(View.VISIBLE);
+        }
     }
 
     @Override
@@ -244,19 +257,35 @@ OptionListDialogFragment.OnListSelectedListener{
     @Override
     public void onGetGlobalThreads() {
 
+        lstThreads.clear();
         lstThreads.addAll(0,AozoraForumsApp.getGlobalThreads());
         forumsAdapter.notifyItemRangeInserted(0,AozoraForumsApp.getGlobalThreads().size());
         fetchingGlobalThreads = false;
     }
 
     @Override
-    public void onGetThreads(List<AoThread> threads) {
+    public void onGetThreads(final List<AoThread> threads) {
+
+        if(fetchingGlobalThreads) {
+            Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    loadForumThreads(threads);
+                }
+            }, 150);
+        } else {
+            loadForumThreads(threads);
+        }
+    }
+
+    private void loadForumThreads(List<AoThread> threads) {
 
         pbLoading.setVisibility(View.GONE);
         rvForums.setVisibility(View.VISIBLE);
         if (fetchCount == 1) {
             lstThreads.addAll(threads);
-            forumsAdapter = new ForumsAdapter(getActivity(),lstThreads,selectedViewType);
+            forumsAdapter = new ForumsAdapter(getActivity(),lstThreads,selectedViewType,this);
             rvForums.setAdapter(forumsAdapter);
             pbLoading.setVisibility(View.GONE);
             rvForums.setVisibility(View.VISIBLE);
@@ -325,5 +354,24 @@ OptionListDialogFragment.OnListSelectedListener{
         String selectedOption = optionList.get(list);
         selectedSort = selectedOption;
         reloadThreads();
+    }
+
+    @Override
+    public void onGlobalThreadHide(AoThread threadToHide, int position) {
+        List<AoThread> lst = AozoraForumsApp.getHiddenGlobalThreads();
+        lst.add(threadToHide);
+        lstThreads.remove(position);
+        forumsAdapter.notifyItemRemoved(position);
+    }
+
+    @Override
+    public void onUpDownVote(Boolean upvote, AoThread thread, int position) {
+        ParseObject newPost;
+        if(upvote)
+            newPost = PostUtils.likePost(thread);
+        else
+            newPost = PostUtils.unlikeThread(thread);
+        lstThreads.set(position,(AoThread) newPost);
+        forumsAdapter.notifyItemChanged(position,newPost);
     }
 }

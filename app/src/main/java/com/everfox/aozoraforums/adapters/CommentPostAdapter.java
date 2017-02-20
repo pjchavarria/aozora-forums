@@ -1,6 +1,7 @@
 package com.everfox.aozoraforums.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.support.v4.app.Fragment;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.activities.AoTubeActivity;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
@@ -47,6 +49,12 @@ public class CommentPostAdapter extends RecyclerView.Adapter<CommentPostAdapter.
     Typeface awesomeTypeface;
     ParseUser currentUser;
 
+
+    public OnLikeListener mOnLikeListener;
+    public interface OnLikeListener {
+        public void onLike( ParseObject object, int position);
+    }
+
     public OnUsernameTappedListener mOnUsernameTappedCallback;
     public interface OnUsernameTappedListener {
         public void onUsernameTapped(ParseUser userTapped);
@@ -58,6 +66,7 @@ public class CommentPostAdapter extends RecyclerView.Adapter<CommentPostAdapter.
         this.currentUser = ParseUser.getCurrentUser();
         awesomeTypeface = AozoraForumsApp.getAwesomeTypeface();
         mOnUsernameTappedCallback = (OnUsernameTappedListener) callback;
+        mOnLikeListener = (OnLikeListener) callback;
     }
 
     @Override
@@ -74,11 +83,32 @@ public class CommentPostAdapter extends RecyclerView.Adapter<CommentPostAdapter.
         return viewHolderComment;
     }
 
+    private void updateLike(ImageView ivCommentLikes, TextView tvCommentNumberLikes,  Post post){
+        List<ParseUser> listLastCommentLiked = post.getList(TimelinePost.LIKED_BY);
+        if(listLastCommentLiked != null && listLastCommentLiked.contains(currentUser)) {
+            ivCommentLikes.setImageResource(R.drawable.icon_like_filled_small);
+        } else {
+            ivCommentLikes.setImageResource(R.drawable.icon_like_small);
+        }
+        tvCommentNumberLikes.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.LIKE_COUNT)));
+    }
 
     @Override
-    public void onBindViewHolder(ViewHolderComment vhComment, int position) {
+    public void onBindViewHolder(ViewHolderComment holder, int position, List<Object> payloads) {
+        if(!payloads.isEmpty()) {
+            if (payloads.get(0) instanceof Post) {
+                Post comment = (Post)payloads.get(0);
+                updateLike(holder.ivCommentLikes,holder.tvCommentNumberLikes,comment);
+            }
+        } else {
+            super.onBindViewHolder(holder,position, payloads);
+        }
+    }
 
-        Post post = postCommentLst.get(position);
+    @Override
+    public void onBindViewHolder(ViewHolderComment vhComment, final int position) {
+
+        final Post post = postCommentLst.get(position);
 
         vhComment.ivCommentImage.setImageDrawable(null);
         vhComment.ivCommentImage.setVisibility(View.GONE);
@@ -99,15 +129,25 @@ public class CommentPostAdapter extends RecyclerView.Adapter<CommentPostAdapter.
             PostUtils.loadTimelinePostImageURLToImageView(context,post,vhComment.sdvCommentImageGif,vhComment.ivCommentImage, vhComment.ivCommentPlay,true);
         } else if(post.getString(TimelinePost.YOUTUBE_ID) != null) {
             PostUtils.loadYoutubeImageIntoImageView(context,post,vhComment.ivCommentImage,vhComment.ivCommentPlay);
+            vhComment.ivCommentImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent i = new Intent(context, AoTubeActivity.class);
+                    i.putExtra(AoTubeActivity.YOUTUBEID_PARAM, post.getString(TimelinePost.YOUTUBE_ID));
+                    context.startActivity(i);
+                }
+            });
         }
-
         vhComment.tvCommentWhen.setText(PostUtils.getWhenWasPosted(post));
-        vhComment.tvCommentNumberLikes.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.LIKE_COUNT)));
-        List<ParseUser> listLastCommentLiked = post.getList(TimelinePost.LIKED_BY);
-        if(listLastCommentLiked != null && listLastCommentLiked.contains(currentUser)) {
-            vhComment.ivCommentLikes.setImageResource(R.drawable.icon_like_small);
-        }
-
+        updateLike(vhComment.ivCommentLikes,vhComment.tvCommentNumberLikes,post);
+        View.OnClickListener likeClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnLikeListener.onLike(post,position);
+            }
+        };
+        vhComment.ivCommentLikes.setOnClickListener(likeClickListener);
+        vhComment.tvCommentNumberLikes.setOnClickListener(likeClickListener);
 
     }
 

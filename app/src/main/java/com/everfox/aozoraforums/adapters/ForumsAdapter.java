@@ -2,7 +2,9 @@ package com.everfox.aozoraforums.adapters;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ProviderInfo;
 import android.graphics.Typeface;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.LayoutInflaterCompat;
 import android.support.v7.widget.RecyclerView;
@@ -19,6 +21,7 @@ import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.ThreadActivity;
 import com.everfox.aozoraforums.activities.TimelinePostActivity;
+import com.everfox.aozoraforums.fragments.ForumsFragment;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.AoThreadTag;
 import com.everfox.aozoraforums.models.TimelinePost;
@@ -57,14 +60,29 @@ public class ForumsAdapter extends RecyclerView.Adapter {
     private Context context;
     Typeface awesomeTypeface;
     private ParseUser currentUser;
+    private View.OnClickListener upvoteClickListener;
+    private View.OnClickListener downvoteClickListener;
+
+    public OnUpDownVoteListener mOnUpDownVote;
+    public interface OnUpDownVoteListener {
+        public void onUpDownVote(Boolean upvote, AoThread thread, int position);
+    }
+
+    public OnGlobalThreadHideListener mOnGlobalThreadHide;
+    public interface OnGlobalThreadHideListener {
+        public void onGlobalThreadHide(AoThread threadToHide, int position);
+    }
 
 
-    public ForumsAdapter(Context context, ArrayList<AoThread> list,int viewType) {
+    public ForumsAdapter(Context context, ArrayList<AoThread> list, int viewType, Fragment fragment) {
         this.context = context;
         this.aoThreads = list;
         awesomeTypeface = AozoraForumsApp.getAwesomeTypeface();
         currentUser = ParseUser.getCurrentUser();
         this.viewType = viewType;
+        if(fragment instanceof ForumsFragment)
+            mOnGlobalThreadHide = (OnGlobalThreadHideListener) fragment;
+        mOnUpDownVote = (OnUpDownVoteListener) fragment;
     }
 
     @Override
@@ -97,30 +115,45 @@ public class ForumsAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
 
         final AoThread aoThread = aoThreads.get(position);
+
+        upvoteClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnUpDownVote.onUpDownVote(true,aoThread,position);
+            }
+        };
+        downvoteClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnUpDownVote.onUpDownVote(false,aoThread,position);
+            }
+        };
+
         if(holder instanceof AoArtViewHolder) {
 
             AoArtViewHolder viewHolder = (AoArtViewHolder)holder;
-            bindAoArtThread(viewHolder,aoThread);
+            bindAoArtThread(viewHolder,aoThread,position);
         } else if(holder instanceof AoNewsViewHolder) {
 
             AoNewsViewHolder viewHolder = (AoNewsViewHolder)holder;
-            bindNewsThread(viewHolder,aoThread);
+            bindNewsThread(viewHolder,aoThread,position);
         }  else if(holder instanceof StickyViewHolder) {
 
             StickyViewHolder viewHolder = (StickyViewHolder)holder;
-            bindStickyTread(viewHolder,aoThread);
+            bindStickyTread(viewHolder,aoThread,position);
         }  else if(holder instanceof AoGurOfficialViewHolder) {
 
             AoGurOfficialViewHolder viewHolder = (AoGurOfficialViewHolder)holder;
-            bindAoGurOfficialTread(viewHolder,aoThread);
+            bindAoGurOfficialTread(viewHolder,aoThread,position);
         } else if(holder instanceof AoTalkViewHolder) {
 
             AoTalkViewHolder viewHolder = (AoTalkViewHolder)holder;
-            bindAoTalkThread(viewHolder,aoThread);
+            bindAoTalkThread(viewHolder,aoThread,position);
         }
+
 
         holder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -133,7 +166,54 @@ public class ForumsAdapter extends RecyclerView.Adapter {
     }
 
 
-    private void bindAoTalkThread(AoTalkViewHolder viewHolder, AoThread aoThread) {
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position, List payloads) {
+        if(!payloads.isEmpty()) {
+            if (payloads.get(0) instanceof AoThread) {
+                AoThread aoThread = (AoThread)payloads.get(0);
+                if(holder instanceof AoArtViewHolder) {
+                    AoArtViewHolder viewHolder = (AoArtViewHolder)holder;
+                    updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,aoThread);
+
+                } else if(holder instanceof AoNewsViewHolder) {
+
+                    AoNewsViewHolder viewHolder = (AoNewsViewHolder)holder;
+                    updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,aoThread);
+                }  else if(holder instanceof AoGurOfficialViewHolder) {
+
+                    AoGurOfficialViewHolder viewHolder = (AoGurOfficialViewHolder)holder;
+                    updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,aoThread);
+
+                } else if(holder instanceof AoTalkViewHolder) {
+
+                    AoTalkViewHolder viewHolder = (AoTalkViewHolder)holder;
+                    updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,aoThread);
+                }
+
+            }
+        }else {
+            super.onBindViewHolder(holder,position, payloads);
+        }
+    }
+
+    private void updateUpvoteDownvote(ImageView ivUp, TextView tvUp, ImageView ivDown, TextView tvDown, AoThread aoThread) {
+        List<ParseUser> listLiked = aoThread.getList(TimelinePost.LIKED_BY);
+        if(listLiked != null && listLiked.contains(currentUser)) {
+            ivUp.setImageResource(R.drawable.icon_upvote_filled);
+        } else {
+            ivUp.setImageResource(R.drawable.icon_upvote);
+        }
+        tvUp.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.LIKE_COUNT)));
+        List<ParseUser> listUnliked = aoThread.getList(AoThread.UNLIKED_BY);
+        if(listUnliked != null && listUnliked.contains(currentUser)) {
+            ivDown.setImageResource(R.drawable.icon_downvote_filled);
+        }else {
+            ivDown.setImageResource(R.drawable.icon_downvote);
+        }
+        tvDown.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(AoThread.UNLIKE_COUNT)));
+    }
+
+    private void bindAoTalkThread(AoTalkViewHolder viewHolder, AoThread aoThread, int position) {
 
         //INITIALIZE
         viewHolder.ivThreadImage.setImageDrawable(null);
@@ -162,21 +242,17 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         }
 
         //Load Upvote/Downvote/Comments
-        List<ParseUser> listLiked = aoThread.getList(TimelinePost.LIKED_BY);
-        if(listLiked != null && listLiked.contains(currentUser)) {
-            viewHolder.ivUpvotes.setImageResource(R.drawable.icon_upvote_filled);
-        }
-        viewHolder.tvUpvotes.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.LIKE_COUNT)));
-        List<ParseUser> listUnliked = aoThread.getList(AoThread.UNLIKED_BY);
-        if(listUnliked != null && listUnliked.contains(currentUser)) {
-            viewHolder.ivDownvotes.setImageResource(R.drawable.icon_downvote_filled);
-        }
-        viewHolder.tvDownvotes.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(AoThread.UNLIKE_COUNT)));
+        updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,aoThread);
         viewHolder.tvComments.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.REPLY_COUNT)));
+
+        viewHolder.ivUpvotes.setOnClickListener(upvoteClickListener);
+        viewHolder.tvUpvotes.setOnClickListener(upvoteClickListener);
+        viewHolder.ivDownvotes.setOnClickListener(downvoteClickListener);
+        viewHolder.tvDownvotes.setOnClickListener(downvoteClickListener);
     }
 
 
-    private void bindAoGurOfficialTread(AoGurOfficialViewHolder viewHolder, final AoThread aoThread) {
+    private void bindAoGurOfficialTread(AoGurOfficialViewHolder viewHolder, final AoThread aoThread, int position) {
 
         //INITIALIZE
         viewHolder.ivThreadImage.setImageDrawable(null);
@@ -210,21 +286,16 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         }
 
         //Load Upvote/Downvote/Comments
-        List<ParseUser> listLiked = aoThread.getList(TimelinePost.LIKED_BY);
-        if(listLiked != null && listLiked.contains(currentUser)) {
-            viewHolder.ivUpvotes.setImageResource(R.drawable.icon_upvote_filled);
-        }
-        viewHolder.tvUpvotes.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.LIKE_COUNT)));
-        List<ParseUser> listUnliked = aoThread.getList(AoThread.UNLIKED_BY);
-        if(listUnliked != null && listUnliked.contains(currentUser)) {
-            viewHolder.ivDownvotes.setImageResource(R.drawable.icon_downvote_filled);
-        }
-        viewHolder.tvDownvotes.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(AoThread.UNLIKE_COUNT)));
+        updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,aoThread);
         viewHolder.tvComments.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.REPLY_COUNT)));
 
+        viewHolder.ivUpvotes.setOnClickListener(upvoteClickListener);
+        viewHolder.tvUpvotes.setOnClickListener(upvoteClickListener);
+        viewHolder.ivDownvotes.setOnClickListener(downvoteClickListener);
+        viewHolder.tvDownvotes.setOnClickListener(downvoteClickListener);
     }
 
-    private void bindNewsThread(AoNewsViewHolder viewHolder, AoThread aoThread) {
+    private void bindNewsThread(AoNewsViewHolder viewHolder, AoThread aoThread, int position) {
 
         //INITIALIZE
         viewHolder.ivThreadImage.setImageDrawable(null);
@@ -251,21 +322,16 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         }
 
         //Load Upvote/Downvote/Comments
-        List<ParseUser> listLiked = aoThread.getList(TimelinePost.LIKED_BY);
-        if(listLiked != null && listLiked.contains(currentUser)) {
-            viewHolder.ivUpvotes.setImageResource(R.drawable.icon_upvote_filled);
-        }
-        viewHolder.tvUpvotes.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.LIKE_COUNT)));
-        List<ParseUser> listUnliked = aoThread.getList(AoThread.UNLIKED_BY);
-        if(listUnliked != null && listUnliked.contains(currentUser)) {
-            viewHolder.ivDownvotes.setImageResource(R.drawable.icon_downvote_filled);
-        }
-        viewHolder.tvDownvotes.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(AoThread.UNLIKE_COUNT)));
+        updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,aoThread);
         viewHolder.tvComments.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.REPLY_COUNT)));
 
+        viewHolder.ivUpvotes.setOnClickListener(upvoteClickListener);
+        viewHolder.tvUpvotes.setOnClickListener(upvoteClickListener);
+        viewHolder.ivDownvotes.setOnClickListener(downvoteClickListener);
+        viewHolder.tvDownvotes.setOnClickListener(downvoteClickListener);
     }
 
-    private void bindAoArtThread(AoArtViewHolder viewHolder, AoThread aoThread) {
+    private void bindAoArtThread(AoArtViewHolder viewHolder, AoThread aoThread, int position) {
 
         //Initialize
         viewHolder.ivThreadImage.setImageDrawable(null);
@@ -287,24 +353,27 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         }
 
         //Load Upvote/Downvote/Comments
-        List<ParseUser> listLiked = aoThread.getList(TimelinePost.LIKED_BY);
-        if(listLiked != null && listLiked.contains(currentUser)) {
-            viewHolder.ivUpvotes.setImageResource(R.drawable.icon_upvote_filled);
-        }
-        viewHolder.tvUpvotes.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.LIKE_COUNT)));
-        List<ParseUser> listUnliked = aoThread.getList(AoThread.UNLIKED_BY);
-        if(listUnliked != null && listUnliked.contains(currentUser)) {
-            viewHolder.ivDownvotes.setImageResource(R.drawable.icon_downvote_filled);
-        }
-        viewHolder.tvDownvotes.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(AoThread.UNLIKE_COUNT)));
+        updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,aoThread);
         viewHolder.tvComments.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.REPLY_COUNT)));
+
+        viewHolder.ivUpvotes.setOnClickListener(upvoteClickListener);
+        viewHolder.tvUpvotes.setOnClickListener(upvoteClickListener);
+        viewHolder.ivDownvotes.setOnClickListener(downvoteClickListener);
+        viewHolder.tvDownvotes.setOnClickListener(downvoteClickListener);
+
     }
 
-    private void bindStickyTread(StickyViewHolder viewHolder, AoThread aoThread) {
+    private void bindStickyTread(StickyViewHolder viewHolder, final AoThread aoThread, final int position) {
         viewHolder.tvTitleSticky.setText(aoThread.getString(AoThread.TITLE));
         if(aoThread.getHideDivider()){
             viewHolder.vDividerSticky.setVisibility(View.INVISIBLE);
         }
+        viewHolder.tvHideSticky.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnGlobalThreadHide.onGlobalThreadHide(aoThread,position);
+            }
+        });
     }
 
     @Override

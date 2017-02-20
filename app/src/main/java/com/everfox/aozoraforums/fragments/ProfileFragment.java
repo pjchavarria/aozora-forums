@@ -807,8 +807,10 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     @Override
     public void onLikeTappedListener(TimelinePost post, int position) {
         ParseObject newPost = PostUtils.likePost(post);
-        lstTimelinePost.set(position,(TimelinePost)newPost);
-        timelineAdapter.notifyItemChanged(position);
+        if(newPost != null) {
+            lstTimelinePost.set(position, (TimelinePost) newPost);
+            timelineAdapter.notifyItemChanged(position, newPost);
+        }
     }
 
     @Override
@@ -822,7 +824,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
             } else {
                 //Reemplazamos para que se actualize icono de repost
                 lstTimelinePost.set(position,(TimelinePost)repost.get(0));
-                timelineAdapter.notifyItemChanged(position);
+                timelineAdapter.notifyItemChanged(position,repost.get(0));
                 //Agregamos post al comienzo
                 lstTimelinePost.add(0,(TimelinePost) repost.get(1));
                 if(repost.get(1).getObjectId() != null)
@@ -830,7 +832,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
             }
         } else {
             lstTimelinePost.set(position,(TimelinePost)repost.get(0));
-            timelineAdapter.notifyItemChanged(position);
+            timelineAdapter.notifyItemChanged(position,repost.get(0));
         }
     }
 }

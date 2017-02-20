@@ -2,6 +2,7 @@ package com.everfox.aozoraforums.adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.support.v4.content.ContextCompat;
@@ -19,6 +20,7 @@ import android.widget.TextView;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.activities.AoTubeActivity;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.Post;
@@ -48,6 +50,17 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
     Typeface awesomeTypeface;
     ParseUser currentUser;
 
+    private View.OnClickListener upvoteClickListener;
+    private View.OnClickListener downvoteClickListener;
+    private View.OnClickListener likecommentClickListener;
+
+
+
+    public OnUpDownVoteListener mOnUpDownVote;
+    public interface OnUpDownVoteListener {
+        public void onUpDownVote(Boolean upvote, ParseObject object, int position);
+    }
+
     public OnUsernameTappedListener mOnUsernameTappedCallback;
     public interface OnUsernameTappedListener {
         public void onUsernameTapped(ParseUser userTapped);
@@ -64,6 +77,7 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
         awesomeTypeface = AozoraForumsApp.getAwesomeTypeface();
         mOnUsernameTappedCallback = (OnUsernameTappedListener) callback;
         mOnCommentTappedCallback = (OnCommentTappedListener) callback;
+        mOnUpDownVote = (OnUpDownVoteListener) callback;
     }
 
     @Override
@@ -87,8 +101,28 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
         final ParseObject parseObject = threadCommentsList.get(position);
+
+        upvoteClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnUpDownVote.onUpDownVote(true,parseObject,position);
+            }
+        };
+        downvoteClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnUpDownVote.onUpDownVote(false,parseObject,position);
+            }
+        };
+        likecommentClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnUpDownVote.onUpDownVote(true,parseObject,position);
+            }
+        };
+
         switch (holder.getItemViewType()) {
             case ITEM_FIRST_POST:
                 ViewHolderThread vhFP = (ViewHolderThread) holder;
@@ -101,8 +135,53 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
         }
     }
 
+    @Override
+    public void onBindViewHolder(RecyclerView.ViewHolder holder, int position, List payloads) {
+        if(!payloads.isEmpty()) {
+            if (payloads.get(0) instanceof AoThread) {
+                AoThread aoThread = (AoThread)payloads.get(0);
+                ViewHolderThread vhFP = (ViewHolderThread) holder;
+                updateUpvoteDownvote(vhFP.ivUpvotes,vhFP.tvUpvotes,vhFP.ivDownvotes,vhFP.tvDownvotes,aoThread);
+            } else if (payloads.get(0) instanceof Post) {
+                Post comment = (Post)payloads.get(0);
+                ViewHolderComment vhComment = (ViewHolderComment) holder;
+                updateLike(vhComment.ivCommentLikes,vhComment.tvCommentNumberLikes,comment);
+            }
+        } else {
+            super.onBindViewHolder(holder,position, payloads);
+        }
+    }
 
-    private void configureViewHolderThread(ViewHolderThread viewHolder, AoThread aoThread) {
+    private void updateUpvoteDownvote(ImageView ivUp, TextView tvUp, ImageView ivDown, TextView tvDown, AoThread aoThread) {
+        List<ParseUser> listLiked = aoThread.getList(TimelinePost.LIKED_BY);
+        if(listLiked != null && listLiked.contains(currentUser)) {
+            ivUp.setImageResource(R.drawable.icon_upvote_filled);
+        } else {
+            ivUp.setImageResource(R.drawable.icon_upvote);
+        }
+        tvUp.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.LIKE_COUNT)));
+        List<ParseUser> listUnliked = aoThread.getList(AoThread.UNLIKED_BY);
+        if(listUnliked != null && listUnliked.contains(currentUser)) {
+            ivDown.setImageResource(R.drawable.icon_downvote_filled);
+        }else {
+            ivDown.setImageResource(R.drawable.icon_downvote);
+        }
+        tvDown.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(AoThread.UNLIKE_COUNT)));
+    }
+
+    private void updateLike(ImageView ivCommentLikes, TextView tvCommentNumberLikes,  Post post) {
+        List<ParseUser> listLastCommentLiked = post.getList(TimelinePost.LIKED_BY);
+        if(listLastCommentLiked != null && listLastCommentLiked.contains(currentUser)) {
+            ivCommentLikes.setImageResource(R.drawable.icon_like_filled_small);
+        } else {
+            ivCommentLikes.setImageResource(R.drawable.icon_like_small);
+        }
+        tvCommentNumberLikes.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.LIKE_COUNT)));
+    }
+
+
+
+    private void configureViewHolderThread(ViewHolderThread viewHolder, final AoThread aoThread) {
 
         //INITIALIZE
         viewHolder.ivThreadImage.setImageDrawable(null);
@@ -129,22 +208,26 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
             ThreadUtils.loadThreadImageURLToImageView(context,aoThread,viewHolder.sdvThreadImageGif,viewHolder.ivThreadImage, viewHolder.ivPlay,true,false);
         } else if(aoThread.getString(TimelinePost.YOUTUBE_ID) != null) {
             PostUtils.loadYoutubeImageIntoImageView(context,aoThread,viewHolder.ivThreadImage, viewHolder.ivPlay);
+            viewHolder.ivThreadImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent i = new Intent(context, AoTubeActivity.class);
+                    i.putExtra(AoTubeActivity.YOUTUBEID_PARAM, aoThread.getString(TimelinePost.YOUTUBE_ID));
+                    context.startActivity(i);
+                }
+            });
         }else if (aoThread.getJSONObject(TimelinePost.LINK) != null) {
             viewHolder.rlThreadContent.setVisibility(View.INVISIBLE);
             PostUtils.loadLinkIntoLinkLayout(context,aoThread,viewHolder.llLinkLayout);
         }
 
         //Load Upvote/Downvote/Comments
-        List<ParseUser> listLiked = aoThread.getList(TimelinePost.LIKED_BY);
-        if(listLiked != null && listLiked.contains(currentUser)) {
-            viewHolder.ivUpvotes.setImageResource(R.drawable.icon_upvote_filled);
-        }
-        viewHolder.tvUpvotes.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.LIKE_COUNT)));
-        List<ParseUser> listUnliked = aoThread.getList(AoThread.UNLIKED_BY);
-        if(listUnliked != null && listUnliked.contains(currentUser)) {
-            viewHolder.ivDownvotes.setImageResource(R.drawable.icon_downvote_filled);
-        }
-        viewHolder.tvDownvotes.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(AoThread.UNLIKE_COUNT)));
+        updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,aoThread);
+
+        viewHolder.ivUpvotes.setOnClickListener(upvoteClickListener);
+        viewHolder.tvUpvotes.setOnClickListener(upvoteClickListener);
+        viewHolder.ivDownvotes.setOnClickListener(downvoteClickListener);
+        viewHolder.tvDownvotes.setOnClickListener(downvoteClickListener);
         viewHolder.tvComments.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.REPLY_COUNT)));
 
     }
@@ -174,15 +257,20 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
             PostUtils.loadTimelinePostImageURLToImageView(context,post,vhComment.sdvCommentImageGif,vhComment.ivCommentImage, vhComment.ivCommentPlay,false);
         } else if(post.getString(TimelinePost.YOUTUBE_ID) != null) {
             PostUtils.loadYoutubeImageIntoImageView(context,post,vhComment.ivCommentImage,vhComment.ivCommentPlay);
+            vhComment.ivCommentImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent i = new Intent(context, AoTubeActivity.class);
+                    i.putExtra(AoTubeActivity.YOUTUBEID_PARAM, post.getString(TimelinePost.YOUTUBE_ID));
+                    context.startActivity(i);
+                }
+            });
         }
 
         vhComment.tvCommentWhen.setText(PostUtils.getWhenWasPosted(post));
-        vhComment.tvCommentNumberLikes.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.LIKE_COUNT)));
-        List<ParseUser> listLastCommentLiked = post.getList(TimelinePost.LIKED_BY);
-        if(listLastCommentLiked != null && listLastCommentLiked.contains(currentUser)) {
-            vhComment.ivCommentLikes.setImageResource(R.drawable.icon_like_small);
-        }
-
+        updateLike(vhComment.ivCommentLikes,vhComment.tvCommentNumberLikes,post);
+        vhComment.ivCommentLikes.setOnClickListener(likecommentClickListener);
+        vhComment.tvCommentNumberLikes.setOnClickListener(likecommentClickListener);
 
         //LastReply
         if(post.getParseObject(TimelinePost.LAST_REPLY) != null) {
@@ -235,6 +323,8 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
         vhComment.tvLastCommentNumberLikes.setText(AoUtils.numberToStringOrZero(lastComment.getNumber(TimelinePost.LIKE_COUNT)));
         List<ParseUser> listLastCommentLiked = lastComment.getList(TimelinePost.LIKED_BY);
         if(listLastCommentLiked != null && listLastCommentLiked.contains(currentUser)) {
+            vhComment.ivLastCommentLikes.setImageResource(R.drawable.icon_like_filled_small);
+        } else {
             vhComment.ivLastCommentLikes.setImageResource(R.drawable.icon_like_small);
         }
 

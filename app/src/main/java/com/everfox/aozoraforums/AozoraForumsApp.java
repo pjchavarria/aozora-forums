@@ -74,13 +74,13 @@ public class AozoraForumsApp extends Application {
         awesomeTypeface = _awesomeTypeface;
     }
 
-    private static List<String> hiddenGlobalThreads;
-    public static List<String> getHiddenGlobalThreads() {
+    private static List<AoThread> hiddenGlobalThreads;
+    public static List<AoThread> getHiddenGlobalThreads() {
         if(hiddenGlobalThreads == null)
             hiddenGlobalThreads = new ArrayList<>();
         return hiddenGlobalThreads;
     }
-    public static void setHiddenGlobalThreads(List<String> hiddenGlobalThreads) {
+    public static void setHiddenGlobalThreads(List<AoThread> hiddenGlobalThreads) {
         AozoraForumsApp.hiddenGlobalThreads = hiddenGlobalThreads;
     }
 
@@ -89,6 +89,14 @@ public class AozoraForumsApp extends Application {
     public static List<AoThread> getGlobalThreads() {
         if(globalThreads == null)
             globalThreads = new ArrayList<>();
+        else {
+            List<AoThread> hiddenGlobal = getHiddenGlobalThreads();
+            for(int i=0;i<hiddenGlobal.size();i++) {
+                if(globalThreads.contains(hiddenGlobal.get(i))) {
+                    globalThreads.remove(hiddenGlobal.get(i));
+                }
+            }
+        }
         return globalThreads;
     }
     public static void setGlobalThreads(List<AoThread> globalThreads) {
@@ -163,5 +171,6 @@ public class AozoraForumsApp extends Application {
         threadToPass = null;
         profileToPass = null;
         hiddenGlobalThreads = null;
+        globalThreads = null;
     }
 }

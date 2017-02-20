@@ -46,8 +46,8 @@
                 android:layout_weight="0.25"
                 android:layout_gravity="center"
                 android:gravity="center"
-                android:src="@drawable/ic_notifications"
-                android:padding="5dp"
+                android:src="@drawable/icon_comment_2"
+                android:padding="8dp"
 
                 />
 
@@ -62,10 +62,10 @@
                 android:layout_width="0dp"
                 android:layout_height="35dp"
                 android:layout_weight="0.25"
-                android:padding="5dp"
+                android:padding="8dp"
                 android:gravity="center"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_notifications"
+                android:src="@drawable/ic_globe"
                 />
 
             <View
@@ -82,8 +82,8 @@
                 android:text="@string/fa_icon_animeEpisodes"
                 android:gravity="center"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_notifications"
-                android:padding="5dp"
+                android:src="@drawable/ic_profile"
+                android:padding="8dp"
                 />
 
             <View
@@ -98,10 +98,10 @@
                 android:layout_width="0dp"
                 android:layout_height="35dp"
                 android:layout_weight="0.25"
-                android:src="@drawable/ic_notifications"
+                android:src="@drawable/ic_profile"
                 android:gravity="center"
                 android:layout_gravity="center"
-                android:padding="5dp"
+                android:padding="8dp"
                 />
 
         </LinearLayout>

@@ -1,11 +1,12 @@
 package com.everfox.aozoraforums.activities;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -13,20 +14,16 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.controllers.FriendsController;
-import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
 import com.everfox.aozoraforums.fragments.FollowersFragment;
 import com.everfox.aozoraforums.fragments.ForumsFragment;
 import com.everfox.aozoraforums.fragments.NotificationsFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.fragments.UserListFragment;
-import com.everfox.aozoraforums.utils.AoConstants;
 import com.everfox.aozoraforums.utils.AoUtils;
-import com.facebook.drawee.backends.pipeline.Fresco;
 import com.parse.ParseUser;
 
 public class MainActivity extends AozoraActivity {
@@ -57,7 +54,7 @@ public class MainActivity extends AozoraActivity {
                 if (selectedFragmentIndex != 0 ) {
                     selectedFragmentIndex = 0;
                     markMenuAsUnselected();
-                    btnForum.setImageResource(R.drawable.ic_more_filled);
+                    btnForum.setColorFilter(ContextCompat.getColor(MainActivity.this,R.color.bluemenu));
                     OpenForumFragment();
                 }
             }
@@ -68,7 +65,7 @@ public class MainActivity extends AozoraActivity {
                 if (selectedFragmentIndex != 1 ) {
                     selectedFragmentIndex = 1;
                     markMenuAsUnselected();
-                    btnNotifications.setImageResource(R.drawable.ic_more_filled);
+                    btnNotifications.setColorFilter(ContextCompat.getColor(MainActivity.this,R.color.bluemenu));
                     OpenNotificationFragment();
                 }
             }
@@ -79,7 +76,7 @@ public class MainActivity extends AozoraActivity {
                 if (selectedFragmentIndex != 2 ) {
                     selectedFragmentIndex = 2;
                     markMenuAsUnselected();
-                    btnFeed.setImageResource(R.drawable.ic_more_filled);
+                    btnFeed.setColorFilter(ContextCompat.getColor(MainActivity.this,R.color.bluemenu));
                     OpenFeedFragment(ParseUser.getCurrentUser());
                 }
             }
@@ -91,7 +88,7 @@ public class MainActivity extends AozoraActivity {
                 if (selectedFragmentIndex != 3 ) {
                     selectedFragmentIndex = 3;
                     markMenuAsUnselected();
-                    btnProfile.setImageResource(R.drawable.ic_more_filled);
+                    btnProfile.setColorFilter(ContextCompat.getColor(MainActivity.this,R.color.bluemenu));
                     OpenProfileFragment(ParseUser.getCurrentUser(),true);
                 }
             }
@@ -115,14 +112,17 @@ public class MainActivity extends AozoraActivity {
         }
         FriendsController.fetchFollowing();
         OpenForumFragment();
+        markMenuAsUnselected();
+        btnForum.setColorFilter(ContextCompat.getColor(MainActivity.this,R.color.bluemenu));
 
     }
 
     private void markMenuAsUnselected() {
-        btnForum.setImageResource(R.drawable.ic_notifications);
-        btnNotifications.setImageResource(R.drawable.ic_notifications);
-        btnFeed.setImageResource(R.drawable.ic_notifications);
-        btnProfile.setImageResource(R.drawable.ic_notifications);
+        int grayColor = ContextCompat.getColor(this,R.color.gray90);
+        btnForum.setColorFilter(grayColor);
+        btnNotifications.setColorFilter(grayColor);
+        btnFeed.setColorFilter(grayColor);
+        btnProfile.setColorFilter(grayColor);
     }
 
     @Override
