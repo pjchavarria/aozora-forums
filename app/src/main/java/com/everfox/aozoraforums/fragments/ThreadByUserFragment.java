@@ -64,7 +64,7 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
         View view = inflater.inflate(R.layout.fragment_threadsbyuser, container, false);
         ButterKnife.bind(this, view);
         setHasOptionsMenu(true);
-        forumsHelper = new ForumsHelper(getActivity(), this);
+        forumsHelper = new ForumsHelper(getActivity(), this,null);
         llm = new LinearLayoutManager(getActivity());
         rvThreadByUser.setLayoutManager(llm);
         forumsAdapter = new ForumsAdapter(getActivity(), new ArrayList<AoThread>(), -1, this);

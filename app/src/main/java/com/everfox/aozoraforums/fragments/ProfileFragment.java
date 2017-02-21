@@ -773,7 +773,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     public void onMoreOptionsTappedCallback(TimelinePost post,int selectedPosition) {
         selectedPost = AoUtils.GetOriginalPost(post);
         this.selectedPosition = selectedPosition;
-        OptionListDialogFragment fragment = AoUtils.getDialogFragmentMoreOptions(AoUtils.GetOriginalPoster(post),getActivity(),this,null);
+        OptionListDialogFragment fragment = AoUtils.getDialogFragmentMoreOptions(AoUtils.GetOriginalPoster(post),getActivity(),this,null,false);
         fragment.setCancelable(true);
         fragment.show(getFragmentManager(),"");
     }

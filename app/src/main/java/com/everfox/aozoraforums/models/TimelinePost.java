@@ -3,6 +3,7 @@ package com.everfox.aozoraforums.models;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
 

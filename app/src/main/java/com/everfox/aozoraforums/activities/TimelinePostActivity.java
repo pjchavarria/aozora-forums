@@ -108,7 +108,7 @@ TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnLis
                         parentPost = object;
                         userOP = AoUtils.GetOriginalPoster(parentPost);
                         setTitle(parentPost.getParseObject(TimelinePost.POSTED_BY).getString(ParseUserColumns.AOZORA_USERNAME));
-                        new PostParseHelper(TimelinePostActivity.this, TimelinePostActivity.this)
+                        new PostParseHelper(TimelinePostActivity.this, TimelinePostActivity.this,null)
                                 .GetTimelinePostComments(parentPost, 0, 2000);
                     } else {
                         Toast.makeText(TimelinePostActivity.this,"A problem occured, try again later",Toast.LENGTH_SHORT).show();
@@ -118,7 +118,7 @@ TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnLis
             });
         } else {
 
-            new PostParseHelper(this, this)
+            new PostParseHelper(this, this,null)
                     .GetTimelinePostComments(parentPost, 0, 2000);
         }
 
@@ -157,7 +157,7 @@ TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnLis
     private void reloadPosts() {
 
         isLoading = true;
-        new PostParseHelper(this,this)
+        new PostParseHelper(this,this,null)
                 .GetTimelinePostComments(parentPost,0,2000);
     }
 
@@ -215,7 +215,7 @@ TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnLis
 
         selectedPost = post;
         parentPostTapped = true;
-        OptionListDialogFragment fragment = AoUtils.getDialogFragmentMoreOptions(userOP,this,null,this);
+        OptionListDialogFragment fragment = AoUtils.getDialogFragmentMoreOptions(userOP,this,null,this,false);
         fragment.setCancelable(true);
         fragment.show(getSupportFragmentManager(),"");
     }
@@ -236,7 +236,7 @@ TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnLis
                             .setPositiveButton(R.string.dialog_delete_post, new DialogInterface.OnClickListener() {
                                 @Override public void onClick(DialogInterface dialog, int which) {
                                     simpleLoadingDialogFragment.show(getSupportFragmentManager(),"loading");
-                                    new PostParseHelper(TimelinePostActivity.this,TimelinePostActivity.this).deletePost(selectedPost,parentPostDelete);
+                                    new PostParseHelper(TimelinePostActivity.this,TimelinePostActivity.this,null).deletePost(selectedPost,parentPostDelete);
                                     parentPostDelete = null;
                                 }
                             })
@@ -280,7 +280,7 @@ TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnLis
         parentPostDelete = allComments.get(0);
         selectedPost = AoUtils.GetOriginalPost(post);
         selectedPosition = position;
-        OptionListDialogFragment fragment = AoUtils.getDialogFragmentMoreOptions(AoUtils.GetOriginalPoster(post), TimelinePostActivity.this, null, TimelinePostActivity.this);
+        OptionListDialogFragment fragment = AoUtils.getDialogFragmentMoreOptions(AoUtils.GetOriginalPoster(post), TimelinePostActivity.this, null, TimelinePostActivity.this,false);
         fragment.setCancelable(true);
         fragment.show(getSupportFragmentManager(), "");
     }

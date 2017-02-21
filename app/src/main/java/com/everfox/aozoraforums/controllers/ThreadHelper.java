@@ -37,7 +37,7 @@ public class ThreadHelper {
         this.mOnGetPostCommentsCallback = (OnGetPostCommentsListener)fragment;
     }
 
-    public void GetThreadComments(AoThread thread, int skip, int limit){
+    public void GetThreadComments(final AoThread thread, int skip, int limit){
 
         ParseQuery<ParseObject> query = ParseQuery.getQuery("Post");
         query.setSkip(skip);
@@ -52,6 +52,7 @@ public class ThreadHelper {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
                 if(e==null)
+
                     mOnGetThreadCommentsCallback.onGetThreadComments(objects);
             }
         });

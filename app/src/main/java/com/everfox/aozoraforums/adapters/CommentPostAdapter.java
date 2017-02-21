@@ -50,6 +50,12 @@ public class CommentPostAdapter extends RecyclerView.Adapter<CommentPostAdapter.
     ParseUser currentUser;
 
 
+    public OnItemLongClickListener mOnItemLongClicked;
+    public interface OnItemLongClickListener {
+        public void onItemLongClicked(ParseObject aoThread);
+    }
+
+
     public OnLikeListener mOnLikeListener;
     public interface OnLikeListener {
         public void onLike( ParseObject object, int position);
@@ -67,6 +73,7 @@ public class CommentPostAdapter extends RecyclerView.Adapter<CommentPostAdapter.
         awesomeTypeface = AozoraForumsApp.getAwesomeTypeface();
         mOnUsernameTappedCallback = (OnUsernameTappedListener) callback;
         mOnLikeListener = (OnLikeListener) callback;
+        mOnItemLongClicked = (OnItemLongClickListener)callback;
     }
 
     @Override
@@ -149,6 +156,13 @@ public class CommentPostAdapter extends RecyclerView.Adapter<CommentPostAdapter.
         vhComment.ivCommentLikes.setOnClickListener(likeClickListener);
         vhComment.tvCommentNumberLikes.setOnClickListener(likeClickListener);
 
+        vhComment.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                mOnItemLongClicked.onItemLongClicked(post);
+                return true;
+            }
+        });
     }
 
 

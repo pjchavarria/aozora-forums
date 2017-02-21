@@ -14,6 +14,8 @@ public class AoConstants {
     public static final int MY_PROFILE_OTHER_USER_OPTIONS_DIALOG = 5;
     public static final int EDIT_POST_OPTIONS_DIALOG = 6;
     public static final int REPORT_POST_OPTIONS_DIALOG = 7;
+    public static final int EDITDELETE_THREAD_OPTIONS_DIALOG = 8;
+    public static final int EDITBAN_THREAD_OPTIONS_DIALOG = 9;
 
     public static final String POST_EDIT = "Edit";
     public static final String ADMIN_POST_DELETE = "Ban Post [Deletes it]";
@@ -31,11 +33,13 @@ public class AoConstants {
     public static final String MY_PROFILE_OTHERUSER_THREADS = "Threads created";
     public static final String MY_PROFILE_OTHERUSER_MUTE = "Mute";
     public static final String REPORT_POST_REPORT_CONTENT = "Report Content";
+    public static final String ADMIN_THREAD_BAN = "Ban Post [Hides it]";
 
 
     public static final String PINTYPE_GLOBAL = "global";
     public static final String USERTHREAD = "userThread";
     public static final String VISIBLE = "visible";
+    public static final String HIDDEN = "hidden";
 
     public static final String POPULAR = "Popular";
     public static final String RISING = "Rising";

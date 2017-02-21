@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.Fragment;
 
+import com.everfox.aozoraforums.activities.TimelinePostActivity;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.PostUtils;
 import com.parse.FindCallback;
@@ -31,10 +32,14 @@ public class PostParseHelper {
 
     private Context context;
 
-    public PostParseHelper(Context context, Activity timelinePostAct) {
+    public PostParseHelper(Context context, Activity timelinePostAct, Fragment commentPostFragment) {
         this.context = context;
-        this.mOnGetTimelinePostCommentsCallback = (OnGetTimelinePostCommentsListener) timelinePostAct;
-        this.mOnDeletePost = (PostUtils.OnDeletePostCallback) timelinePostAct;
+        if(timelinePostAct instanceof TimelinePostActivity)
+            this.mOnGetTimelinePostCommentsCallback = (OnGetTimelinePostCommentsListener) timelinePostAct;
+        if(timelinePostAct != null)
+            this.mOnDeletePost = (PostUtils.OnDeletePostCallback) timelinePostAct;
+        else
+            this.mOnDeletePost = (PostUtils.OnDeletePostCallback) commentPostFragment;
     }
 
     public void GetTimelinePostComments(TimelinePost timelinePost, int skip, int limit) {

@@ -434,14 +434,20 @@ public class PostUtils {
     public static void deletePost(final ParseObject post, ParseObject parentPost, final OnDeletePostCallback onDeletePostCallback) {
 
         if(parentPost == null) {
-            //Delete everything
-            ParseQuery<ParseObject> queryPosts = new ParseQuery<>("TimelinePost");
+            //Delete comments
+            ParseQuery<ParseObject> queryPosts;
+            if(post instanceof TimelinePost)
+                queryPosts = new ParseQuery<>("TimelinePost");
+            else
+                queryPosts = new ParseQuery<>("Post");
             queryPosts.whereEqualTo(TimelinePost.PARENT_POST,post);
             queryPosts.findInBackground(new FindCallback<ParseObject>() {
                 @Override
                 public void done(List<ParseObject> objects, ParseException e) {
-                    if(e==null)
-                        deletePosts(objects,post,true,onDeletePostCallback);
+                    if(e==null) {
+                        deletePosts(objects, post, true, onDeletePostCallback);
+
+                    }
                 }
             });
 
@@ -466,23 +472,47 @@ public class PostUtils {
                     posts.get(i).getParseObject(TimelinePost.POSTED_BY).increment(ParseUserColumns.POST_COUNT,-1);
                 }
 
+                if(parentPost instanceof Post) {
+                    parentPost.getParseObject(Post.THREAD).increment(TimelinePost.REPLY_COUNT,-posts.size());
+                    parentPost.getParseObject(Post.THREAD).saveInBackground();
+                }
+
                 if(removeParent) {
                     onDeletePostCallback.onDeletePost();
                 } else {
                     ParseObject lastReply = posts.get(posts.size()-1);
-                    List<TimelinePost> replies = ((TimelinePost) parentPost).getReplies();
-                    int index = replies.indexOf(lastReply);
-                    if(index != -1) {
-                        replies.remove(index);
-                        ((TimelinePost) parentPost).setReplies(replies);
-                    }
-                    parentPost.increment(TimelinePost.REPLY_COUNT,-posts.size());
+                    if(lastReply instanceof TimelinePost) {
+                        List<TimelinePost> replies = ((TimelinePost)parentPost).getReplies();
+                        int index = replies.indexOf(lastReply);
+                        if(index != -1) {
+                            replies.remove(index);
+                            ((TimelinePost) parentPost).setReplies(replies);
+                        }
+                        parentPost.increment(TimelinePost.REPLY_COUNT,-posts.size());
 
-                    if(replies.size() > 0) {
-                        parentPost.put(TimelinePost.LAST_REPLY,replies.get(replies.size()-1));
+                        if(replies.size() > 0) {
+                            parentPost.put(TimelinePost.LAST_REPLY,replies.get(replies.size()-1));
+                        } else {
+                            parentPost.remove(TimelinePost.LAST_REPLY);
+                        }
+
                     } else {
-                        parentPost.remove(TimelinePost.LAST_REPLY);
+                        List<Post> replies = ((Post)parentPost).getReplies();
+                        int index = replies.indexOf(lastReply);
+                        if(index != -1) {
+                            replies.remove(index);
+                            ((Post) parentPost).setReplies(replies);
+                        }
+                        parentPost.increment(TimelinePost.REPLY_COUNT,-posts.size());
+
+                        if(replies.size() > 0) {
+                            parentPost.put(TimelinePost.LAST_REPLY,replies.get(replies.size()-1));
+                        } else {
+                            parentPost.remove(TimelinePost.LAST_REPLY);
+                        }
+
                     }
+
                     parentPost.saveInBackground();
                     onDeletePostCallback.onDeletePost();
                 }

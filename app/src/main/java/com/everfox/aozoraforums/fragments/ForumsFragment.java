@@ -1,6 +1,7 @@
 package com.everfox.aozoraforums.fragments;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +22,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.FirstActivity;
@@ -27,7 +30,9 @@ import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.adapters.ForumsAdapter;
 import com.everfox.aozoraforums.controllers.ForumsHelper;
+import com.everfox.aozoraforums.controllers.ProfileParseHelper;
 import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
+import com.everfox.aozoraforums.dialogfragments.SimpleLoadingDialogFragment;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.AoConstants;
@@ -49,9 +54,11 @@ import butterknife.ButterKnife;
  */
 
 public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobalThreadsListener, ForumsHelper.OnGetThreadsListener,
-OptionListDialogFragment.OnListSelectedListener, ForumsAdapter.OnGlobalThreadHideListener, ForumsAdapter.OnUpDownVoteListener{
+OptionListDialogFragment.OnListSelectedListener, ForumsAdapter.OnGlobalThreadHideListener, ForumsAdapter.OnUpDownVoteListener,
+ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback{
 
 
+    SimpleLoadingDialogFragment simpleLoadingDialogFragment = new SimpleLoadingDialogFragment();
     ForumsAdapter forumsAdapter;
     Boolean isLoading = false;
     int fetchCount = 0;
@@ -109,7 +116,7 @@ OptionListDialogFragment.OnListSelectedListener, ForumsAdapter.OnGlobalThreadHid
         View view = inflater.inflate(R.layout.fragment_forums, container, false);
         ButterKnife.bind(this,view);
         setHasOptionsMenu(true);
-        forumsHelper = new ForumsHelper(getActivity(),this);
+        forumsHelper = new ForumsHelper(getActivity(),this,null);
         forumsHelper.GetGlobalThreads();
         fetchingGlobalThreads = true;
         llm = new LinearLayoutManager(getActivity());
@@ -148,6 +155,13 @@ OptionListDialogFragment.OnListSelectedListener, ForumsAdapter.OnGlobalThreadHid
                 if (pastVisibleItems + visibleItemCount >= totalItemCount && !isLoading) {
                     scrolledToEnd();
                 }
+            }
+        });
+
+        rvForums.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                return false;
             }
         });
 
@@ -350,16 +364,73 @@ OptionListDialogFragment.OnListSelectedListener, ForumsAdapter.OnGlobalThreadHid
 
     @Override
     public void onListSelected(Integer list, Integer selectedList) {
-        List<String> optionList = AoUtils.getOptionListFromID(getActivity(),selectedList);
+        List<String> optionList = AoUtils.getOptionListFromID(getActivity(), selectedList);
         String selectedOption = optionList.get(list);
-        selectedSort = selectedOption;
-        reloadThreads();
+        if(selectedList == AoConstants.SORT_OPTIONS_DIALOG) {
+            selectedSort = selectedOption;
+            reloadThreads();
+        } else {
+            if(selectedList == AoConstants.REPORT_POST_OPTIONS_DIALOG) {
+                switch (selectedOption){
+                    case AoConstants.REPORT_POST_REPORT_CONTENT:
+                        AoUtils.reportObject(selectedThread);
+                        AoUtils.showAlertWithTitleAndText(getActivity(),"Report Sent!","The report will be reviewed by an admin and deleted/updated if needed.");
+                        break;
+                }
+            }
+            else if(selectedList == AoConstants.EDITDELETE_THREAD_OPTIONS_DIALOG || selectedList == AoConstants.EDITDELETE_POST_OPTIONS_DIALOG) {
+                switch (selectedOption){
+                    case AoConstants.ADMIN_POST_DELETE:
+                        new AlertDialog.Builder(getActivity())
+                                .setTitle("Delete this thread forever?")
+                                .setMessage("You can't undo this")
+                                .setNegativeButton(android.R.string.cancel, null) // dismisses by default
+                                .setPositiveButton(R.string.dialog_delete_post, new DialogInterface.OnClickListener() {
+                                    @Override public void onClick(DialogInterface dialog, int which) {
+                                        new ForumsHelper(getActivity(),ForumsFragment.this,null).deleteThread(selectedThread);
+                                    }
+                                })
+                                .create()
+                                .show();
+                        break;
+                    case AoConstants.POST_EDIT:
+                        Toast.makeText(getActivity(),"Edit Admin", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }   else if(selectedList == AoConstants.EDITBAN_THREAD_OPTIONS_DIALOG) {
+                switch (selectedOption){
+                    case AoConstants.ADMIN_THREAD_BAN:
+                        new AlertDialog.Builder(getActivity())
+                                .setTitle("Ban this thread?")
+                                .setMessage("Are you sure?")
+                                .setNegativeButton(android.R.string.cancel, null) // dismisses by default
+                                .setPositiveButton(R.string.dialog_delete_post, new DialogInterface.OnClickListener() {
+                                    @Override public void onClick(DialogInterface dialog, int which) {
+                                        new ForumsHelper(getActivity(),ForumsFragment.this,null).banThread(selectedThread);
+                                    }
+                                })
+                                .create()
+                                .show();
+                        break;
+                    case AoConstants.POST_EDIT:
+                        Toast.makeText(getActivity(),"Edit Admin", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onDeleteOrBan() {
+        lstThreads.remove(selectedPosition);
+        forumsAdapter.notifyItemRemoved(selectedPosition);
     }
 
     @Override
     public void onGlobalThreadHide(AoThread threadToHide, int position) {
         List<AoThread> lst = AozoraForumsApp.getHiddenGlobalThreads();
         lst.add(threadToHide);
+        AozoraForumsApp.setHiddenGlobalThreads(lst);
         lstThreads.remove(position);
         forumsAdapter.notifyItemRemoved(position);
     }
@@ -373,5 +444,18 @@ OptionListDialogFragment.OnListSelectedListener, ForumsAdapter.OnGlobalThreadHid
             newPost = PostUtils.unlikeThread(thread);
         lstThreads.set(position,(AoThread) newPost);
         forumsAdapter.notifyItemChanged(position,newPost);
+    }
+
+
+    AoThread selectedThread= null;
+    int selectedPosition = -1;
+
+    @Override
+    public void onItemLongClicked(AoThread aoThread) {
+        selectedThread = aoThread;
+        this.selectedPosition = lstThreads.indexOf(aoThread);
+        OptionListDialogFragment fragment = AoUtils.getDialogFragmentMoreOptions(aoThread.getParseUser(TimelinePost.POSTED_BY),getActivity(),this,null,true);
+        fragment.setCancelable(true);
+        fragment.show(getFragmentManager(),"");
     }
 }

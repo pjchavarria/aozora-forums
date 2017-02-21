@@ -64,6 +64,7 @@
         <item>Report Content</item>
         <item>Ban Post [Deletes it]</item>
         <item>Mute</item>
+        <item>Ban Post [Hides it]</item>
     </string-array>
 
     <string-array name="other_user_post_options">
@@ -72,6 +73,11 @@
 
     <string-array name="edit_post_options">
         <item>Edit</item>
+    </string-array>
+
+    <string-array name="admin_thread_options">
+        <item>Edit</item>
+        <item>Ban Post [Hides it]</item>
     </string-array>
 
     <string-array name="admin_post_options">

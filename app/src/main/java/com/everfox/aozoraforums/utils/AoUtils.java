@@ -183,6 +183,8 @@ public class AoUtils {
 
     public static List<String> getOptionListFromID (Context context, Integer optionListID) {
         switch (optionListID){
+            case AoConstants.EDITBAN_THREAD_OPTIONS_DIALOG:
+                return Arrays.asList(context.getResources().getStringArray(R.array.admin_thread_options));
             case AoConstants.EDITDELETE_POST_OPTIONS_DIALOG:
                 return Arrays.asList(context.getResources().getStringArray(R.array.admin_post_options));
             case AoConstants.MY_PROFILE_OPTIONS_DIALOG:
@@ -261,7 +263,7 @@ public class AoUtils {
         return reputationString;
     }
 
-    public static OptionListDialogFragment getDialogFragmentMoreOptions(ParseUser userWhoPosted,  Context context, Fragment fragment, Activity activity) {
+    public static OptionListDialogFragment getDialogFragmentMoreOptions(ParseUser userWhoPosted,  Context context, Fragment fragment, Activity activity, Boolean isThread) {
 
         int userType = AozoraForumsApp.getIsAdmin(ParseUser.getCurrentUser());
         if(userType == 0) {
@@ -289,14 +291,28 @@ public class AoUtils {
                             null, fragment, AoConstants.REPORT_POST_OPTIONS_DIALOG, activity);
                 } else {
                     //Normal Other
+
+                    int postOrThread = isThread ?  AoConstants.EDITBAN_THREAD_OPTIONS_DIALOG :  AoConstants.EDITDELETE_POST_OPTIONS_DIALOG ;
                     return OptionListDialogFragment.newInstance(context, "Editing post", "Only edit posts if they are breaking guidelines",
-                            null, fragment, AoConstants.EDITDELETE_POST_OPTIONS_DIALOG, activity);
+                            null, fragment, postOrThread, activity);
                 }
             }
         } else {
+            if(isThread) {
 
-            return OptionListDialogFragment.newInstance(context, "Editing post", "Only edit posts if they are breaking guidelines",
-                    null, fragment, AoConstants.EDITDELETE_POST_OPTIONS_DIALOG, activity);
+                if (ParseUser.getCurrentUser().getObjectId().equals(userWhoPosted.getObjectId())) {
+
+                    return OptionListDialogFragment.newInstance(context, "Editing post", "Only edit posts if they are breaking guidelines",
+                            null, fragment, AoConstants.EDITDELETE_POST_OPTIONS_DIALOG, activity);
+                } else {
+
+                    return OptionListDialogFragment.newInstance(context, "Editing post", "Only edit posts if they are breaking guidelines",
+                            null, fragment, AoConstants.EDITBAN_THREAD_OPTIONS_DIALOG, activity);
+                }
+            } else {
+                return OptionListDialogFragment.newInstance(context, "Editing post", "Only edit posts if they are breaking guidelines",
+                        null, fragment, AoConstants.EDITDELETE_POST_OPTIONS_DIALOG, activity);
+            }
         }
 
     }

@@ -70,6 +70,14 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
         public void onCommentTapped(ParseObject commentTapped);
     }
 
+
+    public OnItemLongClickListener mOnItemLongClicked;
+    public interface OnItemLongClickListener {
+        public void onItemLongClicked(ParseObject aoThread);
+    }
+
+
+
     public AoThreadAdapter (Context context, List<ParseObject> tclist, Activity callback) {
         this.context = context;
         this.threadCommentsList = tclist;
@@ -78,6 +86,7 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
         mOnUsernameTappedCallback = (OnUsernameTappedListener) callback;
         mOnCommentTappedCallback = (OnCommentTappedListener) callback;
         mOnUpDownVote = (OnUpDownVoteListener) callback;
+        mOnItemLongClicked = (OnItemLongClickListener) callback;
     }
 
     @Override
@@ -123,16 +132,23 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
             }
         };
 
-        switch (holder.getItemViewType()) {
-            case ITEM_FIRST_POST:
-                ViewHolderThread vhFP = (ViewHolderThread) holder;
-                configureViewHolderThread(vhFP, (AoThread)parseObject);
-                break;
-            case ITEM_COMMENT:
-                ViewHolderComment vhComment = (ViewHolderComment) holder;
-                configureViewHolderComment(vhComment,(Post)parseObject);
-                break;
+        if(parseObject instanceof AoThread  && holder instanceof ViewHolderThread){
+
+            ViewHolderThread vhFP = (ViewHolderThread) holder;
+            configureViewHolderThread(vhFP, (AoThread)parseObject);
+        } else if(parseObject instanceof Post && holder instanceof ViewHolderComment) {
+
+            ViewHolderComment vhComment = (ViewHolderComment) holder;
+            configureViewHolderComment(vhComment,(Post)parseObject);
         }
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                mOnItemLongClicked.onItemLongClicked(parseObject);
+                return true;
+            }
+        });
     }
 
     @Override

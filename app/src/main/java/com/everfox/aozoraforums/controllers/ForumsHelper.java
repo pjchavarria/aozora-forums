@@ -1,5 +1,6 @@
 package com.everfox.aozoraforums.controllers;
 
+import android.app.Activity;
 import android.content.Context;
 import android.provider.SyncStateContract;
 import android.support.v4.app.Fragment;
@@ -7,10 +8,14 @@ import android.support.v4.app.Fragment;
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.fragments.ThreadByUserFragment;
 import com.everfox.aozoraforums.models.AoThread;
+import com.everfox.aozoraforums.models.ParseUserColumns;
+import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.AoConstants;
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
@@ -29,6 +34,11 @@ public class ForumsHelper {
 
     private Context context;
 
+    OnBanDeletePostCallback mOnBanDelete;
+    public interface OnBanDeletePostCallback {
+        public void onDeleteOrBan();
+    }
+
     private OnGetGlobalThreadsListener mGetGlobalThreadsCallback;
     public interface OnGetGlobalThreadsListener {
         public void onGetGlobalThreads();
@@ -44,13 +54,18 @@ public class ForumsHelper {
         public void onGetUserThreads(List<AoThread> threads);
     }
 
-    public ForumsHelper(Context context, Fragment fragment) {
+    public ForumsHelper(Context context, Fragment fragment, Activity activity) {
         this.context = context;
-        if(fragment instanceof ThreadByUserFragment)
-            mGetUserThreadsCallback =  (OnGetUserThreadsListener) fragment;
+        if(activity != null)
+            mOnBanDelete = (OnBanDeletePostCallback) activity;
         else {
-            mGetThreadsCallback = (OnGetThreadsListener) fragment;
-            mGetGlobalThreadsCallback = (OnGetGlobalThreadsListener) fragment;
+            if (fragment instanceof ThreadByUserFragment)
+                mGetUserThreadsCallback = (OnGetUserThreadsListener) fragment;
+            else {
+                mGetThreadsCallback = (OnGetThreadsListener) fragment;
+                mGetGlobalThreadsCallback = (OnGetGlobalThreadsListener) fragment;
+                mOnBanDelete = (OnBanDeletePostCallback) fragment;
+            }
         }
     }
 
@@ -143,4 +158,45 @@ public class ForumsHelper {
 
     }
 
+    public void deleteThread (final AoThread thread) {
+        ParseQuery<Post> postParseQuery = ParseQuery.getQuery(Post.class);
+        postParseQuery.whereEqualTo(Post.THREAD,thread);
+        postParseQuery.include(Post.POSTEDBY);
+        postParseQuery.findInBackground(new FindCallback<Post>() {
+            @Override
+            public void done(final List<Post> objects, ParseException e) {
+
+                if(e== null) {
+
+                    ParseObject.deleteAllInBackground(objects, new DeleteCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if(e==null) {
+                                thread.getParseUser(AoThread.POSTEDBY).increment(ParseUserColumns.POST_COUNT, -1);
+                                for (int i = 0; i < objects.size(); i++) {
+                                    objects.get(i).getParseUser(AoThread.POSTEDBY).increment(ParseUserColumns.POST_COUNT, -1);
+                                    objects.get(i).getParseUser(AoThread.POSTEDBY).saveInBackground();
+                                }
+                                thread.getParseUser(AoThread.POSTEDBY).saveInBackground();
+                                thread.deleteInBackground(new DeleteCallback() {
+                                    @Override
+                                    public void done(ParseException e) {
+
+                                        mOnBanDelete.onDeleteOrBan();
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+        });
+
+    }
+
+    public void banThread (AoThread thread) {
+        thread.put(AoThread.VISIBILITY,AoConstants.HIDDEN);
+        thread.saveInBackground();
+        mOnBanDelete.onDeleteOrBan();
+    }
 }

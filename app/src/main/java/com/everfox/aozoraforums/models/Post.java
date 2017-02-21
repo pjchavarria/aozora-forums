@@ -3,6 +3,9 @@ package com.everfox.aozoraforums.models;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by daniel.soto on 2/6/2017.
  */
@@ -10,6 +13,15 @@ import com.parse.ParseObject;
 @ParseClassName("Post")
 public class Post extends ParseObject {
 
+
+    private List<Post> replies = new ArrayList<>();
+    public List<Post> getReplies() {
+        return replies;
+    }
+
+    public void setReplies(List<Post> replies) {
+        this.replies = replies;
+    }
 
     public static final String THREAD = "thread";
     public static final String PARENTPOST = "parentPost";

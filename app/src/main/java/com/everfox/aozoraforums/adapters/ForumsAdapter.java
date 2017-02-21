@@ -63,6 +63,13 @@ public class ForumsAdapter extends RecyclerView.Adapter {
     private View.OnClickListener upvoteClickListener;
     private View.OnClickListener downvoteClickListener;
 
+
+    public OnItemLongClickListener mOnItemLongClicked;
+    public interface OnItemLongClickListener {
+        public void onItemLongClicked(AoThread aoThread);
+    }
+
+
     public OnUpDownVoteListener mOnUpDownVote;
     public interface OnUpDownVoteListener {
         public void onUpDownVote(Boolean upvote, AoThread thread, int position);
@@ -83,6 +90,7 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         if(fragment instanceof ForumsFragment)
             mOnGlobalThreadHide = (OnGlobalThreadHideListener) fragment;
         mOnUpDownVote = (OnUpDownVoteListener) fragment;
+        mOnItemLongClicked = (OnItemLongClickListener) fragment;
     }
 
     @Override
@@ -161,6 +169,14 @@ public class ForumsAdapter extends RecyclerView.Adapter {
                 AozoraForumsApp.setThreadToPass(aoThread);
                 Intent i = new Intent(context, ThreadActivity.class);
                 context.startActivity(i);
+            }
+        });
+
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                mOnItemLongClicked.onItemLongClicked(aoThread);
+                return true;
             }
         });
     }
