@@ -242,10 +242,16 @@ public class PostUtils {
             JSONObject jsonLink =  post.getJSONObject(TimelinePost.LINK);
             ((TextView) llLinkLayout.findViewById(R.id.tvLinkTitle)).setText(jsonLink.getString("title"));
             ((TextView) llLinkLayout.findViewById(R.id.tvLinkDesc)).setText(jsonLink.getString("description"));
-            URL url = new URL(jsonLink.getString("url"));
-            ((TextView) llLinkLayout.findViewById(R.id.tvLinkURL)).setText( url.getHost());
+            String urlString = jsonLink.getString("url");
+            if(!urlString.equals("")) {
+                URL url = new URL(urlString);
+                ((TextView) llLinkLayout.findViewById(R.id.tvLinkURL)).setText(url.getHost());
+            } else {
+                ((TextView) llLinkLayout.findViewById(R.id.tvLinkURL)).setText("");
+            }
+
             Glide.with(context).load( jsonLink.getJSONArray("images").get(0))
-                    .crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.NONE)
+                    .crossFade().fitCenter()
                         .into(((ImageView) llLinkLayout.findViewById(R.id.ivLinkImage)));
 
             llLinkLayout.setVisibility(View.VISIBLE);

@@ -69,7 +69,7 @@ public class ThreadUtils {
             }
         }
         String whenWasPosted = PostUtils.getWhenWasPosted(aoThread);
-        String views = " - " + AoUtils.numberToStringOrZero(aoThread.getNumber(AoThread.VIEWS)) + " views -";
+        String views = " - " + AoUtils.numberToStringOrZero(aoThread.getNumber(AoThread.VIEWS)) + " views - ";
         String by = "by ";
         String usernamePosted = aoThread.getParseUser(AoThread.POSTEDBY).getString(ParseUserColumns.AOZORA_USERNAME);
         textView.setText("#" + threadTag + " - ");

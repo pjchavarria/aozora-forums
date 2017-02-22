@@ -8,13 +8,49 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rvThreadByUser"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@color/grayF6"
-            android:scrollbars="vertical"
-            ></android.support.v7.widget.RecyclerView>
+            android:layout_height="match_parent">
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rvThreadByUser"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/grayF6"
+                android:scrollbars="vertical"
+                android:visibility="visible"
+                ></android.support.v7.widget.RecyclerView>
+
+            <LinearLayout
+                android:id="@+id/llEmptyMessage"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:layout_marginRight="10dp"
+                android:layout_marginLeft="10dp"
+                android:visibility="gone"
+                >
+                <TextView
+                    android:text="No Threads"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="25sp"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal"
+                    />
+
+                <TextView
+                    android:text="This user haven't created any threads yet"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    android:layout_marginTop="5dp"
+                    android:layout_gravity="center_horizontal"
+                    android:gravity="center_horizontal"
+                    />
+            </LinearLayout>
+
+        </RelativeLayout>
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <ProgressBar

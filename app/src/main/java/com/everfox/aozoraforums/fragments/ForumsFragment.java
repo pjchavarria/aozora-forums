@@ -1,13 +1,17 @@
 package com.everfox.aozoraforums.fragments;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -56,9 +60,11 @@ import butterknife.ButterKnife;
 
 public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobalThreadsListener, ForumsHelper.OnGetThreadsListener,
 OptionListDialogFragment.OnListSelectedListener, ForumsAdapter.OnGlobalThreadHideListener, ForumsAdapter.OnUpDownVoteListener,
-ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback{
+ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, ForumsAdapter.OnImageShareListener{
 
 
+    private static final int REQUEST_WRITE_STORAGE = 100;
+    View viewToShare;
     SimpleLoadingDialogFragment simpleLoadingDialogFragment = new SimpleLoadingDialogFragment();
     ForumsAdapter forumsAdapter;
     Boolean isLoading = false;
@@ -471,6 +477,37 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback{
                 lstThreads.remove(index);
                 forumsAdapter.notifyItemRemoved(index);
 
+            }
+        }
+    }
+
+
+    @Override
+    public void mShareCallback(View view) {
+
+        boolean hasPermission = (ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+        if (!hasPermission) {
+            viewToShare = view;
+            requestPermissions(
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_WRITE_STORAGE);
+        } else {
+            AoUtils.ShareImageFromView(view, getActivity());
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode)
+        {
+            case REQUEST_WRITE_STORAGE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    AoUtils.ShareImageFromView(viewToShare, getActivity());
+                } else {
+                    Toast.makeText(getActivity(), "The app was not allowed to write to your storage. Hence, it cannot share the image. Please consider granting it this permission", Toast.LENGTH_LONG).show();
+                }
             }
         }
     }

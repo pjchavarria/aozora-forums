@@ -93,6 +93,17 @@
             />
 
         <TextView
+            android:id="@+id/tvRestorePurchases"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Restore purchases"
+            android:textSize="18sp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:textColor="@color/gray3C"
+            />
+
+        <TextView
             android:id="@+id/tvChangeUsername"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

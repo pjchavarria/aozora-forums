@@ -9,16 +9,6 @@
     >
 
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/fabSaveChanges"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_margin="16dp"
-        android:visibility="visible"
-        android:src="@drawable/icon_like_filled_small"/>
-
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -176,4 +166,31 @@
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
+
+
+
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|right"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentEnd="true"
+        android:layout_margin="16dp">
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fabSaveChanges"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:elevation="16dp"
+            android:visibility="visible"/>
+        <TextView
+            android:id="@+id/tvSaveChanges"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/fa_save"
+            android:elevation="16dp"
+            android:textColor="@android:color/white"
+            android:textSize="30sp"/>
+    </FrameLayout>
 </RelativeLayout>

@@ -22,6 +22,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.dialogfragments.SimpleLoadingDialogFragment;
 import com.everfox.aozoraforums.models.ParseUserColumns;
@@ -72,6 +73,8 @@ public class EditProfileActivity extends AozoraActivity {
     EditText tvAbout;
     @BindView(R.id.fabSaveChanges)
     FloatingActionButton fabSaveChanges;
+    @BindView(R.id.tvSaveChanges)
+    TextView tvSaveChanges;
     ParseUser currentUser;
     UserDetails userDetails;
 
@@ -108,6 +111,8 @@ public class EditProfileActivity extends AozoraActivity {
             }
         });
         fabSaveChanges.setOnClickListener(fabSaveChangesListener);
+        tvSaveChanges.setTypeface(AozoraForumsApp.getAwesomeTypeface());
+
     }
 
     private void imageClicked(int avatarBanner) {

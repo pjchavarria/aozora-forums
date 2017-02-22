@@ -1,16 +1,20 @@
 package com.everfox.aozoraforums.fragments;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
@@ -79,9 +83,12 @@ import butterknife.ButterKnife;
 
 public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGetProfilePostsListener, EndlessScrollView.EndlessScrollListener,
 OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUsernameTappedListener, ProfileTimelineAdapter.OnMoreOptionsTappedListener,
-PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, ProfileTimelineAdapter.OnLikeTappedListener, ProfileTimelineAdapter.OnRepostTappedListener
+PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, ProfileTimelineAdapter.OnLikeTappedListener, ProfileTimelineAdapter.OnRepostTappedListener,
+        ProfileTimelineAdapter.OnImageShareListener
 {
 
+    private static final int REQUEST_WRITE_STORAGE = 100;
+    View viewToShare;
     SimpleLoadingDialogFragment simpleLoadingDialogFragment = new SimpleLoadingDialogFragment();
     Boolean isFollowing;
     ParseUser user;
@@ -142,6 +149,8 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     LinearLayout llFollowers;
     @BindView(R.id.llFollowing)
     LinearLayout llFollowing;
+    @BindView(R.id.swipeRefresh)
+    SwipeRefreshLayout swipeRefresh;
 
     public static ProfileFragment newInstance(ParseUser user,Boolean isProfile, Boolean isCurrentUser, String userID, Boolean hasMenu) {
         ProfileFragment fragment = new ProfileFragment();
@@ -264,6 +273,12 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
                 scrollView.setVisibility(View.GONE);
             } else {
                 //LoadProfile
+                swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        reloadPosts(true);
+                    }
+                });
                 loadProfile();
             }
 
@@ -531,6 +546,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
             pbLoading.setVisibility(View.GONE);
             rvTimeline.setVisibility(View.VISIBLE);
             if(isProfile) {
+                swipeRefresh.setRefreshing(false);
                 llProfileContent.setVisibility(View.VISIBLE);
                 ivProfileBanner.setVisibility(View.VISIBLE);
                 llProfileTimeline.setVisibility(View.VISIBLE);
@@ -837,6 +853,37 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
             int position = lstTimelinePost.indexOf(post);
             lstTimelinePost.set(position,(TimelinePost)repost.get(0));
             timelineAdapter.notifyItemChanged(position,repost.get(0));
+        }
+    }
+
+
+    @Override
+    public void mShareCallback(View view) {
+
+        boolean hasPermission = (ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+        if (!hasPermission) {
+            viewToShare = view;
+            requestPermissions(
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_WRITE_STORAGE);
+        } else {
+            AoUtils.ShareImageFromView(view, getActivity());
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode)
+        {
+            case REQUEST_WRITE_STORAGE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    AoUtils.ShareImageFromView(viewToShare, getActivity());
+                } else {
+                    Toast.makeText(getActivity(), "The app was not allowed to write to your storage. Hence, it cannot share the image. Please consider granting it this permission", Toast.LENGTH_LONG).show();
+                }
+            }
         }
     }
 }

@@ -1,11 +1,15 @@
 package com.everfox.aozoraforums.fragments;
 
+import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -16,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -45,8 +50,10 @@ import butterknife.ButterKnife;
  */
 
 public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGetUserThreadsListener,  ForumsAdapter.OnUpDownVoteListener, ForumsAdapter.OnItemLongClickListener,
-        OptionListDialogFragment.OnListSelectedListener, ForumsHelper.OnBanDeletePostCallback {
+        OptionListDialogFragment.OnListSelectedListener, ForumsHelper.OnBanDeletePostCallback, ForumsAdapter.OnImageShareListener {
 
+    private static final int REQUEST_WRITE_STORAGE = 100;
+    View viewToShare;
     ParseUser user;
     LinearLayoutManager llm;
     ForumsAdapter forumsAdapter;
@@ -61,6 +68,8 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
     RecyclerView rvThreadByUser;
     @BindView(R.id.swipeRefreshForums)
     SwipeRefreshLayout swipeRefreshForums;
+    @BindView(R.id.llEmptyMessage)
+    LinearLayout llEmptyMessage;
 
     public static ThreadByUserFragment newInstance(ParseUser user) {
         ThreadByUserFragment threadByUserFragment = new ThreadByUserFragment();
@@ -157,24 +166,30 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
     public void onGetUserThreads(List<AoThread> threads) {
 
         pbLoading.setVisibility(View.GONE);
-        rvThreadByUser.setVisibility(View.VISIBLE);
-        if (fetchCount == 1) {
-            lstThreads.addAll(threads);
-            forumsAdapter = new ForumsAdapter(getActivity(),lstThreads,-1,this);
-            rvThreadByUser.setAdapter(forumsAdapter);
-            swipeRefreshForums.setRefreshing(false);
+        if(fetchCount == 1 && threads.size() == 0) {
+            rvThreadByUser.setVisibility(View.GONE);
+            llEmptyMessage.setVisibility(View.VISIBLE);
         } else {
-            swipeRefreshForums.setRefreshing(false);
-            if(lstThreads.size()>0) {
-                lstThreads.remove(lstThreads.size() - 1);
-                forumsAdapter.notifyItemRemoved(lstThreads.size());
-            }
-            if(threads.size()>0) {
-                int currentPosition = lstThreads.size();
+            llEmptyMessage.setVisibility(View.GONE);
+            rvThreadByUser.setVisibility(View.VISIBLE);
+            if (fetchCount == 1) {
                 lstThreads.addAll(threads);
-                forumsAdapter.notifyItemRangeInserted(currentPosition, lstThreads.size()-currentPosition);
-            }
+                forumsAdapter = new ForumsAdapter(getActivity(), lstThreads, -1, this);
+                rvThreadByUser.setAdapter(forumsAdapter);
+                swipeRefreshForums.setRefreshing(false);
+            } else {
+                swipeRefreshForums.setRefreshing(false);
+                if (lstThreads.size() > 0) {
+                    lstThreads.remove(lstThreads.size() - 1);
+                    forumsAdapter.notifyItemRemoved(lstThreads.size());
+                }
+                if (threads.size() > 0) {
+                    int currentPosition = lstThreads.size();
+                    lstThreads.addAll(threads);
+                    forumsAdapter.notifyItemRangeInserted(currentPosition, lstThreads.size() - currentPosition);
+                }
 
+            }
         }
         isLoading = false;
     }
@@ -278,4 +293,34 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
         forumsAdapter.notifyItemRemoved(selectedPosition);
     }
 
+
+    @Override
+    public void mShareCallback(View view) {
+
+        boolean hasPermission = (ContextCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+        if (!hasPermission) {
+            viewToShare = view;
+            requestPermissions(
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_WRITE_STORAGE);
+        } else {
+            AoUtils.ShareImageFromView(view, getActivity());
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode)
+        {
+            case REQUEST_WRITE_STORAGE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    AoUtils.ShareImageFromView(viewToShare, getActivity());
+                } else {
+                    Toast.makeText(getActivity(), "The app was not allowed to write to your storage. Hence, it cannot share the image. Please consider granting it this permission", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
+    }
 }

@@ -42,13 +42,12 @@
             <ImageView
                 android:id="@+id/btnForum"
                 android:layout_width="0dp"
-                android:layout_height="35dp"
+                android:layout_height="45dp"
                 android:layout_weight="0.25"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:src="@drawable/icon_comment_2"
                 android:padding="8dp"
-
                 />
 
             <View
@@ -60,12 +59,12 @@
             <ImageView
                 android:id="@+id/btnNotifications"
                 android:layout_width="0dp"
-                android:layout_height="35dp"
+                android:layout_height="45dp"
                 android:layout_weight="0.25"
-                android:padding="8dp"
                 android:gravity="center"
                 android:layout_gravity="center"
                 android:src="@drawable/ic_globe"
+                android:padding="8dp"
                 />
 
             <View
@@ -77,7 +76,7 @@
             <ImageView
                 android:id="@+id/btnFeed"
                 android:layout_width="0dp"
-                android:layout_height="35dp"
+                android:layout_height="45dp"
                 android:layout_weight="0.25"
                 android:text="@string/fa_icon_animeEpisodes"
                 android:gravity="center"
@@ -96,7 +95,7 @@
             <ImageView
                 android:id="@+id/btnProfile"
                 android:layout_width="0dp"
-                android:layout_height="35dp"
+                android:layout_height="45dp"
                 android:layout_weight="0.25"
                 android:src="@drawable/ic_profile"
                 android:gravity="center"

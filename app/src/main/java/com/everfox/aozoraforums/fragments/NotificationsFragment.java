@@ -20,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -74,6 +75,8 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
 
     @BindView(R.id.swipeRefreshNoti)
     SwipeRefreshLayout swipeRefreshNoti;
+    @BindView(R.id.llEmptyMessage)
+    LinearLayout llEmptyMessage;
 
     public static NotificationsFragment newInstance() {
         NotificationsFragment fragment = new NotificationsFragment();
@@ -200,34 +203,40 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
     @Override
     public void onGetNotificationListener(List<AoNotification> _notifications) {
 
-        if(_notifications.size() == 0)
-            fetchCount--;
-        if(notiAdapter.getItemCount() == 0) {
-            _notifications = AoUtils.filterNotifications(new ArrayList<>(_notifications));
-            lstNotifications.addAll(_notifications);
-            notiAdapter = new NotificationsAdapter(getActivity(),lstNotifications,this,ParseUser.getCurrentUser());
-            rvNotifications.setAdapter(notiAdapter);
-            pbLoading.setVisibility(View.GONE);
-            rvNotifications.setVisibility(View.VISIBLE);
-            fabReadAll.setVisibility(View.VISIBLE);
-            tvReadAll.setVisibility(View.VISIBLE);
-            swipeRefreshNoti.setRefreshing(false);
+        pbLoading.setVisibility(View.GONE);
+        if(_notifications.size() == 0 && fetchCount == 1){
+            rvNotifications.setVisibility(View.GONE);
+            llEmptyMessage.setVisibility(View.VISIBLE);
         } else {
-            lstNotifications.remove(lstNotifications.size()-1);
-            notiAdapter.notifyItemRemoved(lstNotifications.size());
-            if(_notifications.size()>0) {
-                int currentPosition = lstNotifications.size();
-                ArrayList<AoNotification> auxList = new ArrayList<>();
-                auxList.addAll(lstNotifications);
-                auxList.addAll(_notifications);
-                auxList = AoUtils.filterNotifications(auxList);
-                for (int i = lstNotifications.size(); i < auxList.size(); i++) {
-                    lstNotifications.add(auxList.get(i));
+            llEmptyMessage.setVisibility(View.GONE);
+            if (_notifications.size() == 0)
+                fetchCount--;
+            if (notiAdapter.getItemCount() == 0) {
+                _notifications = AoUtils.filterNotifications(new ArrayList<>(_notifications));
+                lstNotifications.addAll(_notifications);
+                notiAdapter = new NotificationsAdapter(getActivity(), lstNotifications, this, ParseUser.getCurrentUser());
+                rvNotifications.setAdapter(notiAdapter);
+                rvNotifications.setVisibility(View.VISIBLE);
+                fabReadAll.setVisibility(View.VISIBLE);
+                tvReadAll.setVisibility(View.VISIBLE);
+                swipeRefreshNoti.setRefreshing(false);
+            } else {
+                lstNotifications.remove(lstNotifications.size() - 1);
+                notiAdapter.notifyItemRemoved(lstNotifications.size());
+                if (_notifications.size() > 0) {
+                    int currentPosition = lstNotifications.size();
+                    ArrayList<AoNotification> auxList = new ArrayList<>();
+                    auxList.addAll(lstNotifications);
+                    auxList.addAll(_notifications);
+                    auxList = AoUtils.filterNotifications(auxList);
+                    for (int i = lstNotifications.size(); i < auxList.size(); i++) {
+                        lstNotifications.add(auxList.get(i));
+                    }
+                    notiAdapter.notifyItemRangeInserted(currentPosition, lstNotifications.size() - currentPosition);
                 }
-                notiAdapter.notifyItemRangeInserted(currentPosition, lstNotifications.size()-currentPosition);
             }
+            isLoading = false;
         }
-        isLoading = false;
     }
 
 

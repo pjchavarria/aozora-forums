@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -72,6 +73,14 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         public void onLikeTappedListener(TimelinePost post);
     }
 
+
+
+    private OnImageShareListener mShareCallback;
+    public interface OnImageShareListener {
+        public void mShareCallback(View view);
+    }
+
+
     public TimelinePostsAdapter (Context context, List<TimelinePost> tlps, Activity callback, ParseUser currentUser) {
         this.context = context;
         this.timelinePosts = tlps;
@@ -81,6 +90,7 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         mOnMoreOptionsTappedCallback = (OnMoreOptionsTappedListener) callback;
         mOnLikeTappedListener = (OnLikeTappedListener) callback;
         mOnRepostTappedListener = (OnRepostTappedListener) callback;
+        mShareCallback = (OnImageShareListener) callback;
     }
 
     @Override
@@ -107,8 +117,18 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
 
         switch (holder.getItemViewType()) {
             case ITEM_FIRST_POST:
-                ViewHolderFirstPost vhFP = (ViewHolderFirstPost) holder;
+                final ViewHolderFirstPost vhFP = (ViewHolderFirstPost) holder;
                 configureViewHolderFirstPost(vhFP,position);
+                vhFP.ivShare.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        if(Build.VERSION.SDK_INT >= 23) {
+                            mShareCallback.mShareCallback(vhFP.llFirstPost);
+                        } else {
+                            AoUtils.ShareImageFromView(vhFP.llFirstPost, context);
+                        }
+                    }
+                });
                 break;
             case ITEM_COMMENT:
                 ViewHolderComment vhComment = (ViewHolderComment) holder;
@@ -388,6 +408,8 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     public static class ViewHolderFirstPost extends RecyclerView.ViewHolder {
 
+        @BindView(R.id.llFirstPost)
+        LinearLayout llFirstPost;
         @BindView(R.id.ivAvatar)
         ImageView ivAvatar;
         @BindView(R.id.tvUserActive) View tvUserActive;
@@ -404,7 +426,7 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         @BindView(R.id.ivComments) ImageView ivComments;
         @BindView(R.id.tvComments) TextView tvComments;
         @BindView(R.id.ivRepost) ImageView ivRepost;
-        @BindView(R.id.ivAddReply) ImageView ivAddReply;
+        @BindView(R.id.ivShare) ImageView ivShare;
         @BindView(R.id.llLinkLayout)
         LinearLayout llLinkLayout;
         @BindView(R.id.ivPlay)

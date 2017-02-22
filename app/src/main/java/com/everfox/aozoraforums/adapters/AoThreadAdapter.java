@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.net.Uri;
+import android.os.Build;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
@@ -31,6 +33,8 @@ import com.everfox.aozoraforums.utils.ThreadUtils;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
+
+import org.json.JSONException;
 
 import java.util.List;
 
@@ -76,6 +80,11 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
         public void onItemLongClicked(ParseObject aoThread);
     }
 
+    private OnImageShareListener mShareCallback;
+    public interface OnImageShareListener {
+        public void mShareCallback(View view);
+    }
+
 
 
     public AoThreadAdapter (Context context, List<ParseObject> tclist, Activity callback) {
@@ -87,6 +96,7 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
         mOnCommentTappedCallback = (OnCommentTappedListener) callback;
         mOnUpDownVote = (OnUpDownVoteListener) callback;
         mOnItemLongClicked = (OnItemLongClickListener) callback;
+        mShareCallback = (OnImageShareListener) callback;
     }
 
     @Override
@@ -134,8 +144,20 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
 
         if(parseObject instanceof AoThread  && holder instanceof ViewHolderThread){
 
-            ViewHolderThread vhFP = (ViewHolderThread) holder;
+            final ViewHolderThread vhFP = (ViewHolderThread) holder;
             configureViewHolderThread(vhFP, (AoThread)parseObject);
+
+            vhFP.ivShare.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(Build.VERSION.SDK_INT >= 23) {
+                        mShareCallback.mShareCallback(vhFP.llFirstPost);
+                    } else {
+                        AoUtils.ShareImageFromView(vhFP.llFirstPost, context);
+                    }
+                }
+            });
+
         } else if(parseObject instanceof Post && holder instanceof ViewHolderComment) {
 
             ViewHolderComment vhComment = (ViewHolderComment) holder;
@@ -233,8 +255,23 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
                 }
             });
         }else if (aoThread.getJSONObject(TimelinePost.LINK) != null) {
-            viewHolder.rlThreadContent.setVisibility(View.INVISIBLE);
             PostUtils.loadLinkIntoLinkLayout(context,aoThread,viewHolder.llLinkLayout);
+            //ABRIR LINK
+            try {
+                if (!aoThread.getJSONObject(TimelinePost.LINK).getString("url").equals("")) {
+                    final String link = aoThread.getJSONObject(TimelinePost.LINK).getString("url");
+                    viewHolder.llLinkLayout.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+                            context.startActivity(browserIntent);
+                        }
+                    });
+                }
+            }
+            catch (JSONException jex) {
+                jex.printStackTrace();
+            }
         }
 
         //Load Upvote/Downvote/Comments
@@ -433,8 +470,8 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
         ImageView ivDownvotes;
         @BindView(R.id.tvDownvotes)
         TextView tvDownvotes;
-        @BindView(R.id.ivAddReply)
-        ImageView ivAddReply;
+        @BindView(R.id.ivShare)
+        ImageView ivShare;
 
         @BindView(R.id.llLinkLayout)
         LinearLayout llLinkLayout;

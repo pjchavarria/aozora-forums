@@ -148,7 +148,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
 
-            <include android:layout_width="match_parent" android:layout_height="wrap_content" layout="@layout/layout_link"></include>
 
             <com.facebook.drawee.view.SimpleDraweeView
                 android:id="@+id/sdvPostImageGif"
@@ -178,6 +177,7 @@
                 android:visibility="gone"
                 />
 
+            <include android:layout_width="match_parent" android:layout_height="wrap_content" layout="@layout/layout_link"></include>
         </RelativeLayout>
 
         <LinearLayout
@@ -256,7 +256,7 @@
                 android:layout_weight="1" />
 
             <ImageView
-                android:id="@+id/ivAddReply"
+                android:id="@+id/ivShare"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/web_share"

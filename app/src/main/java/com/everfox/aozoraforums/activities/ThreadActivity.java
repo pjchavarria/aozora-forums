@@ -1,10 +1,15 @@
 package com.everfox.aozoraforums.activities;
 
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.DialogInterface;
+import android.content.pm.PackageManager;
 import android.os.PersistableBundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -49,8 +54,10 @@ import butterknife.ButterKnife;
 
 public class ThreadActivity extends AozoraActivity implements AoThreadAdapter.OnUsernameTappedListener, ThreadHelper.OnGetThreadCommentsListener,
 AoThreadAdapter.OnCommentTappedListener, AoThreadAdapter.OnUpDownVoteListener, AoThreadAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelectedListener,
-PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback{
+PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAdapter.OnImageShareListener{
 
+    private static final int REQUEST_WRITE_STORAGE = 100;
+    View viewToShare;
     Boolean hasMenu = true;
     AoThread parentThread;
     LinearLayoutManager llm;
@@ -262,5 +269,37 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback{
         int index = lstComments.indexOf(post);
         lstComments.remove(index);
         aoThreadAdapter.notifyItemRemoved(index);
+    }
+
+
+    @Override
+    @TargetApi(23)
+    public void mShareCallback(View view) {
+
+        boolean hasPermission = (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
+        if (!hasPermission) {
+            viewToShare = view;
+            requestPermissions(
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_WRITE_STORAGE);
+        } else {
+            AoUtils.ShareImageFromView(view, this);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        switch (requestCode)
+        {
+            case REQUEST_WRITE_STORAGE: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    AoUtils.ShareImageFromView(viewToShare, this);
+                } else {
+                    Toast.makeText(this, "The app was not allowed to write to your storage. Hence, it cannot share the image. Please consider granting it this permission", Toast.LENGTH_LONG).show();
+                }
+            }
+        }
     }
 }

@@ -92,13 +92,17 @@ z
     </LinearLayout>
 
 
+
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
     <com.everfox.aozoraforums.controls.EndlessScrollView
         android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:fillViewport="true"
         >
-
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -107,7 +111,7 @@ z
                 android:id="@+id/ivProfileBanner"
                 android:src="@drawable/placeholder_banner"
                 android:layout_width="match_parent"
-                android:layout_height="140dp"
+                android:layout_height="150dp"
                 android:scaleType="centerCrop"
                 android:visibility="visible"
                 />
@@ -323,6 +327,7 @@ z
                 </LinearLayout>
         </RelativeLayout>
     </com.everfox.aozoraforums.controls.EndlessScrollView>
+    </android.support.v4.widget.SwipeRefreshLayout>
 
 
     <ProgressBar

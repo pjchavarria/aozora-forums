@@ -6,14 +6,22 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.os.Environment;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.Spanned;
+import android.view.View;
 import android.widget.Toast;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
@@ -37,8 +45,11 @@ import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -410,6 +421,47 @@ public class AoUtils {
         }
     }
 
+    public static void ShareImageFromView(View view, Context context) {
 
+        OutputStream ostream;
+        Bitmap bitmap = getBitmapFromView(view,context);
+        File root = new File(Environment.getExternalStorageDirectory()
+                + File.separator + "AoForumsImages" + File.separator);
+        root.mkdirs();
+        File sdImageMainDirectory = new File(root, "image.jpg");
+        try {
+            ostream = new FileOutputStream(sdImageMainDirectory);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, ostream);
+            ostream.flush();
+            ostream.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        Intent share = new Intent(Intent.ACTION_SEND);
+        share.setType("image/*");
+        share.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(sdImageMainDirectory));
+        context.startActivity(Intent.createChooser(share, "Share via"));
+    }
+
+    static double watermarkScale = 90.0/260.0;
+
+    public static Bitmap getBitmapFromView(View view,Context context) {
+
+        Bitmap returnedBitmap = Bitmap.createBitmap(view.getMeasuredWidth(),
+                view.getMeasuredHeight() , Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(returnedBitmap);
+        Drawable bgDrawable = view.getBackground();
+        if (bgDrawable != null)
+            bgDrawable.draw(canvas);
+        else
+            canvas.drawColor(Color.WHITE);
+        view.draw(canvas);
+        int newWidth = view.getMeasuredWidth()/100*30;
+        int newHeight = (int)(newWidth * watermarkScale);
+        Bitmap watermark = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(),R.drawable.aozora_watermark),newWidth,newHeight,false);
+        canvas.drawBitmap(watermark,view.getMeasuredWidth()-watermark.getWidth()-10,  view.getMeasuredHeight()-newHeight-15,null);
+        return returnedBitmap;
+    }
 
 }

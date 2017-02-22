@@ -61,6 +61,8 @@ public class SettingsActivity extends AozoraActivity {
     TextView tvAoTalkWhat;
     @BindView(R.id.tvLikeFacebook)
     TextView tvLikeFacebook;
+    @BindView(R.id.tvRestorePurchases)
+    TextView tvRestorePurchases;
 
 
     @Override
@@ -160,6 +162,13 @@ public class SettingsActivity extends AozoraActivity {
                 startActivity(facebookIntent);
             }
         });
+
+        tvRestorePurchases.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showDialogWithText("#KvnWillDoIt");
+            }
+        });
     }
 
     private void appRowClicked(String packageName) {
@@ -180,6 +189,13 @@ public class SettingsActivity extends AozoraActivity {
     private void removeAdsClicked() {
 
         //#kvn93willdoit
+    }
+
+    private void showDialogWithText(String string) {
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+        builder1.setMessage(string);
+        builder1.setCancelable(true);
+        builder1.create().show();
     }
 
     private void showDialogWithText(int stringID) {

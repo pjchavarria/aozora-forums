@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ProviderInfo;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.LayoutInflaterCompat;
@@ -81,6 +82,10 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         public void onGlobalThreadHide(AoThread threadToHide);
     }
 
+    private OnImageShareListener mShareCallback;
+    public interface OnImageShareListener {
+        public void mShareCallback(View view);
+    }
 
     public ForumsAdapter(Context context, ArrayList<AoThread> list, int viewType, Fragment fragment) {
         this.context = context;
@@ -93,6 +98,7 @@ public class ForumsAdapter extends RecyclerView.Adapter {
             mOnGlobalThreadHide = (OnGlobalThreadHideListener) fragment;
         mOnUpDownVote = (OnUpDownVoteListener) fragment;
         mOnItemLongClicked = (OnItemLongClickListener) fragment;
+        mShareCallback = (OnImageShareListener)fragment;
     }
 
     @Override
@@ -124,8 +130,16 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         return vh;
     }
 
+    private void share(View view,Context context) {
+        if(Build.VERSION.SDK_INT >= 23) {
+            mShareCallback.mShareCallback(view);
+        } else {
+            AoUtils.ShareImageFromView(view, context);
+        }
+    }
+
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
 
         final AoThread aoThread = aoThreads.get(position);
 
@@ -144,24 +158,49 @@ public class ForumsAdapter extends RecyclerView.Adapter {
 
         if(holder instanceof AoArtViewHolder) {
 
-            AoArtViewHolder viewHolder = (AoArtViewHolder)holder;
+            final AoArtViewHolder viewHolder = (AoArtViewHolder)holder;
             bindAoArtThread(viewHolder,aoThread,position);
+            viewHolder.ivShare.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    share(viewHolder.itemView,context);
+                }
+            });
+
         } else if(holder instanceof AoNewsViewHolder) {
 
-            AoNewsViewHolder viewHolder = (AoNewsViewHolder)holder;
+            final AoNewsViewHolder viewHolder = (AoNewsViewHolder)holder;
             bindNewsThread(viewHolder,aoThread,position);
+            viewHolder.ivShare.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    share(viewHolder.itemView,context);
+                }
+            });
         }  else if(holder instanceof StickyViewHolder) {
 
-            StickyViewHolder viewHolder = (StickyViewHolder)holder;
+            final StickyViewHolder viewHolder = (StickyViewHolder)holder;
             bindStickyTread(viewHolder,aoThread,position);
         }  else if(holder instanceof AoGurOfficialViewHolder) {
 
-            AoGurOfficialViewHolder viewHolder = (AoGurOfficialViewHolder)holder;
+            final AoGurOfficialViewHolder viewHolder = (AoGurOfficialViewHolder)holder;
             bindAoGurOfficialTread(viewHolder,aoThread,position);
+            viewHolder.ivShare.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    share(viewHolder.itemView,context);
+                }
+            });
         } else if(holder instanceof AoTalkViewHolder) {
 
-            AoTalkViewHolder viewHolder = (AoTalkViewHolder)holder;
+            final AoTalkViewHolder viewHolder = (AoTalkViewHolder)holder;
             bindAoTalkThread(viewHolder,aoThread,position);
+            viewHolder.ivShare.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    share(viewHolder.itemView,context);
+                }
+            });
         }
 
 
@@ -255,7 +294,6 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         } else if(aoThread.getString(TimelinePost.YOUTUBE_ID) != null) {
             PostUtils.loadYoutubeImageIntoImageView(context,aoThread,viewHolder.ivThreadImage, viewHolder.ivPlay);
         }else if (aoThread.getJSONObject(TimelinePost.LINK) != null) {
-            viewHolder.rlThreadContent.setVisibility(View.INVISIBLE);
             PostUtils.loadLinkIntoLinkLayout(context,aoThread,viewHolder.llLinkLayout);
         }
 
@@ -299,7 +337,6 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         } else if(aoThread.getString(TimelinePost.YOUTUBE_ID) != null) {
             PostUtils.loadYoutubeImageIntoImageView(context,aoThread,viewHolder.ivThreadImage, viewHolder.ivPlay);
         }else if (aoThread.getJSONObject(TimelinePost.LINK) != null) {
-            viewHolder.rlThreadContent.setVisibility(View.INVISIBLE);
             PostUtils.loadLinkIntoLinkLayout(context,aoThread,viewHolder.llLinkLayout);
         }
 
@@ -335,7 +372,6 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         } else if(aoThread.getString(TimelinePost.YOUTUBE_ID) != null) {
             PostUtils.loadYoutubeImageIntoImageView(context,aoThread,viewHolder.ivThreadImage, viewHolder.ivPlay);
         }else if (aoThread.getJSONObject(TimelinePost.LINK) != null) {
-            viewHolder.rlNewsImage.setVisibility(View.INVISIBLE);
             PostUtils.loadLinkIntoLinkLayout(context,aoThread,viewHolder.llLinkLayout);
         }
 
@@ -475,8 +511,8 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         ImageView ivDownvotes;
         @BindView(R.id.tvDownvotes)
         TextView tvDownvotes;
-        @BindView(R.id.ivAddReply)
-        ImageView ivAddReply;
+        @BindView(R.id.ivShare)
+        ImageView ivShare;
 
 
         public AoArtViewHolder(View view) {
@@ -515,8 +551,8 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         ImageView ivDownvotes;
         @BindView(R.id.tvDownvotes)
         TextView tvDownvotes;
-        @BindView(R.id.ivAddReply)
-        ImageView ivAddReply;
+        @BindView(R.id.ivShare)
+        ImageView ivShare;
 
         @BindView(R.id.llLinkLayout)
         LinearLayout llLinkLayout;
@@ -570,8 +606,8 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         ImageView ivDownvotes;
         @BindView(R.id.tvDownvotes)
         TextView tvDownvotes;
-        @BindView(R.id.ivAddReply)
-        ImageView ivAddReply;
+        @BindView(R.id.ivShare)
+        ImageView ivShare;
 
         @BindView(R.id.llLinkLayout)
         LinearLayout llLinkLayout;
@@ -625,8 +661,8 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         ImageView ivDownvotes;
         @BindView(R.id.tvDownvotes)
         TextView tvDownvotes;
-        @BindView(R.id.ivAddReply)
-        ImageView ivAddReply;
+        @BindView(R.id.ivShare)
+        ImageView ivShare;
 
         @BindView(R.id.llLinkLayout)
         LinearLayout llLinkLayout;

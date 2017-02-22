@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.os.Build;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -84,6 +85,10 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         public void onRepostTappedListener(TimelinePost post);
     }
 
+    private OnImageShareListener mShareCallback;
+    public interface OnImageShareListener {
+        public void mShareCallback(View view);
+    }
 
     private List<TimelinePost> timelinePosts;
     private Context context;
@@ -101,6 +106,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         mOnItemTappedListener = (OnItemTappedListener) callback;
         mOnLikeTappedListener = (OnLikeTappedListener) callback;
         mOnRepostTappedListener = (OnRepostTappedListener) callback;
+        mShareCallback = (OnImageShareListener) callback;
     }
 
 
@@ -124,13 +130,13 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
     }
 
     @Override
-    public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
 
         if(holder instanceof ProgressViewHolder) {
 
 
         } else {
-            ViewHolder itemViewHolder = (ViewHolder) holder;
+            final ViewHolder itemViewHolder = (ViewHolder) holder;
             //si tiene repostsource sacar info de ahi
             final TimelinePost timelinePost = timelinePosts.get(position);
             if (timelinePost.getParseObject(TimelinePost.REPOST_SOURCE) != null) {
@@ -165,6 +171,16 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 }
             });
 
+            itemViewHolder.ivShare.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(Build.VERSION.SDK_INT >= 23) {
+                        mShareCallback.mShareCallback(itemViewHolder.llFirstPost);
+                    } else {
+                        AoUtils.ShareImageFromView(itemViewHolder.llFirstPost, context);
+                    }
+                }
+            });
 
 
         }
@@ -388,9 +404,11 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         @BindView(R.id.ivComments) ImageView ivComments;
         @BindView(R.id.tvComments) TextView tvComments;
         @BindView(R.id.ivRepost) ImageView ivRepost;
-        @BindView(R.id.ivAddReply) ImageView ivAddReply;
+        @BindView(R.id.ivShare) ImageView ivShare;
         @BindView(R.id.ivPlay)
         ImageView ivPlay;
+        @BindView(R.id.llFirstPost)
+        LinearLayout llFirstPost;
         @BindView(R.id.llLinkLayout)
         LinearLayout llLinkLayout;
         @BindView(R.id.rlPostContent)
