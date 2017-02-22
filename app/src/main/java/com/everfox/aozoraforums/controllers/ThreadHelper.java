@@ -52,13 +52,12 @@ public class ThreadHelper {
             @Override
             public void done(List<ParseObject> objects, ParseException e) {
                 if(e==null)
-
                     mOnGetThreadCommentsCallback.onGetThreadComments(objects);
             }
         });
     }
 
-    public void GetPostComments(Post post, int skip, int limit){
+    public void GetPostComments(final Post post, int skip, int limit){
 
         ParseQuery<Post> query = ParseQuery.getQuery(Post.class);
         query.setSkip(skip);
@@ -69,8 +68,10 @@ public class ThreadHelper {
         query.findInBackground(new FindCallback<Post>() {
             @Override
             public void done(List<Post> objects, ParseException e) {
-                if(e==null)
+                if(e==null) {
+                    post.setReplies(null);
                     mOnGetPostCommentsCallback.onGetPostComments(objects);
+                }
             }
         });
     }

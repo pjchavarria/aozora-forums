@@ -3,6 +3,7 @@ package com.everfox.aozoraforums;
 import android.app.Application;
 import android.graphics.Typeface;
 
+import com.crashlytics.android.Crashlytics;
 import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.models.Anime;
 import com.everfox.aozoraforums.models.AoNotification;
@@ -23,6 +24,7 @@ import com.parse.ParseInstallation;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
+import io.fabric.sdk.android.Fabric;
 import org.json.JSONArray;
 
 import java.util.ArrayList;
@@ -128,6 +130,7 @@ public class AozoraForumsApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        Fabric.with(this, new Crashlytics());
         //Registrar subclases
         ParseObject.registerSubclass(UserDetails.class);
         ParseObject.registerSubclass(TimelinePost.class);

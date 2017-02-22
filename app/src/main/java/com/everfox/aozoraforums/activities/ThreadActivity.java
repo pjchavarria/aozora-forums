@@ -57,6 +57,7 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback{
     AoThreadAdapter aoThreadAdapter;
     Boolean isLoading = false;
     ArrayList<ParseObject> lstComments = new ArrayList<>();
+    public static int PARENT_POST_DELETED = 400;
 
     @BindView(R.id.pbLoading)
     ProgressBar pbLoading;
@@ -190,6 +191,7 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback{
     ParseObject selectedItem= null;
     int selectedPosition = -1;
 
+
     @Override
     public void onItemLongClicked(ParseObject aoThread) {
 
@@ -251,5 +253,14 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback{
 
         lstComments.remove(selectedPosition);
         aoThreadAdapter.notifyItemRemoved(selectedPosition);
+        setResult(PARENT_POST_DELETED);
+        finish();
+    }
+
+    public void onPostDeletedFromFragment(Post post) {
+
+        int index = lstComments.indexOf(post);
+        lstComments.remove(index);
+        aoThreadAdapter.notifyItemRemoved(index);
     }
 }

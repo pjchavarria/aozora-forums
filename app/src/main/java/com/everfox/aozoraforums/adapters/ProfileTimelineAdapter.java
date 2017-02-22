@@ -66,7 +66,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     private OnMoreOptionsTappedListener mOnMoreOptionsTappedCallback;
     public interface OnMoreOptionsTappedListener {
-        public void onMoreOptionsTappedCallback(TimelinePost post, int position);
+        public void onMoreOptionsTappedCallback(TimelinePost post);
     }
 
     private OnUsernameTappedListener mOnUsernameTappedCallback;
@@ -76,12 +76,12 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
     private OnLikeTappedListener mOnLikeTappedListener;
     public interface OnLikeTappedListener {
-        public void onLikeTappedListener(TimelinePost post, int position);
+        public void onLikeTappedListener(TimelinePost post);
     }
 
     private OnRepostTappedListener mOnRepostTappedListener;
     public interface OnRepostTappedListener {
-        public void onRepostTappedListener(TimelinePost post, int position);
+        public void onRepostTappedListener(TimelinePost post);
     }
 
 
@@ -152,7 +152,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
             View.OnClickListener repostListener = new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    mOnRepostTappedListener.onRepostTappedListener(timelinePost,position);
+                    mOnRepostTappedListener.onRepostTappedListener(timelinePost);
                 }
             };
             ((ViewHolder) holder).ivRepost.setOnClickListener(repostListener);
@@ -279,7 +279,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         View.OnClickListener likeListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mOnLikeTappedListener.onLikeTappedListener(post,position);
+                mOnLikeTappedListener.onLikeTappedListener(post);
             }
         };
 
@@ -289,7 +289,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         holder.ivMoreOptions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mOnMoreOptionsTappedCallback.onMoreOptionsTappedCallback(post,position);
+                mOnMoreOptionsTappedCallback.onMoreOptionsTappedCallback(post);
 
             }
         });

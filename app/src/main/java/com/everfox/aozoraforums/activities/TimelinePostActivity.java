@@ -171,7 +171,7 @@ TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnLis
     @Override
     public void onTimelinePostComments(List<TimelinePost> timelinePosts) {
 
-        parentPost.setReplies(timelinePosts);
+        parentPost.setReplies(new ArrayList<>(timelinePosts));
         swipeRefreshPost.setRefreshing(false);
         timelinePosts.add(0,parentPost);
         allComments.addAll(timelinePosts);
@@ -286,8 +286,9 @@ TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnLis
     }
 
     @Override
-    public void onLikeTappedListener(TimelinePost post, int position) {
+    public void onLikeTappedListener(TimelinePost post) {
 
+        int position = allComments.indexOf(post);
         actionTapped = true;
         ParseObject newPost = PostUtils.likePost(post);
         if(newPost != null) {
@@ -297,8 +298,9 @@ TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnLis
     }
 
     @Override
-    public void onRepostTappedListener(TimelinePost post, int position) {
+    public void onRepostTappedListener(TimelinePost post) {
 
+        int position = allComments.indexOf(post);
         ArrayList<ParseObject> repost = PostUtils.repostPost(post);
         allComments.set(position,(TimelinePost)repost.get(0));
         postsAdapter.notifyItemChanged(position,repost.get(0));

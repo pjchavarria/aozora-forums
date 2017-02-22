@@ -24,6 +24,7 @@ import com.everfox.aozoraforums.fragments.NotificationsFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.fragments.UserListFragment;
 import com.everfox.aozoraforums.utils.AoUtils;
+import com.facebook.common.util.ExceptionWithNoStacktrace;
 import com.parse.ParseUser;
 
 public class MainActivity extends AozoraActivity {
@@ -85,6 +86,8 @@ public class MainActivity extends AozoraActivity {
 
             @Override
             public void onClick(View view) {
+
+
                 if (selectedFragmentIndex != 3 ) {
                     selectedFragmentIndex = 3;
                     markMenuAsUnselected();

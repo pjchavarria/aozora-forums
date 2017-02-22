@@ -64,12 +64,12 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
 
     private OnRepostTappedListener mOnRepostTappedListener;
     public interface OnRepostTappedListener {
-        public void onRepostTappedListener(TimelinePost post, int position);
+        public void onRepostTappedListener(TimelinePost post);
     }
 
     private OnLikeTappedListener mOnLikeTappedListener;
     public interface OnLikeTappedListener {
-        public void onLikeTappedListener(TimelinePost post, int position);
+        public void onLikeTappedListener(TimelinePost post);
     }
 
     public TimelinePostsAdapter (Context context, List<TimelinePost> tlps, Activity callback, ParseUser currentUser) {
@@ -186,7 +186,7 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         View.OnClickListener repostListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mOnRepostTappedListener.onRepostTappedListener(timelinePost,position);
+                mOnRepostTappedListener.onRepostTappedListener(timelinePost);
             }
         };
         holder.ivRepost.setOnClickListener(repostListener);
@@ -279,7 +279,7 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         View.OnClickListener likeListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mOnLikeTappedListener.onLikeTappedListener(post,position);
+                mOnLikeTappedListener.onLikeTappedListener(post);
             }
         };
         holder.ivLikes.setOnClickListener(likeListener);
@@ -363,7 +363,7 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         View.OnClickListener likeListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mOnLikeTappedListener.onLikeTappedListener(comment,position);
+                mOnLikeTappedListener.onLikeTappedListener(comment);
             }
         };
         holder.tvCommentNumberLikes.setOnClickListener(likeListener);

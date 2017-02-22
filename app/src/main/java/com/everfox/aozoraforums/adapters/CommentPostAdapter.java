@@ -58,7 +58,7 @@ public class CommentPostAdapter extends RecyclerView.Adapter<CommentPostAdapter.
 
     public OnLikeListener mOnLikeListener;
     public interface OnLikeListener {
-        public void onLike( ParseObject object, int position);
+        public void onLike( ParseObject object);
     }
 
     public OnUsernameTappedListener mOnUsernameTappedCallback;
@@ -150,7 +150,7 @@ public class CommentPostAdapter extends RecyclerView.Adapter<CommentPostAdapter.
         View.OnClickListener likeClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mOnLikeListener.onLike(post,position);
+                mOnLikeListener.onLike(post);
             }
         };
         vhComment.ivCommentLikes.setOnClickListener(likeClickListener);

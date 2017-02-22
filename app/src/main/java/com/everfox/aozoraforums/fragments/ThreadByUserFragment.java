@@ -1,10 +1,13 @@
 package com.everfox.aozoraforums.fragments;
 
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -14,13 +17,19 @@ import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ProgressBar;
+import android.widget.Toast;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.activities.ThreadActivity;
 import com.everfox.aozoraforums.adapters.ForumsAdapter;
 import com.everfox.aozoraforums.controllers.ForumsHelper;
+import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.ParseUserColumns;
+import com.everfox.aozoraforums.models.TimelinePost;
+import com.everfox.aozoraforums.utils.AoConstants;
+import com.everfox.aozoraforums.utils.AoUtils;
 import com.everfox.aozoraforums.utils.PostUtils;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
@@ -35,7 +44,8 @@ import butterknife.ButterKnife;
  * Created by daniel.soto on 2/9/2017.
  */
 
-public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGetUserThreadsListener,  ForumsAdapter.OnUpDownVoteListener {
+public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGetUserThreadsListener,  ForumsAdapter.OnUpDownVoteListener, ForumsAdapter.OnItemLongClickListener,
+        OptionListDialogFragment.OnListSelectedListener, ForumsHelper.OnBanDeletePostCallback {
 
     ParseUser user;
     LinearLayoutManager llm;
@@ -170,8 +180,9 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
     }
 
     @Override
-    public void onUpDownVote(Boolean upvote, AoThread thread, int position) {
+    public void onUpDownVote(Boolean upvote, AoThread thread) {
         ParseObject newPost;
+        int position = lstThreads.indexOf(thread);
         if(upvote)
             newPost = PostUtils.likePost(thread);
         else
@@ -179,4 +190,92 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
         lstThreads.set(position,(AoThread) newPost);
         forumsAdapter.notifyItemChanged(position,newPost);
     }
+
+
+    AoThread selectedThread= null;
+    int selectedPosition = -1;
+
+    @Override
+    public void onItemLongClicked(AoThread aoThread) {
+        selectedThread = aoThread;
+        this.selectedPosition = lstThreads.indexOf(aoThread);
+        OptionListDialogFragment fragment = AoUtils.getDialogFragmentMoreOptions(aoThread.getParseUser(TimelinePost.POSTED_BY),getActivity(),this,null,true);
+        fragment.setCancelable(true);
+        fragment.show(getFragmentManager(),"");
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == 400) {
+            if(resultCode == ThreadActivity.PARENT_POST_DELETED) {
+                AoThread thread = AozoraForumsApp.getThreadToPass();
+                int index = lstThreads.indexOf(thread);
+                lstThreads.remove(index);
+                forumsAdapter.notifyItemRemoved(index);
+
+            }
+        }
+    }
+
+    @Override
+    public void onListSelected(Integer list, Integer selectedList) {
+
+        List<String> optionList = AoUtils.getOptionListFromID(getActivity(), selectedList);
+        String selectedOption = optionList.get(list);
+        if(selectedList == AoConstants.REPORT_POST_OPTIONS_DIALOG) {
+            switch (selectedOption){
+                case AoConstants.REPORT_POST_REPORT_CONTENT:
+                    AoUtils.reportObject(selectedThread);
+                    AoUtils.showAlertWithTitleAndText(getActivity(),"Report Sent!","The report will be reviewed by an admin and deleted/updated if needed.");
+                    break;
+            }
+        }
+        else if(selectedList == AoConstants.EDITDELETE_THREAD_OPTIONS_DIALOG || selectedList == AoConstants.EDITDELETE_POST_OPTIONS_DIALOG) {
+            switch (selectedOption){
+                case AoConstants.ADMIN_POST_DELETE:
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle("Delete this thread forever?")
+                            .setMessage("You can't undo this")
+                            .setNegativeButton(android.R.string.cancel, null) // dismisses by default
+                            .setPositiveButton(R.string.dialog_delete_post, new DialogInterface.OnClickListener() {
+                                @Override public void onClick(DialogInterface dialog, int which) {
+                                    new ForumsHelper(getActivity(),ThreadByUserFragment.this,null).deleteThread(selectedThread);
+                                }
+                            })
+                            .create()
+                            .show();
+                    break;
+                case AoConstants.POST_EDIT:
+                    Toast.makeText(getActivity(),"Edit Admin", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }   else if(selectedList == AoConstants.EDITBAN_THREAD_OPTIONS_DIALOG) {
+            switch (selectedOption){
+                case AoConstants.ADMIN_THREAD_BAN:
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle("Ban this thread?")
+                            .setMessage("Are you sure?")
+                            .setNegativeButton(android.R.string.cancel, null) // dismisses by default
+                            .setPositiveButton(R.string.dialog_delete_post, new DialogInterface.OnClickListener() {
+                                @Override public void onClick(DialogInterface dialog, int which) {
+                                    new ForumsHelper(getActivity(),ThreadByUserFragment.this,null).banThread(selectedThread);
+                                }
+                            })
+                            .create()
+                            .show();
+                    break;
+                case AoConstants.POST_EDIT:
+                    Toast.makeText(getActivity(),"Edit Admin", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
+    }
+
+
+    @Override
+    public void onDeleteOrBan() {
+        lstThreads.remove(selectedPosition);
+        forumsAdapter.notifyItemRemoved(selectedPosition);
+    }
+
 }

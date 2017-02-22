@@ -59,12 +59,12 @@ public class ForumsHelper {
         if(activity != null)
             mOnBanDelete = (OnBanDeletePostCallback) activity;
         else {
+            mOnBanDelete = (OnBanDeletePostCallback) fragment;
             if (fragment instanceof ThreadByUserFragment)
                 mGetUserThreadsCallback = (OnGetUserThreadsListener) fragment;
             else {
                 mGetThreadsCallback = (OnGetThreadsListener) fragment;
                 mGetGlobalThreadsCallback = (OnGetGlobalThreadsListener) fragment;
-                mOnBanDelete = (OnBanDeletePostCallback) fragment;
             }
         }
     }

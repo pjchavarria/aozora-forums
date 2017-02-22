@@ -62,6 +62,7 @@ public class ForumsAdapter extends RecyclerView.Adapter {
     private ParseUser currentUser;
     private View.OnClickListener upvoteClickListener;
     private View.OnClickListener downvoteClickListener;
+    private Fragment fragment;
 
 
     public OnItemLongClickListener mOnItemLongClicked;
@@ -72,18 +73,19 @@ public class ForumsAdapter extends RecyclerView.Adapter {
 
     public OnUpDownVoteListener mOnUpDownVote;
     public interface OnUpDownVoteListener {
-        public void onUpDownVote(Boolean upvote, AoThread thread, int position);
+        public void onUpDownVote(Boolean upvote, AoThread thread);
     }
 
     public OnGlobalThreadHideListener mOnGlobalThreadHide;
     public interface OnGlobalThreadHideListener {
-        public void onGlobalThreadHide(AoThread threadToHide, int position);
+        public void onGlobalThreadHide(AoThread threadToHide);
     }
 
 
     public ForumsAdapter(Context context, ArrayList<AoThread> list, int viewType, Fragment fragment) {
         this.context = context;
         this.aoThreads = list;
+        this.fragment = fragment;
         awesomeTypeface = AozoraForumsApp.getAwesomeTypeface();
         currentUser = ParseUser.getCurrentUser();
         this.viewType = viewType;
@@ -130,13 +132,13 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         upvoteClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mOnUpDownVote.onUpDownVote(true,aoThread,position);
+                mOnUpDownVote.onUpDownVote(true,aoThread);
             }
         };
         downvoteClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mOnUpDownVote.onUpDownVote(false,aoThread,position);
+                mOnUpDownVote.onUpDownVote(false,aoThread);
             }
         };
 
@@ -168,7 +170,7 @@ public class ForumsAdapter extends RecyclerView.Adapter {
             public void onClick(View view) {
                 AozoraForumsApp.setThreadToPass(aoThread);
                 Intent i = new Intent(context, ThreadActivity.class);
-                context.startActivity(i);
+                fragment.startActivityForResult(i,400);
             }
         });
 
@@ -387,7 +389,7 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         viewHolder.tvHideSticky.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mOnGlobalThreadHide.onGlobalThreadHide(aoThread,position);
+                mOnGlobalThreadHide.onGlobalThreadHide(aoThread);
             }
         });
     }

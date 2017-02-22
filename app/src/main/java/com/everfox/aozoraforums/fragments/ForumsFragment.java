@@ -28,6 +28,7 @@ import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.FirstActivity;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.MainActivity;
+import com.everfox.aozoraforums.activities.ThreadActivity;
 import com.everfox.aozoraforums.adapters.ForumsAdapter;
 import com.everfox.aozoraforums.controllers.ForumsHelper;
 import com.everfox.aozoraforums.controllers.ProfileParseHelper;
@@ -427,21 +428,23 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback{
     }
 
     @Override
-    public void onGlobalThreadHide(AoThread threadToHide, int position) {
+    public void onGlobalThreadHide(AoThread threadToHide) {
         List<AoThread> lst = AozoraForumsApp.getHiddenGlobalThreads();
         lst.add(threadToHide);
         AozoraForumsApp.setHiddenGlobalThreads(lst);
+        int position = lstThreads.indexOf(threadToHide);
         lstThreads.remove(position);
         forumsAdapter.notifyItemRemoved(position);
     }
 
     @Override
-    public void onUpDownVote(Boolean upvote, AoThread thread, int position) {
+    public void onUpDownVote(Boolean upvote, AoThread thread) {
         ParseObject newPost;
         if(upvote)
             newPost = PostUtils.likePost(thread);
         else
             newPost = PostUtils.unlikeThread(thread);
+        int position = lstThreads.indexOf(newPost);
         lstThreads.set(position,(AoThread) newPost);
         forumsAdapter.notifyItemChanged(position,newPost);
     }
@@ -457,5 +460,18 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback{
         OptionListDialogFragment fragment = AoUtils.getDialogFragmentMoreOptions(aoThread.getParseUser(TimelinePost.POSTED_BY),getActivity(),this,null,true);
         fragment.setCancelable(true);
         fragment.show(getFragmentManager(),"");
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == 400) {
+            if(resultCode == ThreadActivity.PARENT_POST_DELETED) {
+                AoThread thread = AozoraForumsApp.getThreadToPass();
+                int index = lstThreads.indexOf(thread);
+                lstThreads.remove(index);
+                forumsAdapter.notifyItemRemoved(index);
+
+            }
+        }
     }
 }

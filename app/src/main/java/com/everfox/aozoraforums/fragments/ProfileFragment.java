@@ -770,9 +770,9 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     int selectedPosition = -1;
 
     @Override
-    public void onMoreOptionsTappedCallback(TimelinePost post,int selectedPosition) {
+    public void onMoreOptionsTappedCallback(TimelinePost post) {
         selectedPost = AoUtils.GetOriginalPost(post);
-        this.selectedPosition = selectedPosition;
+        this.selectedPosition = lstTimelinePost.indexOf(post);
         OptionListDialogFragment fragment = AoUtils.getDialogFragmentMoreOptions(AoUtils.GetOriginalPoster(post),getActivity(),this,null,false);
         fragment.setCancelable(true);
         fragment.show(getFragmentManager(),"");
@@ -805,24 +805,27 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     }
 
     @Override
-    public void onLikeTappedListener(TimelinePost post, int position) {
+    public void onLikeTappedListener(TimelinePost post) {
         ParseObject newPost = PostUtils.likePost(post);
         if(newPost != null) {
+            int position = lstTimelinePost.indexOf(newPost);
             lstTimelinePost.set(position, (TimelinePost) newPost);
             timelineAdapter.notifyItemChanged(position, newPost);
         }
     }
 
     @Override
-    public void onRepostTappedListener(TimelinePost post, int position) {
+    public void onRepostTappedListener(TimelinePost post) {
             ArrayList<ParseObject> repost = PostUtils.repostPost(post);
         if(isProfile) {
             if(repost.size()==1) {
                 //Se borro el repost
+                int position = lstTimelinePost.indexOf(post);
                 lstTimelinePost.remove(position);
                 timelineAdapter.notifyItemRemoved(position);
             } else {
                 //Reemplazamos para que se actualize icono de repost
+                int position = lstTimelinePost.indexOf(post);
                 lstTimelinePost.set(position,(TimelinePost)repost.get(0));
                 timelineAdapter.notifyItemChanged(position,repost.get(0));
                 //Agregamos post al comienzo
@@ -831,6 +834,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
                     timelineAdapter.notifyItemInserted(0);
             }
         } else {
+            int position = lstTimelinePost.indexOf(post);
             lstTimelinePost.set(position,(TimelinePost)repost.get(0));
             timelineAdapter.notifyItemChanged(position,repost.get(0));
         }

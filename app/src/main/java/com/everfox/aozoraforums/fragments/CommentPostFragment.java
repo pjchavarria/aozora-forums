@@ -101,6 +101,7 @@ CommentPostAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelec
     @Override
     public void onGetPostComments(List<Post> comments) {
 
+        post.setReplies(new ArrayList<>(comments));
         swipeRefresh.setRefreshing(false);
         comments.add(0,post);
         lstComments.clear();
@@ -137,7 +138,8 @@ CommentPostAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelec
     }
 
     @Override
-    public void onLike(ParseObject object, int position) {
+    public void onLike(ParseObject object) {
+        int position = lstComments.indexOf(object);
         ParseObject newPost = PostUtils.likePost(object);
         if(newPost != null)
             commentPostAdapter.notifyItemChanged(position,newPost);
@@ -179,7 +181,6 @@ CommentPostAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelec
                                 @Override public void onClick(DialogInterface dialog, int which) {
                                     if(selectedPosition == 0) {
                                         new PostParseHelper(getActivity(), null, CommentPostFragment.this).deletePost(selectedItem, null);
-                                        getFragmentManager().popBackStack();
                                     } else {
 
                                         new PostParseHelper(getActivity(), null, CommentPostFragment.this).deletePost(selectedItem, post);
@@ -199,9 +200,16 @@ CommentPostAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelec
 
     @Override
     public void onDeletePost() {
-
+        Post post = lstComments.get(selectedPosition);
         lstComments.remove(selectedPosition);
         commentPostAdapter.notifyItemRemoved(selectedPosition);
+        if(selectedPosition == 0) {
+            if(getActivity() != null && !getActivity().isDestroyed())
+                ((ThreadActivity) getActivity()).onPostDeletedFromFragment(post);
+            getFragmentManager().popBackStack();
+        }
+
+
 
     }
 
