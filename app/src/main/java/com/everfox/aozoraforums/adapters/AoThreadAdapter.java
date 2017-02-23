@@ -179,7 +179,7 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
             if (payloads.get(0) instanceof AoThread) {
                 AoThread aoThread = (AoThread)payloads.get(0);
                 ViewHolderThread vhFP = (ViewHolderThread) holder;
-                updateUpvoteDownvote(vhFP.ivUpvotes,vhFP.tvUpvotes,vhFP.ivDownvotes,vhFP.tvDownvotes,aoThread);
+                updateUpvoteDownvote(vhFP.ivUpvotes,vhFP.tvUpvotes,vhFP.ivDownvotes,vhFP.tvDownvotes,vhFP.tvComments,aoThread);
             } else if (payloads.get(0) instanceof Post) {
                 Post comment = (Post)payloads.get(0);
                 ViewHolderComment vhComment = (ViewHolderComment) holder;
@@ -190,7 +190,7 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
         }
     }
 
-    private void updateUpvoteDownvote(ImageView ivUp, TextView tvUp, ImageView ivDown, TextView tvDown, AoThread aoThread) {
+    private void updateUpvoteDownvote(ImageView ivUp, TextView tvUp, ImageView ivDown, TextView tvDown, TextView tvComments, AoThread aoThread) {
         List<ParseUser> listLiked = aoThread.getList(TimelinePost.LIKED_BY);
         if(listLiked != null && listLiked.contains(currentUser)) {
             ivUp.setImageResource(R.drawable.icon_upvote_filled);
@@ -205,6 +205,9 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
             ivDown.setImageResource(R.drawable.icon_downvote);
         }
         tvDown.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(AoThread.UNLIKE_COUNT)));
+        tvComments.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.REPLY_COUNT)));
+
+
     }
 
     private void updateLike(ImageView ivCommentLikes, TextView tvCommentNumberLikes,  Post post) {
@@ -275,13 +278,12 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
         }
 
         //Load Upvote/Downvote/Comments
-        updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,aoThread);
+        updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes, viewHolder.tvComments,aoThread);
 
         viewHolder.ivUpvotes.setOnClickListener(upvoteClickListener);
         viewHolder.tvUpvotes.setOnClickListener(upvoteClickListener);
         viewHolder.ivDownvotes.setOnClickListener(downvoteClickListener);
         viewHolder.tvDownvotes.setOnClickListener(downvoteClickListener);
-        viewHolder.tvComments.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.REPLY_COUNT)));
 
     }
 

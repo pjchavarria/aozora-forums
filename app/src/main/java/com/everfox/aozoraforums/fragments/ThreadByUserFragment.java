@@ -132,6 +132,16 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
     public void onResume() {
         super.onResume();
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Threads by " + user.getString(ParseUserColumns.AOZORA_USERNAME));
+        if(selectedThread != null) {
+            updateThread();
+        }
+    }
+
+
+    private void updateThread() {
+        int position = lstThreads.indexOf(selectedThread);
+        lstThreads.set(position,selectedThread);
+        forumsAdapter.notifyItemChanged(position, selectedThread);
     }
 
     private void reloadThreads() {
@@ -322,5 +332,9 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
                 }
             }
         }
+    }
+
+    public void setSelectedThread(AoThread aoThread) {
+        this.selectedThread = aoThread;
     }
 }

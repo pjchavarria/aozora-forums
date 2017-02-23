@@ -157,6 +157,7 @@ public class AozoraForumsApp extends Application {
         .build();
         Fresco.initialize(getApplicationContext(), config);
         AozoraForumsApp.setAwesomeTypeface(Typeface.createFromAsset(getApplicationContext().getAssets(),"fonts/FontAwesome.ttf"));
+
     }
 
     private static ParseUser parseFacebookNewUser;

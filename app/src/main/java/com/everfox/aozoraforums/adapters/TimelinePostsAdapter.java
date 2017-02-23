@@ -145,7 +145,9 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
                 TimelinePost timelinePost = (TimelinePost)payloads.get(0);
                 if(position == 0) {
                     ViewHolderFirstPost vhFP = (ViewHolderFirstPost) holder;
-                    updateLikeRepost(vhFP.ivLikes,vhFP.tvLikes,vhFP.ivRepost,vhFP.tvRepost,timelinePost);
+                    if (timelinePost.getParseObject(TimelinePost.REPOST_SOURCE) != null)
+                        timelinePost = (TimelinePost)timelinePost.getParseObject(TimelinePost.REPOST_SOURCE);
+                    updateLikeRepost(vhFP.ivLikes,vhFP.tvLikes,vhFP.ivRepost,vhFP.tvRepost, vhFP.tvComments,timelinePost);
                 } else {
                     ViewHolderComment vhComment = (ViewHolderComment) holder;
                     updateLike(vhComment.ivCommentLikes,vhComment.tvCommentNumberLikes,timelinePost);
@@ -156,7 +158,7 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
     }
 
-    private void updateLikeRepost(ImageView ivLikes, TextView tvLikes, ImageView ivRepost, TextView tvRepost, TimelinePost post) {
+    private void updateLikeRepost(ImageView ivLikes, TextView tvLikes, ImageView ivRepost, TextView tvRepost, TextView tvComments, TimelinePost post) {
 
         List<ParseUser> listLiked = post.getList(TimelinePost.LIKED_BY);
         if(listLiked != null && listLiked.contains(currentUser)) {
@@ -172,6 +174,7 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
             ivRepost.setImageResource(R.drawable.icon_repost);
         }
         tvRepost.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.REPOST_COUNT)));
+        tvComments.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.REPLY_COUNT)));
     }
 
     private void updateLike(ImageView ivCommentLikes, TextView tvCommentNumberLikes, TimelinePost comment) {
@@ -295,7 +298,7 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         }
 
         //Like/Share/Comment
-        updateLikeRepost(holder.ivLikes,holder.tvLikes,holder.ivRepost, holder.tvRepost,post);
+        updateLikeRepost(holder.ivLikes,holder.tvLikes,holder.ivRepost, holder.tvRepost,holder.tvComments,post);
         View.OnClickListener likeListener = new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -304,9 +307,7 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         };
         holder.ivLikes.setOnClickListener(likeListener);
         holder.tvLikes.setOnClickListener(likeListener);
-        holder.tvComments.setText(AoUtils.numberToStringOrZero(post.getNumber(TimelinePost.REPLY_COUNT)));
         holder.itemView.setTag("imageLoaded");
-
 
         holder.ivMoreOptions.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -232,10 +232,24 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, For
         }
     }
 
+    public void setSelectedThread (AoThread thread) {
+        selectedThread = thread;
+    }
+
     @Override
     public void onResume() {
         super.onResume();
         ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Aozora Threads");
+        if(selectedThread != null) {
+            updateThread();
+        }
+
+    }
+
+    private void updateThread() {
+        int position = lstThreads.indexOf(selectedThread);
+        lstThreads.set(position,selectedThread);
+        forumsAdapter.notifyItemChanged(position, selectedThread);
     }
 
     private void scrolledToEnd() {

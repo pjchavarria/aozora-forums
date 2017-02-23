@@ -30,6 +30,7 @@ import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.AozoraActivity;
 import com.everfox.aozoraforums.activities.SettingsActivity;
 import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
+import com.everfox.aozoraforums.dialogfragments.SimpleLoadingDialogFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.models.AoNotification;
 import com.everfox.aozoraforums.models.PUser;
@@ -464,4 +465,14 @@ public class AoUtils {
         return returnedBitmap;
     }
 
+    public static int getPositionOfTimelinePost(ArrayList<TimelinePost> posts, TimelinePost post) {
+
+        int position = posts.indexOf(post);
+        if(position == -1) {
+            if(posts.get(0).has(TimelinePost.REPOST_SOURCE))
+                if(post.getObjectId().equals(posts.get(0).getParseObject(TimelinePost.REPOST_SOURCE).getObjectId()))
+                    position = 0;
+        }
+        return position;
+    }
 }

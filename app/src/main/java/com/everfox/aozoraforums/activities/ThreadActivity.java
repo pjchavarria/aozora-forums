@@ -78,6 +78,7 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
     RelativeLayout rlContent;
     @BindView(R.id.flContent)
     FrameLayout flContent;
+    ParseObject selectedComment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +107,9 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
                 if (currentFragment != null && currentFragment instanceof ProfileFragment || currentFragment instanceof FollowersFragment || currentFragment instanceof UserListFragment) {
                     currentFragment.onResume();
                 }
+                if(selectedComment != null && currentFragment == null) {
+                    updateComment();
+                }
             }
         });
 
@@ -124,6 +128,13 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
         if(parentThread != null)
             setTitle(parentThread.getString(AoThread.TITLE));
 
+    }
+
+    private void updateComment() {
+
+        int position = lstComments.indexOf(selectedComment);
+        lstComments.set(position,selectedComment);
+        aoThreadAdapter.notifyItemChanged(position, selectedComment);
     }
 
 
@@ -170,6 +181,7 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
         if(!AoUtils.isActivityInvalid(this)) {
             CommentPostFragment commentPostFragment = null;
             commentPostFragment = CommentPostFragment.newInstance((Post)commentTapped);
+            selectedComment = commentTapped;
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.add(R.id.flContent, commentPostFragment).addToBackStack(null).commitAllowingStateLoss();

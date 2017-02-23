@@ -269,7 +269,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
                         reloadPosts(true);
                     }
                 });
-
+                swipeRefresh.setVisibility(View.GONE);
                 scrollView.setVisibility(View.GONE);
             } else {
                 //LoadProfile
@@ -412,8 +412,9 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
         }
         if(user != null && !firstTime) {
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(user.getString(ParseUserColumns.AOZORA_USERNAME));
-            if(isProfile && user.getObjectId().equals(ParseUser.getCurrentUser().getObjectId())) {
-                user = ParseUser.getCurrentUser();
+            if(selectedPost != null)
+                updatePost();
+            if(isProfile) {
                 getUserDetails();
                 ParseFile profilePic = user.getParseFile(ParseUserColumns.AVATAR_THUMB);
                 ParseFile bannerPic = user.getParseFile(ParseUserColumns.BANNER);
@@ -421,6 +422,12 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
             }
         }
         firstTime = false;
+    }
+
+    private void updatePost() {
+        int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,selectedPost);
+        lstTimelinePost.set(position,selectedPost);
+        timelineAdapter.notifyItemChanged(position, selectedPost);
     }
 
     @Override
@@ -788,7 +795,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     @Override
     public void onMoreOptionsTappedCallback(TimelinePost post) {
         selectedPost = AoUtils.GetOriginalPost(post);
-        this.selectedPosition = lstTimelinePost.indexOf(post);
+        this.selectedPosition = AoUtils.getPositionOfTimelinePost(lstTimelinePost,post);
         OptionListDialogFragment fragment = AoUtils.getDialogFragmentMoreOptions(AoUtils.GetOriginalPoster(post),getActivity(),this,null,false);
         fragment.setCancelable(true);
         fragment.show(getFragmentManager(),"");
@@ -807,6 +814,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     @Override
     public void onItemTappedListener(TimelinePost post, int position) {
         selectedPosition = position;
+        selectedPost = post;
         AozoraForumsApp.setTimelinePostToPass(post);
         Intent i = new Intent(getActivity(), TimelinePostActivity.class);
         startActivityForResult(i,OPEN_TIMELINE_POST);
@@ -824,7 +832,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     public void onLikeTappedListener(TimelinePost post) {
         ParseObject newPost = PostUtils.likePost(post);
         if(newPost != null) {
-            int position = lstTimelinePost.indexOf(newPost);
+            int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,post);
             lstTimelinePost.set(position, (TimelinePost) newPost);
             timelineAdapter.notifyItemChanged(position, newPost);
         }
@@ -836,12 +844,12 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
         if(isProfile) {
             if(repost.size()==1) {
                 //Se borro el repost
-                int position = lstTimelinePost.indexOf(post);
+                int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,post);
                 lstTimelinePost.remove(position);
                 timelineAdapter.notifyItemRemoved(position);
             } else {
                 //Reemplazamos para que se actualize icono de repost
-                int position = lstTimelinePost.indexOf(post);
+                int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,post);
                 lstTimelinePost.set(position,(TimelinePost)repost.get(0));
                 timelineAdapter.notifyItemChanged(position,repost.get(0));
                 //Agregamos post al comienzo
@@ -850,7 +858,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
                     timelineAdapter.notifyItemInserted(0);
             }
         } else {
-            int position = lstTimelinePost.indexOf(post);
+            int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,post);
             lstTimelinePost.set(position,(TimelinePost)repost.get(0));
             timelineAdapter.notifyItemChanged(position,repost.get(0));
         }
@@ -886,4 +894,6 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
             }
         }
     }
+
+
 }

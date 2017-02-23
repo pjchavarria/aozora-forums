@@ -296,7 +296,7 @@ TimelinePostsAdapter.OnImageShareListener{
     @Override
     public void onLikeTappedListener(TimelinePost post) {
 
-        int position = allComments.indexOf(post);
+        int position = AoUtils.getPositionOfTimelinePost(allComments,post);
         actionTapped = true;
         ParseObject newPost = PostUtils.likePost(post);
         if(newPost != null) {
@@ -308,7 +308,7 @@ TimelinePostsAdapter.OnImageShareListener{
     @Override
     public void onRepostTappedListener(TimelinePost post) {
 
-        int position = allComments.indexOf(post);
+        int position = AoUtils.getPositionOfTimelinePost(allComments,post);
         ArrayList<ParseObject> repost = PostUtils.repostPost(post);
         allComments.set(position,(TimelinePost)repost.get(0));
         postsAdapter.notifyItemChanged(position,repost.get(0));
@@ -345,4 +345,6 @@ TimelinePostsAdapter.OnImageShareListener{
             }
         }
     }
+
+
 }

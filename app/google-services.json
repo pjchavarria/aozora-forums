@@ -1,0 +1,148 @@
+{
+  "project_info": {
+    "project_number": "1004335320504",
+    "firebase_url": "https://admob-app-id-8772101318.firebaseio.com",
+    "project_id": "admob-app-id-8772101318",
+    "storage_bucket": "admob-app-id-8772101318.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1004335320504:android:4ef28f0ea0d0385f",
+        "android_client_info": {
+          "package_name": "com.everfox.animetrackerandroid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1004335320504-ghj9hsiq1eevkkbefga2rqhsq4kco8ph.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAg-uO_oISiFhtk2BiTZ3B1123jfL7xpZs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1004335320504:android:768b8147e4050d21",
+        "android_client_info": {
+          "package_name": "com.everfox.animetrackerandroid.demofirebase"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1004335320504-ghj9hsiq1eevkkbefga2rqhsq4kco8ph.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAg-uO_oISiFhtk2BiTZ3B1123jfL7xpZs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1004335320504:android:ea75b24ecac2146a",
+        "android_client_info": {
+          "package_name": "com.everfox.animetrakerandroid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1004335320504-ghj9hsiq1eevkkbefga2rqhsq4kco8ph.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAg-uO_oISiFhtk2BiTZ3B1123jfL7xpZs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1004335320504:android:390b0d5afeb91c6a",
+        "android_client_info": {
+          "package_name": "com.everfox.aozoraforums"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1004335320504-ofq9b0oqf5d9cn39mfr838d83ji32fq1.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.everfox.aozoraforums",
+            "certificate_hash": "2f59e08e4d107ca30de5a52d438d932c2b39cfa4"
+          }
+        },
+        {
+          "client_id": "1004335320504-ghj9hsiq1eevkkbefga2rqhsq4kco8ph.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAg-uO_oISiFhtk2BiTZ3B1123jfL7xpZs"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1004335320504-ghj9hsiq1eevkkbefga2rqhsq4kco8ph.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

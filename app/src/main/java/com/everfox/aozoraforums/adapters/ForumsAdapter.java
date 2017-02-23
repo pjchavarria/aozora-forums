@@ -23,6 +23,7 @@ import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.ThreadActivity;
 import com.everfox.aozoraforums.activities.TimelinePostActivity;
 import com.everfox.aozoraforums.fragments.ForumsFragment;
+import com.everfox.aozoraforums.fragments.ThreadByUserFragment;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.AoThreadTag;
 import com.everfox.aozoraforums.models.TimelinePost;
@@ -209,6 +210,10 @@ public class ForumsAdapter extends RecyclerView.Adapter {
             public void onClick(View view) {
                 AozoraForumsApp.setThreadToPass(aoThread);
                 Intent i = new Intent(context, ThreadActivity.class);
+                if(fragment instanceof ForumsFragment)
+                    ((ForumsFragment) fragment).setSelectedThread(aoThread);
+                if(fragment instanceof ThreadByUserFragment)
+                    ((ThreadByUserFragment) fragment).setSelectedThread(aoThread);
                 fragment.startActivityForResult(i,400);
             }
         });
@@ -230,21 +235,21 @@ public class ForumsAdapter extends RecyclerView.Adapter {
                 AoThread aoThread = (AoThread)payloads.get(0);
                 if(holder instanceof AoArtViewHolder) {
                     AoArtViewHolder viewHolder = (AoArtViewHolder)holder;
-                    updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,aoThread);
+                    updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,viewHolder.tvComments,aoThread);
 
                 } else if(holder instanceof AoNewsViewHolder) {
 
                     AoNewsViewHolder viewHolder = (AoNewsViewHolder)holder;
-                    updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,aoThread);
+                    updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,viewHolder.tvComments,aoThread);
                 }  else if(holder instanceof AoGurOfficialViewHolder) {
 
                     AoGurOfficialViewHolder viewHolder = (AoGurOfficialViewHolder)holder;
-                    updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,aoThread);
+                    updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,viewHolder.tvComments,aoThread);
 
                 } else if(holder instanceof AoTalkViewHolder) {
 
                     AoTalkViewHolder viewHolder = (AoTalkViewHolder)holder;
-                    updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,aoThread);
+                    updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,viewHolder.tvComments,aoThread);
                 }
 
             }
@@ -253,7 +258,7 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         }
     }
 
-    private void updateUpvoteDownvote(ImageView ivUp, TextView tvUp, ImageView ivDown, TextView tvDown, AoThread aoThread) {
+    private void updateUpvoteDownvote(ImageView ivUp, TextView tvUp, ImageView ivDown, TextView tvDown, TextView tvComments, AoThread aoThread) {
         List<ParseUser> listLiked = aoThread.getList(TimelinePost.LIKED_BY);
         if(listLiked != null && listLiked.contains(currentUser)) {
             ivUp.setImageResource(R.drawable.icon_upvote_filled);
@@ -268,6 +273,7 @@ public class ForumsAdapter extends RecyclerView.Adapter {
             ivDown.setImageResource(R.drawable.icon_downvote);
         }
         tvDown.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(AoThread.UNLIKE_COUNT)));
+        tvComments.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.REPLY_COUNT)));
     }
 
     private void bindAoTalkThread(AoTalkViewHolder viewHolder, AoThread aoThread, int position) {
@@ -298,8 +304,7 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         }
 
         //Load Upvote/Downvote/Comments
-        updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,aoThread);
-        viewHolder.tvComments.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.REPLY_COUNT)));
+        updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes, viewHolder.tvComments,aoThread);
 
         viewHolder.ivUpvotes.setOnClickListener(upvoteClickListener);
         viewHolder.tvUpvotes.setOnClickListener(upvoteClickListener);
@@ -341,7 +346,7 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         }
 
         //Load Upvote/Downvote/Comments
-        updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,aoThread);
+        updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,viewHolder.tvComments,aoThread);
         viewHolder.tvComments.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.REPLY_COUNT)));
 
         viewHolder.ivUpvotes.setOnClickListener(upvoteClickListener);
@@ -376,7 +381,7 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         }
 
         //Load Upvote/Downvote/Comments
-        updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,aoThread);
+        updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,viewHolder.tvComments,aoThread);
         viewHolder.tvComments.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.REPLY_COUNT)));
 
         viewHolder.ivUpvotes.setOnClickListener(upvoteClickListener);
@@ -407,7 +412,7 @@ public class ForumsAdapter extends RecyclerView.Adapter {
         }
 
         //Load Upvote/Downvote/Comments
-        updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,aoThread);
+        updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes,viewHolder.tvComments,aoThread);
         viewHolder.tvComments.setText(AoUtils.numberToStringOrZero(aoThread.getNumber(TimelinePost.REPLY_COUNT)));
 
         viewHolder.ivUpvotes.setOnClickListener(upvoteClickListener);
