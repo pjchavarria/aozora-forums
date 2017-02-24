@@ -406,11 +406,6 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     @Override
     public void onResume() {
         super.onResume();
-        if(isProfile) {
-            scrollView.setVisibility(View.VISIBLE);
-            rvTimeline.setVisibility(View.VISIBLE);
-            swipeRefresh.setVisibility(View.VISIBLE);
-        }
         if(user != null && !firstTime) {
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(user.getString(ParseUserColumns.AOZORA_USERNAME));
             if(selectedPost != null)
@@ -423,6 +418,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
             }
         }
         firstTime = false;
+
     }
 
     private void updatePost() {
@@ -506,7 +502,6 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     }
 
     private void OpenFollowersFragment(Boolean isFollowers) {
-        scrollView.setVisibility(View.GONE);
         FollowersFragment ff = null;
         ff = FollowersFragment.newInstance(user,isFollowers);
         FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
@@ -638,7 +633,6 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
                     startActivity(i);
                     break;
                 case AoConstants.MY_PROFILE_THREADS:
-                    scrollView.setVisibility(View.GONE);
                     ThreadByUserFragment pf = ThreadByUserFragment.newInstance(user);
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -649,7 +643,6 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
         if(selectedList == AoConstants.MY_PROFILE_OTHER_USER_OPTIONS_DIALOG) {
             switch (selectedOption){
                 case AoConstants.MY_PROFILE_OTHERUSER_THREADS:
-                    scrollView.setVisibility(View.GONE);
                     ThreadByUserFragment pf = ThreadByUserFragment.newInstance(user);
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -700,7 +693,6 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
             }
         }
         if(selectedList == AoConstants.USER_LIST_OPTIONS_DIALOG) {
-            scrollView.setVisibility(View.GONE);
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             switch (selectedOption){
@@ -727,7 +719,6 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
             }
         }
         if(selectedList == AoConstants.REPUTATION_RANKS_OPTIONS_DIALOG) {
-            scrollView.setVisibility(View.GONE);
             FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             switch (selectedOption){
