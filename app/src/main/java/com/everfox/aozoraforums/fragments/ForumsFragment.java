@@ -248,8 +248,10 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, For
 
     private void updateThread() {
         int position = lstThreads.indexOf(selectedThread);
-        lstThreads.set(position,selectedThread);
-        forumsAdapter.notifyItemChanged(position, selectedThread);
+        if(position != -1) {
+            lstThreads.set(position, selectedThread);
+            forumsAdapter.notifyItemChanged(position, selectedThread);
+        }
     }
 
     private void scrolledToEnd() {

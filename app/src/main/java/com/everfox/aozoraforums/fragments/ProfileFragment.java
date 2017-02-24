@@ -409,6 +409,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
         if(isProfile) {
             scrollView.setVisibility(View.VISIBLE);
             rvTimeline.setVisibility(View.VISIBLE);
+            swipeRefresh.setVisibility(View.VISIBLE);
         }
         if(user != null && !firstTime) {
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(user.getString(ParseUserColumns.AOZORA_USERNAME));
@@ -425,9 +426,11 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     }
 
     private void updatePost() {
-        int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,selectedPost);
-        lstTimelinePost.set(position,selectedPost);
-        timelineAdapter.notifyItemChanged(position, selectedPost);
+        int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost, selectedPost);
+        if (position != -1) {
+            lstTimelinePost.set(position, selectedPost);
+            timelineAdapter.notifyItemChanged(position, selectedPost);
+        }
     }
 
     @Override

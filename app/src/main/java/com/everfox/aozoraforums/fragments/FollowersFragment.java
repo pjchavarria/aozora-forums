@@ -129,7 +129,7 @@ FollowersAdapter.OnFollowTappedListener, FollowersAdapter.OnUserTappedListener{
                     pf = ProfileFragment.newInstance(userTapped, true, false,null,true);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.add(R.id.flContent, pf).addToBackStack(null).commitAllowingStateLoss();
+                fragmentTransaction.replace(R.id.flContent, pf).addToBackStack(null).commitAllowingStateLoss();
             }
         }
     }

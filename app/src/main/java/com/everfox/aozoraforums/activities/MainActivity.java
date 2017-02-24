@@ -25,6 +25,7 @@ import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.fragments.UserListFragment;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.facebook.common.util.ExceptionWithNoStacktrace;
+import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 
 public class MainActivity extends AozoraActivity {
@@ -44,6 +45,9 @@ public class MainActivity extends AozoraActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ParseInstallation installation = ParseInstallation.getCurrentInstallation();
+        installation.put("user",ParseUser.getCurrentUser());
+        installation.saveInBackground();
         llNavBar = (LinearLayout) findViewById(R.id.llNavBar);
         btnFeed = (ImageView) findViewById(R.id.btnFeed);
         btnForum = (ImageView) findViewById(R.id.btnForum);

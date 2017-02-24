@@ -133,8 +133,10 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
     private void updateComment() {
 
         int position = lstComments.indexOf(selectedComment);
-        lstComments.set(position,selectedComment);
-        aoThreadAdapter.notifyItemChanged(position, selectedComment);
+        if(position != -1) {
+            lstComments.set(position, selectedComment);
+            aoThreadAdapter.notifyItemChanged(position, selectedComment);
+        }
     }
 
 

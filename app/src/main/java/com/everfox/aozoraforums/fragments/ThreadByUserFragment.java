@@ -140,8 +140,10 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
 
     private void updateThread() {
         int position = lstThreads.indexOf(selectedThread);
-        lstThreads.set(position,selectedThread);
-        forumsAdapter.notifyItemChanged(position, selectedThread);
+        if(position != -1) {
+            lstThreads.set(position, selectedThread);
+            forumsAdapter.notifyItemChanged(position, selectedThread);
+        }
     }
 
     private void reloadThreads() {

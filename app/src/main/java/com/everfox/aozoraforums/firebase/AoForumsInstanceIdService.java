@@ -16,13 +16,6 @@ public class AoForumsInstanceIdService extends FirebaseInstanceIdService {
     public void onTokenRefresh() {
         // Get updated InstanceID token.
         String refreshedToken = FirebaseInstanceId.getInstance().getToken();
-        sendRegistrationToParse(refreshedToken);
     }
 
-    private void sendRegistrationToParse(String refreshedToken) {
-
-        ParseInstallation currentInstallation = ParseInstallation.getCurrentInstallation();
-        currentInstallation.put("GCMSenderId","1004335320504");
-        currentInstallation.saveInBackground();
-    }
 }
