@@ -81,7 +81,7 @@
                 android:text="@string/fa_icon_animeEpisodes"
                 android:gravity="center"
                 android:layout_gravity="center"
-                android:src="@drawable/ic_profile"
+                android:src="@drawable/ic_feed"
                 android:padding="8dp"
                 />
 

@@ -80,7 +80,7 @@ public class FollowersAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHol
     public void onBindViewHolder(RecyclerView.ViewHolder holder, final int position) {
 
         if(holder instanceof FollowersAdapter.ItemViewHolder) {
-            FollowersAdapter.ItemViewHolder vh = (ItemViewHolder) holder;
+            final FollowersAdapter.ItemViewHolder vh = (ItemViewHolder) holder;
             final PUser user = lstUsers.get(position);
             vh.ivAvatar.setImageDrawable(null);
             PostUtils.loadAvatarPic(user.getParseFile(ParseUserColumns.AVATAR_THUMB),vh.ivAvatar);
@@ -100,7 +100,16 @@ public class FollowersAdapter  extends RecyclerView.Adapter<RecyclerView.ViewHol
                 vh.tvFollow.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        mOnFollowTappedCallback.onFollowTapped(user,user.getFollowingThisUser(),position);
+
+                    PUser.followUser(user,!user.getFollowingThisUser());
+                        if(user.getFollowingThisUser()){
+                            vh.tvFollow.setText(context.getString(R.string.fa_check) + " FOLLOWING");
+                            vh.tvFollow.setTextColor(ContextCompat.getColor(context,R.color.inapp_blue_darker));
+                        } else {
+                            vh.tvFollow.setText(context.getString(R.string.fa_plus) + " FOLLOW");
+                            vh.tvFollow.setTextColor(ContextCompat.getColor(context,R.color.grayA5));
+                        }
+
                     }
                 });
             }

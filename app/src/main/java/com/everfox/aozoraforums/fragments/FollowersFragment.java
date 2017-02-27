@@ -113,7 +113,6 @@ FollowersAdapter.OnFollowTappedListener, FollowersAdapter.OnUserTappedListener{
     @Override
     public void onFollowTapped(PUser userTapped, Boolean isFollowing, int position) {
 
-        Toast.makeText(getActivity(),isFollowing? "Unfollow this user" : "Follow this user",Toast.LENGTH_SHORT).show();
     }
 
     @Override

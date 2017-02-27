@@ -128,8 +128,6 @@ public class UserListFragment extends Fragment implements UserListHelper.OnGetUs
 
     @Override
     public void onFollowTapped(PUser userTapped, Boolean isFollowing, int position) {
-        PUser.followUser(userTapped,!isFollowing);
-        userAdapter.notifyItemChanged(position);
     }
 
     @Override
