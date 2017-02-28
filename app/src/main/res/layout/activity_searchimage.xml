@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/colorWhite"
+    android:layout_height="match_parent">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/tool_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        app:titleTextColor="#FFFFFF"
+        android:background="@color/colorPrimary"
+        android:fitsSystemWindows="true"
+        android:elevation="4dp"/>
+
+    <LinearLayout
+        android:id="@+id/llSearchCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@+id/tool_bar"
+
+        >
+        <TextView
+            android:id="@+id/tvSearchImages"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:text="Image"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:background="#000000"
+            android:textColor="#FFFFFF"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            />
+        <TextView
+            android:id="@+id/tvSearchGifs"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.5"
+            android:text="GIF"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:background="#FFFFFF"
+            android:textColor="#000000"
+            android:paddingTop="15dp"
+            android:paddingBottom="15dp"
+            />
+    </LinearLayout>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rvSearchResults"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="visible"
+        android:background="#ECEFF1"
+        android:layout_below="@+id/tvSearchTitle"
+        />
+
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@style/Widget.AppCompat.ProgressBar"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        />
+</LinearLayout>

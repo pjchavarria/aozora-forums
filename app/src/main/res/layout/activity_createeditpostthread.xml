@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/llButtons"
+        >
+
+    <EditText
+        android:id="@+id/etComment"
+        android:hint="Write a comment"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="10dp"
+        android:textColor="@color/gray3C"
+        android:textSize="12sp"
+        android:gravity="top"
+        android:background="@color/colorWhite"
+        />
+
+        <EditText
+            android:id="@+id/etSpoilerText"
+            android:hint="Spoiler content"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:padding="10dp"
+            android:textColor="@color/gray3C"
+            android:textSize="12sp"
+            android:gravity="top"
+            android:background="@color/grayC5"
+            />
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:id="@+id/llButtons"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="2dp"
+            android:background="@color/grayC5"
+            ></View>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="10dp"
+            android:paddingBottom="5dp"
+            android:paddingTop="5dp"
+            >
+
+            <ImageView
+                android:id="@+id/ivAddPhotoInternet"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_like_small"
+                />
+
+            <ImageView
+                android:id="@+id/ivAddPhotoGallery"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/icon_like_small"
+                android:layout_marginLeft="20dp"
+                />
+
+            <ImageView
+                android:id="@+id/ivAddVideo"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:src="@drawable/icon_like_small"
+                />
+
+            <ImageView
+                android:id="@+id/ivAddLink"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="20dp"
+                android:src="@drawable/icon_like_small"
+                />
+
+            <Space
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="1" />
+
+            <Button
+                android:id="@+id/btnSpoilers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Spoilers"
+                android:textAllCaps="false"
+                android:background="@drawable/button_spoilers"
+                android:textColor="@color/grayC5"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="7dp"
+                android:paddingBottom="7dp"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+
+                />
+
+            <Button
+                android:id="@+id/btnSendComment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Send"
+                android:textAllCaps="false"
+                android:background="@drawable/button_send"
+                android:textColor="@color/colorWhite"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingTop="7dp"
+                android:paddingBottom="7dp"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+
+                />
+
+        </LinearLayout>
+    </LinearLayout>
+
+</RelativeLayout>

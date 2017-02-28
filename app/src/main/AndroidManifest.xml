@@ -97,6 +97,16 @@
             android:name=".activities.AozoraActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.postthread.CreatePostActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".activities.postthread.SearchImageActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar" />
+
 
         <meta-data
             android:name="io.fabric.ApiKey"

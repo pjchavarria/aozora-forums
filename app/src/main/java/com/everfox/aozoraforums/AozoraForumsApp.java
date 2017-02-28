@@ -144,7 +144,7 @@ public class AozoraForumsApp extends Application {
         Parse.initialize(new Parse.Configuration.Builder(this)
                 .applicationId("AneKeKPLygTGmVmqWsY6totXXTQfk8")
                 .clientKey("vvsbzUBBgnPKCoYQlltREy5S0gSIgMfBp34aDrkc")
-                .server("http://aozora-server-1.us-east-1.elasticbeanstalk.com/parse/")
+                .server("http://www.aozoraapp.com/parse/")
                 .enableLocalDataStore()
                 .build());
 

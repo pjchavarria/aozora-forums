@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -40,6 +41,7 @@ import com.everfox.aozoraforums.activities.EditProfileActivity;
 import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.activities.SettingsActivity;
 import com.everfox.aozoraforums.activities.TimelinePostActivity;
+import com.everfox.aozoraforums.activities.postthread.CreatePostActivity;
 import com.everfox.aozoraforums.adapters.ProfileTimelineAdapter;
 import com.everfox.aozoraforums.controllers.PostParseHelper;
 import com.everfox.aozoraforums.controllers.ProfileParseHelper;
@@ -87,6 +89,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
         ProfileTimelineAdapter.OnImageShareListener
 {
 
+    private static final int REQUEST_NEW_TIMELINEPOST = 401;
     private static final int REQUEST_WRITE_STORAGE = 100;
     View viewToShare;
     SimpleLoadingDialogFragment simpleLoadingDialogFragment = new SimpleLoadingDialogFragment();
@@ -151,6 +154,8 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     LinearLayout llFollowing;
     @BindView(R.id.swipeRefresh)
     SwipeRefreshLayout swipeRefresh;
+    @BindView(R.id.fabNewTimelinePost)
+    FloatingActionButton fabNewTimelinePost;
 
     public static ProfileFragment newInstance(ParseUser user,Boolean isProfile, Boolean isCurrentUser, String userID, Boolean hasMenu) {
         ProfileFragment fragment = new ProfileFragment();
@@ -175,6 +180,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
         if(isProfile) {
             rvTimeline = (RecyclerView) view.findViewById(R.id.rvTimeline);
         } else {
+            fabNewTimelinePost.setVisibility(View.GONE);
             rvTimeline = (RecyclerView) view.findViewById(R.id.rvFeed);
         }
         llm = new LinearLayoutManager(getActivity());
@@ -277,6 +283,15 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
                     @Override
                     public void onRefresh() {
                         reloadPosts(true);
+                    }
+                });
+
+                fabNewTimelinePost.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent i = new Intent(getActivity(),CreatePostActivity.class);
+                        i.putExtra(CreatePostActivity.PARAM_TYPE,CreatePostActivity.NEW_TIMELINEPOST);
+                        startActivityForResult(i,REQUEST_NEW_TIMELINEPOST);
                     }
                 });
                 loadProfile();
