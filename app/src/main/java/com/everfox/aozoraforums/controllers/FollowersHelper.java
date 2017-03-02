@@ -48,25 +48,27 @@ public class FollowersHelper {
 
     private void GetRelations(final List<PUser> users) {
 
-        ArrayList<String> userIDs = new ArrayList<String>();
-        for(int i=0;i<users.size();i++) {
-            users.get(i).setFollowingThisUser(false);
-            userIDs.add(users.get(i).getObjectId());
-        }
-
-        ParseQuery<ParseObject> relationQuery = ParseUser.getCurrentUser().getRelation(ParseUserColumns.FOLLOWING).getQuery();
-        relationQuery.whereContainedIn(ParseUserColumns.OBJECT_ID,userIDs);
-        relationQuery.setLimit(1000);
-        relationQuery.findInBackground(new FindCallback<ParseObject>() {
-            @Override
-            public void done(List<ParseObject> objects, ParseException e) {
-
-                for(int i=0;i<objects.size();i++) {
-                    (users.get(users.indexOf(objects.get(i))) ).setFollowingThisUser(true);
-                }
-                mOnGetFollowersCallback.onGetFollowers(users);
+        if(users != null) {
+            ArrayList<String> userIDs = new ArrayList<String>();
+            for (int i = 0; i < users.size(); i++) {
+                users.get(i).setFollowingThisUser(false);
+                userIDs.add(users.get(i).getObjectId());
             }
-        });
+
+            ParseQuery<ParseObject> relationQuery = ParseUser.getCurrentUser().getRelation(ParseUserColumns.FOLLOWING).getQuery();
+            relationQuery.whereContainedIn(ParseUserColumns.OBJECT_ID, userIDs);
+            relationQuery.setLimit(1000);
+            relationQuery.findInBackground(new FindCallback<ParseObject>() {
+                @Override
+                public void done(List<ParseObject> objects, ParseException e) {
+
+                    for (int i = 0; i < objects.size(); i++) {
+                        (users.get(users.indexOf(objects.get(i)))).setFollowingThisUser(true);
+                    }
+                    mOnGetFollowersCallback.onGetFollowers(users);
+                }
+            });
+        }
     }
 
 

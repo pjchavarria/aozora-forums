@@ -10,6 +10,7 @@ import android.widget.ImageView;
 
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.AozoraActivity;
+import com.everfox.aozoraforums.models.ImageData;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -21,6 +22,7 @@ import butterknife.ButterKnife;
 public class CreatePostActivity extends AozoraActivity {
 
     int REQUEST_SEARCH_IMAGE = 400;
+    ImageData imageDataWeb = null;
 
     public static final String PARAM_TYPE = "type";
     public static final int NEW_TIMELINEPOST = 0;
@@ -81,4 +83,6 @@ public class CreatePostActivity extends AozoraActivity {
         });
 
     }
+
+
 }

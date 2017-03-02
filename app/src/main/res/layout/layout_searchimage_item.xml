@@ -1,22 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:fresco="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="150dp">
+    android:layout_height="wrap_content"
+    >
+
 
     <ImageView
         android:id="@+id/ivSearchImage"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="5dp"
-        android:scaleType="fitCenter"
+        android:layout_height="150dp"
+        android:scaleType="centerCrop"
+        android:adjustViewBounds="true" />
+
+    <ProgressBar
+        android:id="@+id/pbLoading"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:indeterminate="true"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        />
+
+    <ImageView
+        android:id="@+id/ivSearchImageGifPreview"
+        android:layout_width="match_parent"
+        android:layout_height="220dp"
+        android:scaleType="centerCrop"
         android:adjustViewBounds="true" />
 
     <com.facebook.drawee.view.SimpleDraweeView
         android:id="@+id/sdvSearchGif"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="220dp"
         android:visibility="gone"
-        fresco:actualImageScaleType="fitCenter"
+        fresco:actualImageScaleType="centerCrop"
         />
 
     <ImageView

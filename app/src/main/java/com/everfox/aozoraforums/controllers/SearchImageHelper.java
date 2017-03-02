@@ -2,15 +2,21 @@ package com.everfox.aozoraforums.controllers;
 
 import android.app.Activity;
 import android.content.Context;
+import android.nfc.Tag;
 import android.os.AsyncTask;
 import android.text.Html;
+
+import com.everfox.aozoraforums.models.ImageData;
 
 import org.htmlcleaner.CleanerProperties;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 import org.htmlcleaner.XPather;
 import org.htmlcleaner.XPatherException;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.w3c.dom.Document;
+import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
@@ -23,6 +29,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -51,12 +58,12 @@ public class SearchImageHelper {
     private static int RESULT_MAX = 20;
     private OnGetSearchImagesListener mOnGetSearchImagesCallback;
     public interface OnGetSearchImagesListener {
-        public void onGetSearchImagesListener(List<String> results);
+        public void onGetSearchImagesListener(List<ImageData> results);
     }
 
     private OnGetSearchGifsListener mOnGetSearchGifsCallback;
     public interface OnGetSearchGifsListener {
-        public void onGetSearchGifsListener(List<String> results);
+        public void onGetSearchGifsListener(List<ImageData> results);
     }
     private Context context;
 
@@ -69,13 +76,15 @@ public class SearchImageHelper {
     public void SearchImages(String text){
 
         SearchImagesTask searchImagesTask = new SearchImagesTask(true);
-        searchImagesTask.execute(text);
+        searchImagesTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,text);
     }
     public void SearchGifs(String text) {
 
+        SearchImagesTask searchImagesTask = new SearchImagesTask(false);
+        searchImagesTask.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,text);
     }
 
-    private class SearchImagesTask extends AsyncTask<String,Void,Object[]> {
+    private class SearchImagesTask extends AsyncTask<String,Void,String> {
 
         private Boolean isImage;
 
@@ -84,7 +93,7 @@ public class SearchImageHelper {
         }
 
         @Override
-        protected Object[] doInBackground(String... strings) {
+        protected String doInBackground(String... strings) {
             String string = strings[0];
             string = URLEncoder.encode(string);
             String finalRequestURL = "";
@@ -93,11 +102,10 @@ public class SearchImageHelper {
             String finalPartOfQuery = isImage ? "" : ",itp:animated";
             query = query + finalPartOfQuery;
             Object[] imagesNodes = null;
-
+            String html ="";
             try {
                 finalRequestURL = baseURL + query;
                 if (!finalRequestURL.equals("")) {
-                    HtmlCleaner cleaner = new HtmlCleaner();
 
                     // OPEN A CONNECTION TO THE DESIRED URL
                     URL url = new URL(finalRequestURL);
@@ -109,6 +117,7 @@ public class SearchImageHelper {
                     conn.setRequestProperty("X-Requested-With",null);
 
                     //USE THE CLEANER TO "CLEAN" THE HTML AND RETURN IT AS A TAGNODE OBJECT
+
                     final int bufferSize = 1024;
                     final char[] buffer = new char[bufferSize];
                     final StringBuilder out = new StringBuilder();
@@ -119,10 +128,14 @@ public class SearchImageHelper {
                             break;
                         out.append(buffer, 0, rsz);
                     }
-                    String html = out.toString();
-                    TagNode node = cleaner.clean(html);
-                    XPather xPather = new XPather(x_path_images);
-                    imagesNodes = xPather.evaluateAgainstNode(node);
+                    html = out.toString();
+                    int indexOfFirstDiv = html.indexOf("<div style=\"visibility:hidden\" data-jiis=\"up\" data-async-type=\"ichunk\" id=\"rg_s\" ");
+                    html = html.substring(indexOfFirstDiv);
+                    int indexOfLimit = html.indexOf("<script>(function()");
+                    html = html.substring(0,indexOfLimit);
+
+
+
                 }
 
             } catch (IOException e) {
@@ -130,13 +143,41 @@ public class SearchImageHelper {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            return imagesNodes;
+            return html;
         }
 
 
         @Override
-        protected void onPostExecute(Object[] objects) {
-            super.onPostExecute(objects);
+        protected void onPostExecute(String html) {
+            super.onPostExecute(html);
+
+            ArrayList<ImageData> lst = new ArrayList<>();
+            while (true) {
+                int indexItem = html.indexOf("<div class=\"rg_meta\">");
+                if(indexItem <1)
+                    break;
+                String item =html.substring(indexItem);
+                String itemJson = item.substring(item.indexOf("{"),item.indexOf("}<")+1);
+                try {
+                    JSONObject jsonObject = new JSONObject(itemJson);
+                    ImageData imgData = new ImageData();
+                    imgData.setHeight(jsonObject.getInt("oh"));
+                    imgData.setWidth(jsonObject.getInt("ow"));
+                    imgData.setImageURL(jsonObject.getString("ou"));
+                    lst.add(imgData);
+                    html = html.substring(indexItem + item.indexOf("}<") + 1);
+                }
+                catch (StringIndexOutOfBoundsException sex) {
+                    break;
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+            if (isImage)
+                mOnGetSearchImagesCallback.onGetSearchImagesListener(lst);
+            else
+                mOnGetSearchGifsCallback.onGetSearchGifsListener(lst);
         }
     }
 }
