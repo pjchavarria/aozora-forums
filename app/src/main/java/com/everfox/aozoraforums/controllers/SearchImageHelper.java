@@ -164,7 +164,8 @@ public class SearchImageHelper {
                     imgData.setHeight(jsonObject.getInt("oh"));
                     imgData.setWidth(jsonObject.getInt("ow"));
                     imgData.setImageURL(jsonObject.getString("ou"));
-                    lst.add(imgData);
+                    if(imgData.getHeight() <= 1400 && imgData.getWidth() <=1400)
+                        lst.add(imgData);
                     html = html.substring(indexItem + item.indexOf("}<") + 1);
                 }
                 catch (StringIndexOutOfBoundsException sex) {

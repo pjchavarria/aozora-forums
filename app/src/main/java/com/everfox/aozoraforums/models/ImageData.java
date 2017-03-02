@@ -1,10 +1,22 @@
 package com.everfox.aozoraforums.models;
 
+import java.io.Serializable;
+
 /**
  * Created by Daniel on 01/03/2017.
  */
 
-public class ImageData {
+public class ImageData implements Serializable {
+
+    public byte[] getImageFile() {
+        return imageFile;
+    }
+
+    public void setImageFile(byte[] imageFile) {
+        this.imageFile = imageFile;
+    }
+
+    byte[] imageFile;
     int width;
     int height;
     String imageURL;

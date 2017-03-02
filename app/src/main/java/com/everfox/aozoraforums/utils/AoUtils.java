@@ -10,6 +10,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -33,6 +34,7 @@ import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
 import com.everfox.aozoraforums.dialogfragments.SimpleLoadingDialogFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.models.AoNotification;
+import com.everfox.aozoraforums.models.ImageData;
 import com.everfox.aozoraforums.models.PUser;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
@@ -47,6 +49,7 @@ import com.parse.SaveCallback;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -474,5 +477,36 @@ public class AoUtils {
                     position = 0;
         }
         return position;
+    }
+
+    public static ImageData resizeImage(Uri uri, Context context)  {
+        try {
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            BitmapFactory.decodeStream(context.getContentResolver().openInputStream(uri), null, o);
+            int width_tmp = o.outWidth, height_tmp = o.outHeight;
+            int scale = 1;
+            int maxSize = 960;
+            int newWidth = Math.min(maxSize,width_tmp);
+            int newHeight = Math.min(maxSize,height_tmp);
+            float scaleWidth = ((float) newWidth) / width_tmp;
+            float scaleHeight = ((float) newHeight) / height_tmp;
+            // create a matrix for the manipulation
+            Matrix matrix = new Matrix();
+            // resize the bit map
+            matrix.postScale(scaleWidth, scaleHeight);
+            // recreate the new Bitmap
+            Bitmap resizedBitmap = Bitmap.createBitmap(BitmapFactory.decodeStream(context.getContentResolver().openInputStream(uri)), 0, 0, newWidth, newHeight, matrix, false);
+            ByteArrayOutputStream stream = new ByteArrayOutputStream();
+            resizedBitmap.compress(Bitmap.CompressFormat.JPEG,100,stream);
+            ImageData imageData = new ImageData();
+            imageData.setHeight(newHeight);
+            imageData.setWidth(newWidth);
+            imageData.setImageFile(stream.toByteArray());
+            return imageData;
+
+        } catch (Exception ex ){
+            return null;
+        }
     }
 }

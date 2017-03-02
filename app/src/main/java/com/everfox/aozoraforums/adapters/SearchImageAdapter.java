@@ -1,5 +1,6 @@
 package com.everfox.aozoraforums.adapters;
 
+import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
@@ -44,10 +45,16 @@ public class SearchImageAdapter extends RecyclerView.Adapter<SearchImageAdapter.
     private ArrayList<ImageData> resultsURLs;
     private Boolean isImage;
 
-    public SearchImageAdapter (Context context, ArrayList<ImageData> resultsURLs, Boolean isImage) {
+    public OnItemClickListener mOnItemClicked;
+    public interface OnItemClickListener {
+        public void onItemClicked(ImageData image);
+    }
+
+    public SearchImageAdapter (Context context, ArrayList<ImageData> resultsURLs, Boolean isImage, Activity callback) {
         this.context = context;
         this.resultsURLs = resultsURLs;
         this.isImage = isImage;
+        mOnItemClicked = (OnItemClickListener) callback;
     }
 
     @Override
@@ -58,7 +65,7 @@ public class SearchImageAdapter extends RecyclerView.Adapter<SearchImageAdapter.
     }
 
     @Override
-    public void onBindViewHolder(SearchViewHolder holder, int position) {
+    public void onBindViewHolder(SearchViewHolder holder, final int position) {
 
         holder.pbLoading.setVisibility(View.GONE);
         holder.ivSearchImageGifPreview.setImageDrawable(null);
@@ -72,6 +79,12 @@ public class SearchImageAdapter extends RecyclerView.Adapter<SearchImageAdapter.
             holder.ivSearchImage.setVisibility(View.VISIBLE);
             Glide.with(context).load(urlImage).crossFade().centerCrop()
                     .diskCacheStrategy(DiskCacheStrategy.RESULT).into(holder.ivSearchImage);
+            holder.ivSearchImage.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    mOnItemClicked.onItemClicked(resultsURLs.get(position));
+                }
+            });
         } else {
             holder.pbLoading.setVisibility(View.VISIBLE);
             holder.ivSearchImageGifPreview.setVisibility(View.VISIBLE);
@@ -92,6 +105,13 @@ public class SearchImageAdapter extends RecyclerView.Adapter<SearchImageAdapter.
                     .build();
             holder.sdvSearchGif.setController(controller);
         }
+
+        holder.sdvSearchGif.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnItemClicked.onItemClicked(resultsURLs.get(position));
+            }
+        });
     }
 
     @Override

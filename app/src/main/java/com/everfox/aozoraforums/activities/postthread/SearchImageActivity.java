@@ -1,5 +1,6 @@
 package com.everfox.aozoraforums.activities.postthread;
 
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -25,6 +26,7 @@ import com.everfox.aozoraforums.activities.SearchActivity;
 import com.everfox.aozoraforums.adapters.SearchImageAdapter;
 import com.everfox.aozoraforums.controllers.SearchImageHelper;
 import com.everfox.aozoraforums.models.ImageData;
+import com.everfox.aozoraforums.utils.RecyclerItemClickListener;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -39,8 +41,12 @@ import butterknife.ButterKnife;
  * Created by daniel.soto on 2/28/2017.
  */
 
-public class SearchImageActivity extends AozoraActivity implements SearchImageHelper.OnGetSearchGifsListener, SearchImageHelper.OnGetSearchImagesListener{
+public class SearchImageActivity extends AozoraActivity implements SearchImageHelper.OnGetSearchGifsListener, SearchImageHelper.OnGetSearchImagesListener,
+SearchImageAdapter.OnItemClickListener{
 
+    public static int RESULT_SUCCESS = 500;
+    public static String IMAGE_DATA = "IMAGE_DATA";
+    List<ImageData> lstImageData = new ArrayList<>();
     SearchImageHelper searchImageHelper;
     MenuItem searchMenuItem;
     SearchImageAdapter searchImageAdapter;
@@ -73,7 +79,7 @@ public class SearchImageActivity extends AozoraActivity implements SearchImageHe
         imagesLayoutManager = new GridLayoutManager(this,2);
         gifLayoutManager = new LinearLayoutManager(this);
         rvSearchResults.setLayoutManager(imagesLayoutManager);
-        searchImageAdapter = new SearchImageAdapter(this,new ArrayList<ImageData>(),true);
+        searchImageAdapter = new SearchImageAdapter(this,new ArrayList<ImageData>(),true,this);
         rvSearchResults.setAdapter(searchImageAdapter);
         tvSearchImages.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -85,7 +91,7 @@ public class SearchImageActivity extends AozoraActivity implements SearchImageHe
                     tvSearchImages.setTextColor(Color.WHITE);
                     tvSearchGifs.setBackgroundColor(Color.WHITE);
                     tvSearchGifs.setTextColor(ContextCompat.getColor(SearchImageActivity.this,R.color.gray3C));
-                    searchImageAdapter = new SearchImageAdapter(SearchImageActivity.this,new ArrayList<ImageData>(),true);
+                    searchImageAdapter = new SearchImageAdapter(SearchImageActivity.this,new ArrayList<ImageData>(),true,SearchImageActivity.this);
                     rvSearchResults.setLayoutManager(imagesLayoutManager);
                     rvSearchResults.setAdapter(searchImageAdapter);
                     if(!searchView.getQuery().toString().equals("")) {
@@ -109,7 +115,7 @@ public class SearchImageActivity extends AozoraActivity implements SearchImageHe
                         tvSearchGifs.setTextColor(Color.WHITE);
                         tvSearchImages.setBackgroundColor(Color.WHITE);
                         tvSearchImages.setTextColor(ContextCompat.getColor(SearchImageActivity.this, R.color.gray3C));
-                        searchImageAdapter = new SearchImageAdapter(SearchImageActivity.this, new ArrayList<ImageData>(), true);
+                        searchImageAdapter = new SearchImageAdapter(SearchImageActivity.this, new ArrayList<ImageData>(), true,SearchImageActivity.this);
                         rvSearchResults.setLayoutManager(gifLayoutManager);
                         rvSearchResults.setAdapter(searchImageAdapter);
                         if(!searchView.getQuery().toString().equals("")) {
@@ -124,7 +130,6 @@ public class SearchImageActivity extends AozoraActivity implements SearchImageHe
             }
         });
         searchImageHelper = new SearchImageHelper(this,this);
-
     }
 
     @Override
@@ -174,7 +179,7 @@ public class SearchImageActivity extends AozoraActivity implements SearchImageHe
 
         Boolean isImage = selectedSearchIndex == 0;
         if(newText == ""){
-            searchImageAdapter = new SearchImageAdapter(this,new ArrayList<ImageData>(),isImage);
+            searchImageAdapter = new SearchImageAdapter(this,new ArrayList<ImageData>(),isImage,this);
             rvSearchResults.setAdapter(searchImageAdapter);
             isSearching = false;
         } else {
@@ -200,8 +205,9 @@ public class SearchImageActivity extends AozoraActivity implements SearchImageHe
         if(isSearching) {
             pbLoading.setVisibility(View.GONE);
             rvSearchResults.setVisibility(View.VISIBLE);
-            searchImageAdapter = new SearchImageAdapter(this, new ArrayList<>(results), false);
+            searchImageAdapter = new SearchImageAdapter(this, new ArrayList<>(results), false,this);
             rvSearchResults.setAdapter(searchImageAdapter);
+            lstImageData.addAll(results);
         }
         isSearching = false;
     }
@@ -212,9 +218,18 @@ public class SearchImageActivity extends AozoraActivity implements SearchImageHe
         if(isSearching) {
             pbLoading.setVisibility(View.GONE);
             rvSearchResults.setVisibility(View.VISIBLE);
-            searchImageAdapter = new SearchImageAdapter(this, new ArrayList<>(results), true);
+            searchImageAdapter = new SearchImageAdapter(this, new ArrayList<>(results), true,this);
             rvSearchResults.setAdapter(searchImageAdapter);
+            lstImageData.addAll(results);
         }
         isSearching = false;
+    }
+
+    @Override
+    public void onItemClicked(ImageData image) {
+        Intent intent = new Intent();
+        intent.putExtra(IMAGE_DATA,image);
+        setResult(RESULT_SUCCESS,intent);
+        finish();
     }
 }

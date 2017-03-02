@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    >
 
 
     <LinearLayout
@@ -11,31 +13,47 @@
         android:layout_above="@+id/llButtons"
         >
 
-    <EditText
-        android:id="@+id/etComment"
-        android:hint="Write a comment"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:padding="10dp"
-        android:textColor="@color/gray3C"
-        android:textSize="12sp"
-        android:gravity="top"
-        android:background="@color/colorWhite"
-        />
-
         <EditText
-            android:id="@+id/etSpoilerText"
-            android:hint="Spoiler content"
+            android:id="@+id/etComment"
+            android:hint="Write a comment"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:padding="10dp"
             android:textColor="@color/gray3C"
-            android:textSize="12sp"
+            android:textSize="14sp"
             android:gravity="top"
-            android:background="@color/grayC5"
+            android:background="@color/colorWhite"
             />
+
+        <LinearLayout
+            android:id="@+id/llSpoilerText"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:background="@color/grayC5"
+            android:visibility="gone"
+            android:animateLayoutChanges="true"
+            >
+            <TextView
+                android:text="Spoiler content"
+                android:layout_width="match_parent"
+                android:padding="10dp"
+                android:layout_height="wrap_content"
+                android:gravity="top" />
+            <EditText
+                android:id="@+id/etSpoilerText"
+                android:hint="Spoiler content"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="1"
+                android:textColor="@color/gray3C"
+                android:padding="10dp"
+                android:gravity="top"
+                android:background="@null"
+                />
+        </LinearLayout>
     </LinearLayout>
 
 
@@ -48,7 +66,7 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="2dp"
+            android:layout_height="1dp"
             android:background="@color/grayC5"
             ></View>
 
@@ -64,32 +82,32 @@
             <ImageView
                 android:id="@+id/ivAddPhotoInternet"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/icon_like_small"
+                android:layout_height="30dp"
+                android:src="@drawable/icon_online_image"
                 />
 
             <ImageView
                 android:id="@+id/ivAddPhotoGallery"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/icon_like_small"
-                android:layout_marginLeft="20dp"
+                android:layout_height="30dp"
+                android:src="@drawable/icon_local_image"
+                android:layout_marginLeft="15dp"
                 />
 
             <ImageView
                 android:id="@+id/ivAddVideo"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:src="@drawable/icon_like_small"
+                android:layout_height="30dp"
+                android:layout_marginLeft="15dp"
+                android:src="@drawable/icon_video"
                 />
 
             <ImageView
                 android:id="@+id/ivAddLink"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:src="@drawable/icon_like_small"
+                android:layout_height="30dp"
+                android:layout_marginLeft="15dp"
+                android:src="@drawable/icon_link"
                 />
 
             <Space
@@ -111,7 +129,7 @@
                 android:paddingBottom="7dp"
                 android:minHeight="0dp"
                 android:minWidth="0dp"
-
+                android:layout_marginRight="10dp"
                 />
 
             <Button
@@ -128,9 +146,8 @@
                 android:paddingBottom="7dp"
                 android:minHeight="0dp"
                 android:minWidth="0dp"
-
+                android:layout_marginRight="10dp"
                 />
-
         </LinearLayout>
     </LinearLayout>
 
