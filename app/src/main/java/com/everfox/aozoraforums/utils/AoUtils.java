@@ -22,6 +22,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.Spanned;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Toast;
 
@@ -61,6 +62,7 @@ import java.util.Calendar;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.regex.Matcher;
 
 import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.SSLContext;
@@ -508,5 +510,16 @@ public class AoUtils {
         } catch (Exception ex ){
             return null;
         }
+    }
+
+    public static List<String> extractLinks(String text) {
+        List<String> links = new ArrayList<String>();
+        Matcher m = Patterns.WEB_URL.matcher(text);
+        while (m.find()) {
+            String url = m.group();
+            links.add(url);
+        }
+
+        return links;
     }
 }

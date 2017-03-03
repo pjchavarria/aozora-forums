@@ -3,11 +3,18 @@ package com.everfox.aozoraforums.activities.postthread;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,11 +22,27 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.AozoraActivity;
 import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.models.ImageData;
+import com.everfox.aozoraforums.models.LinkData;
 import com.everfox.aozoraforums.utils.AoUtils;
+import com.parse.FunctionCallback;
+import com.parse.ParseCloud;
+import com.parse.ParseException;
+
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -35,8 +58,11 @@ public class CreatePostActivity extends AozoraActivity {
     int REQUEST_SEARCH_IMAGE = 400;
     ImageData imageDataWeb = null;
     ImageData imageGallery = null;
-    String youtubeID = "";
+    String youtubeID = null;
+    String selectedLinkUrl = null;
+    LinkData selectedLinkData = null;
 
+    Boolean fetchingData = true;
     public static final String PARAM_TYPE = "type";
     public static final int NEW_TIMELINEPOST = 0;
     public static final int EDIT_TIMELINEPOST = 1;
@@ -156,9 +182,94 @@ public class CreatePostActivity extends AozoraActivity {
             }
         });
 
+        ivAddLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(selectedLinkUrl == null) {
+                    Toast.makeText(CreatePostActivity.this,"Paste any link in the text area", Toast.LENGTH_SHORT).show();
+                } else {
+                    selectedLinkUrl = null;
+                    ivAddLink.clearColorFilter();
+                }
+            }
+        });
+
+        etComment.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+                if(selectedLinkUrl == null) {
+                    List<String> lstUrls = AoUtils.extractLinks(etComment.getText().toString());
+                    if (lstUrls != null && lstUrls.size() > 0) {
+                        String link = lstUrls.get(0);
+                        Uri linkUri = Uri.parse(link);
+                        String host = linkUri.getHost();
+                        if (host != null && host.contains("youtube.com") || host.contains("youtu.be")) {
+                            //Video
+                            if (host.contains("youtube.com")) {
+                                clearAttachments();
+                                youtubeID = linkUri.getQueryParameter("v");
+                            } else if (host.contains("youtu.be")) {
+                                youtubeID = linkUri.getPathSegments().get(1);
+                            }
+                            ivAddVideo.setColorFilter(ContextCompat.getColor(CreatePostActivity.this, R.color.red_airing));
+                            return;
+                        }
+                        if (link.toLowerCase().endsWith(".png") || link.toLowerCase().endsWith(".jpeg")
+                                || link.toLowerCase().endsWith("jpg") || link.toLowerCase().endsWith(".gif")) {
+                            scrapeImageWithURL(link);
+                            return;
+                        }
+
+                        selectedLinkUrl = link;
+                        scrapeLinkWithURL(link);
+                        return;
+                    }
+                }
+
+            }
+        });
+
+
 
     }
 
+    private void scrapeLinkWithURL(String link) {
+        fetchingData = true;
+        HashMap<String,String> parametersMap = new HashMap<>();
+        parametersMap.put("url",link);
+        ParseCloud.callFunctionInBackground("Scrapper.ScrapeURLMetadata", parametersMap, new FunctionCallback<Object>() {
+            @Override
+            public void done(Object object, ParseException e) {
+                fetchingData = false;
+                if(e== null) {
+
+                    selectedLinkData = LinkData.mapHashMap((HashMap)object);
+                    ivAddLink.setColorFilter(ContextCompat.getColor(CreatePostActivity.this,R.color.red_airing));
+                } else {
+                    selectedLinkUrl = null;
+                    ivAddLink.clearColorFilter();
+                }
+            }
+        });
+    }
+
+    private void scrapeImageWithURL(String link) {
+
+        fetchingData = true;
+        DownloadImage task = new DownloadImage();
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,link);
+    }
 
     private void openGalleryIntent(int avatarBanner) {
         Intent intent = new Intent();
@@ -200,11 +311,13 @@ public class CreatePostActivity extends AozoraActivity {
         youtubeID = null;
         imageGallery = null;
         imageDataWeb = null;
+        selectedLinkUrl = null;
         ivAddPhotoInternet.clearColorFilter();
         ivAddPhotoGallery.clearColorFilter();
         ivAddVideo.clearColorFilter();
-    }
+        ivAddLink.clearColorFilter();
 
+    }
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -216,6 +329,43 @@ public class CreatePostActivity extends AozoraActivity {
             Toast.makeText(this, "Permission denied. Please allow the permission to set the avatar", Toast.LENGTH_LONG).show();
         }
         return;
+    }
+
+    private class DownloadImage extends AsyncTask<String, Void, Void>{
+
+        private Bitmap theBitmap = null;
+        private String imgURL = "";
+
+        @Override
+        protected Void doInBackground(String... strings) {
+
+            try {
+                imgURL = strings[0];
+                theBitmap = Glide.with(CreatePostActivity.this)
+                        .load(imgURL)
+                        .asBitmap()
+                        .into(-1, -1).get();
+            } catch (final ExecutionException e) {
+                Log.e("a", e.getMessage());
+            } catch (final InterruptedException e) {
+                Log.e("a", e.getMessage());
+            }
+            fetchingData = false;
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            if(theBitmap != null) {
+                imageDataWeb = new ImageData();
+                imageDataWeb.setHeight(theBitmap.getHeight());
+                imageDataWeb.setWidth(theBitmap.getWidth());
+                imageDataWeb.setImageURL(imgURL);
+                clearAttachments();
+                ivAddPhotoInternet.setColorFilter(ContextCompat.getColor(CreatePostActivity.this,R.color.red_airing));
+            }
+        }
     }
 
 }
