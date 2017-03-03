@@ -19,7 +19,17 @@ public class ImageData implements Serializable {
     byte[] imageFile;
     int width;
     int height;
-    String imageURL;
+    String url;
+
+    public String getImageName() {
+        return imageName;
+    }
+
+    public void setImageName(String imageName) {
+        this.imageName = imageName;
+    }
+
+    String imageName;
 
     public int getWidth() {
         return width;
@@ -37,11 +47,11 @@ public class ImageData implements Serializable {
         this.height = height;
     }
 
-    public String getImageURL() {
-        return imageURL;
+    public String getUrl() {
+        return url;
     }
 
-    public void setImageURL(String imageURL) {
-        this.imageURL = imageURL;
+    public void setUrl(String url) {
+        this.url = url;
     }
 }

@@ -2,35 +2,24 @@ package com.everfox.aozoraforums.adapters;
 
 import android.app.Activity;
 import android.content.Context;
-import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.Priority;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.everfox.aozoraforums.R;
-import com.everfox.aozoraforums.controls.FrescoGifListener;
 import com.everfox.aozoraforums.controls.FrescoPreviewGifListener;
 import com.everfox.aozoraforums.models.ImageData;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
-import com.facebook.imagepipeline.animated.factory.AnimatedImageFactoryImpl;
-import com.facebook.imagepipeline.common.ImageDecodeOptions;
-import com.facebook.imagepipeline.common.ImageDecodeOptionsBuilder;
-import com.facebook.imagepipeline.image.CloseableAnimatedImage;
-import com.facebook.imagepipeline.request.ImageRequest;
-import com.facebook.imagepipeline.request.ImageRequestBuilder;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -74,7 +63,7 @@ public class SearchImageAdapter extends RecyclerView.Adapter<SearchImageAdapter.
         holder.ivSearchImage.setVisibility(View.GONE);
         holder.sdvSearchGif.setVisibility(View.GONE);
         holder.ivPlay.setVisibility(View.GONE);
-        String urlImage = resultsURLs.get(position).getImageURL();
+        String urlImage = resultsURLs.get(position).getUrl();
         if(isImage) {
             holder.ivSearchImage.setVisibility(View.VISIBLE);
             Glide.with(context).load(urlImage).crossFade().centerCrop()

@@ -8,7 +8,10 @@ import com.parse.ParseObject;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,8 +20,9 @@ import java.util.Map;
  */
 
 @ParseClassName("_User")
-public class PUser extends ParseUser {
+public class PUser extends ParseUser implements Serializable {
 
+    private static final long serialVersionUID = -3051425209789228271L;
     private Boolean isFollowingThisUser;
 
     public Boolean getFollowingThisUser() {
@@ -61,5 +65,16 @@ public class PUser extends ParseUser {
         user.saveInBackground();
         currentUser.getParseObject("details").increment(UserDetails.FOLLOWING,count);
         currentUser.saveInBackground();
+    }
+
+    public static Boolean isMuted(ParseUser parseUser){
+        Date mutedUntil = parseUser.getParseObject("details").getDate("mutedUntil");
+        Date calendar = Calendar.getInstance().getTime();
+
+        if(mutedUntil != null && calendar.before(mutedUntil)){
+            return true;
+        }
+        return false;
+
     }
 }

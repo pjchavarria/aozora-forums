@@ -50,6 +50,7 @@
                 android:layout_weight="1"
                 android:textColor="@color/gray3C"
                 android:padding="10dp"
+                android:textSize="14sp"
                 android:gravity="top"
                 android:background="@color/grayC5"
                 />
@@ -91,14 +92,14 @@
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
                 android:src="@drawable/icon_local_image"
-                android:layout_marginLeft="10dp"
+                android:layout_marginLeft="5dp"
                 />
 
             <ImageView
                 android:id="@+id/ivAddVideo"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
-                android:layout_marginLeft="10dp"
+                android:layout_marginLeft="5dp"
                 android:src="@drawable/icon_video"
                 />
 
@@ -106,8 +107,9 @@
                 android:id="@+id/ivAddLink"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
-                android:layout_marginLeft="10dp"
+                android:layout_marginLeft="5dp"
                 android:src="@drawable/icon_link"
+
                 />
 
             <Space

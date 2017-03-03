@@ -4,7 +4,6 @@ import android.app.Application;
 import android.graphics.Typeface;
 
 import com.crashlytics.android.Crashlytics;
-import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.models.Anime;
 import com.everfox.aozoraforums.models.AoNotification;
 import com.everfox.aozoraforums.models.AoThread;
@@ -40,8 +39,40 @@ public class AozoraForumsApp extends Application {
 
     Integer FacebookRequestCode = 334;
 
-    private static AoThread threadToPass;
+    private static ParseObject updatedPost;
 
+    public static ParseObject getUpdatedPost() {
+        return updatedPost;
+    }
+
+    public static void setUpdatedPost(ParseObject updatedPost) {
+        AozoraForumsApp.updatedPost = updatedPost;
+    }
+
+    private static ParseObject updatedParentPost;
+    public static ParseObject getUpdatedParentPost() {
+        return updatedParentPost;
+    }
+    public static void setUpdatedParentPost(ParseObject updatedParentPost) {
+        AozoraForumsApp.updatedParentPost = updatedParentPost;
+    }
+
+    private static ParseUser postedBy;
+    private static ParseUser postedIn;
+    public static ParseUser getPostedBy() {
+        return postedBy;
+    }
+    public static void setPostedBy(ParseUser postedBy) {
+        AozoraForumsApp.postedBy = postedBy;
+    }
+    public static ParseUser getPostedIn() {
+        return postedIn;
+    }
+    public static void setPostedIn(ParseUser postedIn) {
+        AozoraForumsApp.postedIn = postedIn;
+    }
+
+    private static AoThread threadToPass;
     public static AoThread getThreadToPass() {
         return threadToPass;
     }
@@ -176,5 +207,7 @@ public class AozoraForumsApp extends Application {
         profileToPass = null;
         hiddenGlobalThreads = null;
         globalThreads = null;
+        postedBy = null;
+        postedIn = null;
     }
 }

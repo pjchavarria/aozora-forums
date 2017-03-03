@@ -2,47 +2,23 @@ package com.everfox.aozoraforums.controllers;
 
 import android.app.Activity;
 import android.content.Context;
-import android.nfc.Tag;
 import android.os.AsyncTask;
-import android.text.Html;
 
 import com.everfox.aozoraforums.models.ImageData;
 
-import org.htmlcleaner.CleanerProperties;
-import org.htmlcleaner.HtmlCleaner;
-import org.htmlcleaner.TagNode;
-import org.htmlcleaner.XPather;
-import org.htmlcleaner.XPatherException;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
-
-import okhttp3.HttpUrl;
 import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 
 /**
  * Created by daniel.soto on 2/28/2017.
@@ -163,7 +139,7 @@ public class SearchImageHelper {
                     ImageData imgData = new ImageData();
                     imgData.setHeight(jsonObject.getInt("oh"));
                     imgData.setWidth(jsonObject.getInt("ow"));
-                    imgData.setImageURL(jsonObject.getString("ou"));
+                    imgData.setUrl(jsonObject.getString("ou"));
                     if(imgData.getHeight() <= 1400 && imgData.getWidth() <=1400)
                         lst.add(imgData);
                     html = html.substring(indexItem + item.indexOf("}<") + 1);

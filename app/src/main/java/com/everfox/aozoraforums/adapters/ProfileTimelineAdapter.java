@@ -90,6 +90,11 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         public void mShareCallback(View view);
     }
 
+    private OnCommentTappedListener mOnCommentTappedCallback;
+    public interface OnCommentTappedListener {
+        public void onCommentTapped(TimelinePost post);
+    }
+
     private List<TimelinePost> timelinePosts;
     private Context context;
     Typeface awesomeTypeface;
@@ -107,6 +112,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         mOnLikeTappedListener = (OnLikeTappedListener) callback;
         mOnRepostTappedListener = (OnRepostTappedListener) callback;
         mShareCallback = (OnImageShareListener) callback;
+        mOnCommentTappedCallback = (OnCommentTappedListener) callback;
     }
 
 
@@ -195,6 +201,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 if (timelinePost.getParseObject(TimelinePost.REPOST_SOURCE) != null)
                     timelinePost = (TimelinePost)timelinePost.getParseObject(TimelinePost.REPOST_SOURCE);
                 updateLikeRepost(viewHolder.ivLikes,viewHolder.tvLikes,viewHolder.ivRepost,viewHolder.tvRepost, viewHolder.tvComments,timelinePost);
+                updateLastReply(timelinePost,viewHolder);
             }
         }else {
             super.onBindViewHolder(holder,position, payloads);
@@ -301,7 +308,6 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
                 mOnLikeTappedListener.onLikeTappedListener(post);
             }
         };
-
         holder.ivLikes.setOnClickListener(likeListener);
         holder.tvLikes.setOnClickListener(likeListener);
         holder.ivMoreOptions.setOnClickListener(new View.OnClickListener() {
@@ -311,9 +317,31 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
             }
         });
+        View.OnClickListener commentListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnCommentTappedCallback.onCommentTapped(post);
+            }
+        };
+        holder.tvComments.setOnClickListener(commentListener);
+        holder.ivComments.setOnClickListener(commentListener);
+        updateLastReply(post,holder);
 
         //LastReply
+
+
+    }
+
+    private void updateLastReply(TimelinePost post, ViewHolder holder) {
         if(post.getParseObject(TimelinePost.LAST_REPLY) != null) {
+
+            holder.ivCommentImage.setImageDrawable(null);
+            holder.ivCommentImage.setVisibility(View.GONE);
+            holder.sdvCommentImageGif.setVisibility(View.GONE);
+            holder.ivCommentPlay.setVisibility(View.GONE);
+            holder.tvCommentSpoilerOpen.setVisibility(View.GONE);
+            holder.tvCommentSpoilerText.setVisibility(View.GONE);
+            holder.tvViewPreviousComments.setVisibility(View.GONE);
 
             holder.llLastComment.setVisibility(View.VISIBLE);
             if(post.getInt(TimelinePost.REPLY_COUNT)>1) {
@@ -365,7 +393,6 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         } else {
             holder.llLastComment.setVisibility(View.GONE);
         }
-
     }
 
     @Override

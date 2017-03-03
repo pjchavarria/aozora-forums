@@ -3,6 +3,7 @@ package com.everfox.aozoraforums.models;
 import com.parse.ParseClassName;
 import com.parse.ParseObject;
 
+import java.io.Serializable;
 import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,10 +12,11 @@ import java.util.List;
  * Created by daniel.soto on 1/12/2017.
  */
 
-@ParseClassName("TimelinePost")
-public class TimelinePost extends ParseObject {
+@ParseClassName("TimelinePostTest")
+public class TimelinePost extends ParseObject implements Serializable {
 
 
+    private static final long serialVersionUID = -4307875501665953468L;
     private List<TimelinePost> replies = new ArrayList<>();
     public List<TimelinePost> getReplies() {
         return replies;

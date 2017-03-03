@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -16,7 +15,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.NestedScrollView;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -26,7 +24,6 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -38,12 +35,10 @@ import android.widget.Toast;
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.EditProfileActivity;
-import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.activities.SettingsActivity;
 import com.everfox.aozoraforums.activities.TimelinePostActivity;
 import com.everfox.aozoraforums.activities.postthread.CreatePostActivity;
 import com.everfox.aozoraforums.adapters.ProfileTimelineAdapter;
-import com.everfox.aozoraforums.controllers.PostParseHelper;
 import com.everfox.aozoraforums.controllers.ProfileParseHelper;
 import com.everfox.aozoraforums.controls.EndlessScrollView;
 import com.everfox.aozoraforums.dialogfragments.MuteUserDialogFragment;
@@ -68,7 +63,6 @@ import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
-import java.sql.Time;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -86,9 +80,10 @@ import butterknife.ButterKnife;
 public class ProfileFragment extends Fragment implements ProfileParseHelper.OnGetProfilePostsListener, EndlessScrollView.EndlessScrollListener,
 OptionListDialogFragment.OnListSelectedListener, ProfileTimelineAdapter.OnUsernameTappedListener, ProfileTimelineAdapter.OnMoreOptionsTappedListener,
 PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, ProfileTimelineAdapter.OnLikeTappedListener, ProfileTimelineAdapter.OnRepostTappedListener,
-        ProfileTimelineAdapter.OnImageShareListener
+        ProfileTimelineAdapter.OnImageShareListener, ProfileTimelineAdapter.OnCommentTappedListener
 {
 
+    private static final int REQUEST_NEW_TIMELINEPOST_REPLY = 402;
     private static final int REQUEST_NEW_TIMELINEPOST = 401;
     private static final int REQUEST_WRITE_STORAGE = 100;
     View viewToShare;
@@ -289,8 +284,11 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
                 fabNewTimelinePost.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        selectedPost = null;
                         Intent i = new Intent(getActivity(),CreatePostActivity.class);
                         i.putExtra(CreatePostActivity.PARAM_TYPE,CreatePostActivity.NEW_TIMELINEPOST);
+                        AozoraForumsApp.setPostedBy(ParseUser.getCurrentUser());
+                        AozoraForumsApp.setPostedIn(user);
                         startActivityForResult(i,REQUEST_NEW_TIMELINEPOST);
                     }
                 });
@@ -834,7 +832,17 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
         if(requestCode == OPEN_TIMELINE_POST) {
             if(resultCode == TimelinePostActivity.PARENT_POST_DELETED)
                 onDeletePost();
+        } else if (requestCode == REQUEST_NEW_TIMELINEPOST && resultCode == getActivity().RESULT_OK) {
+            reloadPosts(true);
+        }else if (requestCode == REQUEST_NEW_TIMELINEPOST_REPLY && resultCode == getActivity().RESULT_OK) {
+
+
+            TimelinePost post = (TimelinePost)AozoraForumsApp.getUpdatedParentPost();
+            int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,post);
+            lstTimelinePost.set(position, post);
+            timelineAdapter.notifyItemChanged(position, post);
         }
+
     }
 
     @Override
@@ -905,4 +913,15 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     }
 
 
+    @Override
+    public void onCommentTapped(TimelinePost post) {
+
+        selectedPost = null;
+        Intent i = new Intent(getActivity(),CreatePostActivity.class);
+        i.putExtra(CreatePostActivity.PARAM_TYPE,CreatePostActivity.NEW_TIMELINEPOST_REPLY);
+        AozoraForumsApp.setPostedBy(ParseUser.getCurrentUser());
+        AozoraForumsApp.setPostedIn(user);
+        AozoraForumsApp.setUpdatedParentPost(post);
+        startActivityForResult(i,REQUEST_NEW_TIMELINEPOST_REPLY);
+    }
 }

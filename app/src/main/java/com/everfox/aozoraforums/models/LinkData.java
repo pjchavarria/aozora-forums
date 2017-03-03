@@ -1,5 +1,7 @@
 package com.everfox.aozoraforums.models;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.HashMap;
@@ -19,6 +21,15 @@ public class LinkData {
     String[] relatedImages;
     int imageWidth;
     int imageHeight;
+    JSONArray images;
+
+    public JSONArray getImages() {
+        return images;
+    }
+
+    public void setImages(JSONArray images) {
+        this.images = images;
+    }
 
     public String getUrl() {
         return url;
@@ -106,6 +117,9 @@ public class LinkData {
             }
             if (dictionary.containsKey("image") && dictionary.get("image") != null) {
                 linkData.setImageUrl(dictionary.get("image").toString());
+                JSONArray jsonArray = new JSONArray();
+                jsonArray.put(dictionary.get("image"));
+                linkData.setImages(jsonArray);
             }
             if (dictionary.containsKey("description") && dictionary.get("description") != null) {
                 linkData.setDescription(dictionary.get("description").toString());
@@ -119,11 +133,25 @@ public class LinkData {
             if (dictionary.containsKey("siteName") && dictionary.get("siteName") != null) {
                 linkData.setSiteName(dictionary.get("siteName").toString());
             }
+
             //TODO: RELATED IMAGES
 
         } catch (Exception ex ){
 
         }
         return linkData;
+    }
+
+    public JSONObject toJsonObject() {
+        JSONObject jsonObject = new JSONObject();
+        try {
+            jsonObject.put("title", getTitle());
+            jsonObject.put("description", getDescription());
+            jsonObject.put("url", getUrl());
+            jsonObject.put("images", getImages());
+        } catch (JSONException jEx) {
+
+        }
+        return jsonObject;
     }
 }

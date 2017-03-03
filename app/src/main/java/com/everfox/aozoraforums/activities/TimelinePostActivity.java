@@ -181,6 +181,7 @@ TimelinePostsAdapter.OnImageShareListener{
 
         parentPost.setReplies(new ArrayList<>(timelinePosts));
         swipeRefreshPost.setRefreshing(false);
+        allComments.clear();
         timelinePosts.add(0,parentPost);
         allComments.addAll(timelinePosts);
         postsAdapter = new TimelinePostsAdapter(TimelinePostActivity.this, allComments, TimelinePostActivity.this, ParseUser.getCurrentUser());

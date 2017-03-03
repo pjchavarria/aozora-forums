@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -23,23 +22,28 @@ import android.widget.LinearLayout;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.AozoraActivity;
-import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.models.ImageData;
 import com.everfox.aozoraforums.models.LinkData;
+import com.everfox.aozoraforums.models.PUser;
+import com.everfox.aozoraforums.models.ParseUserColumns;
+import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.parse.FunctionCallback;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
+import com.parse.ParseFile;
+import com.parse.ParseObject;
+import com.parse.ParseUser;
+import com.parse.SaveCallback;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.util.ArrayList;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -61,9 +65,14 @@ public class CreatePostActivity extends AozoraActivity {
     String youtubeID = null;
     String selectedLinkUrl = null;
     LinkData selectedLinkData = null;
-
-    Boolean fetchingData = true;
+    TimelinePost timelinePost = new TimelinePost();
+    ParseUser postedBy;
+    ParseUser postedIn;
+    Boolean fetchingData = false;
     public static final String PARAM_TYPE = "type";
+    public static final String PARAM_TIMELINEPOST_PARENT = "timelinePostParent";
+    public static final String PARAM_POSTEDBY = "postedBy";
+    public static final String PARAM_POSTEDIN = "postedIn";
     public static final int NEW_TIMELINEPOST = 0;
     public static final int EDIT_TIMELINEPOST = 1;
     public static final int NEW_TIMELINEPOST_REPLY = 2;
@@ -73,7 +82,13 @@ public class CreatePostActivity extends AozoraActivity {
     public static final int NEW_AOTHREAD_REPLY = 6;
     public static final int EDIT_AOTHREAD_REPLY = 7;
     int type;
+    public static final int CONTENTTYPE_LINK = 0;
+    public static final int CONTENTTYPE_IMAGE = 1;
+    public static final int CONTENTTYPE_VIDEO = 2;
+    int postContentType;
     Boolean hasSpoilers = false;
+    Boolean isEditing = false;
+    ParseObject parentPost = null;
 
     @BindView(R.id.llSpoilerText)
     LinearLayout llSpoilerText;
@@ -106,9 +121,20 @@ public class CreatePostActivity extends AozoraActivity {
             finish();
         }
 
+        postedBy = AozoraForumsApp.getPostedBy();
+        postedIn = AozoraForumsApp.getPostedIn();
+
+
         switch (type){
             case NEW_TIMELINEPOST:
                 setTitle("New Post");
+                break;
+            case NEW_TIMELINEPOST_REPLY:
+                setTitle("New Post Reply");
+                parentPost =  AozoraForumsApp.getUpdatedParentPost();
+                ivAddLink.setVisibility(View.GONE);
+                btnSpoilers.setVisibility(View.GONE);
+
                 break;
         }
     }
@@ -240,8 +266,211 @@ public class CreatePostActivity extends AozoraActivity {
             }
         });
 
+        btnSendComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(!isValidPost()){
+                    return;
+                }
+                if(fetchingData) {
+                    AoUtils.showAlertWithText(CreatePostActivity.this, "Fetching link data...");
+                    return;
+                }
+
+                btnSendComment.setText("Sending...");
+                btnSendComment.setBackground(ContextCompat.getDrawable(CreatePostActivity.this,R.drawable.button_sending));
+                switch (type){
+                    case NEW_TIMELINEPOST:
+                    case NEW_TIMELINEPOST_REPLY:
+                        performTimelinePost();
+                        break;
+                }
 
 
+            }
+        });
+    }
+
+
+    private void performTimelinePost() {
+
+        timelinePost = (TimelinePost) updatePostable(timelinePost, isEditing);
+
+        if(parentPost != null) {
+            parentPost.put(TimelinePost.LAST_REPLY,timelinePost);
+            parentPost.increment(TimelinePost.REPLY_COUNT,1);
+            parentPost.saveInBackground();
+        }
+
+        if(type == EDIT_TIMELINEPOST_REPLY || type == NEW_TIMELINEPOST_REPLY){
+            timelinePost.put(TimelinePost.REPLY_LEVEL,1);
+            timelinePost.put(TimelinePost.USER_TIMELINE,parentPost.getParseObject(TimelinePost.USER_TIMELINE));
+            timelinePost.put(TimelinePost.PARENT_POST,parentPost);
+
+        } else {
+            timelinePost.put(TimelinePost.REPLY_LEVEL,0);
+            timelinePost.put(TimelinePost.USER_TIMELINE,postedIn);
+        }
+
+        timelinePost.saveInBackground( new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if(e== null){
+                    String message = null;
+                    String username = postedBy.getString(ParseUserColumns.AOZORA_USERNAME);
+                    String content =  etComment.getText().toString();
+                    if(content.length()>1) {
+                        message = username + ": " + content;
+                    }
+
+                    if(parentPost != null) {
+                        String parentPostID = parentPost.getObjectId();
+                        if(message == null) {
+                            switch (postContentType) {
+                                case CONTENTTYPE_LINK:
+                                    message = username + " replied with a link";
+                                    break;
+                                case CONTENTTYPE_IMAGE:
+                                    message = username + " replied with an image";
+                                    break;
+                                case CONTENTTYPE_VIDEO:
+                                    message = username + " replied with a video";
+                                    break;
+                                default:
+                                    message = username + " replied";
+                            }
+                        }
+
+                        HashMap<String,String> parameters = new HashMap<String, String>();
+                        parameters.put("toUserId",postedIn.getObjectId());
+                        parameters.put("timelinePostId",parentPostID);
+                        parameters.put("toUserUsername", postedIn.getString(ParseUserColumns.AOZORA_USERNAME));
+                        parameters.put("message",message);
+                        ParseCloud.callFunctionInBackground("sendNewTimelinePostReplyPushNotificationV2",parameters);
+                        postedBy.increment(ParseUserColumns.POST_COUNT,1);
+                    } else {
+                        if(message == null) {
+                            switch (postContentType) {
+                                case CONTENTTYPE_LINK:
+                                    message = username + " posted a link ";
+                                    break;
+                                case CONTENTTYPE_IMAGE:
+                                    message = username + " posted an image in your timeline";
+                                    break;
+                                case CONTENTTYPE_VIDEO:
+                                    message = username + " posted a video in your timeline";
+                                    break;
+                                default:
+                                    message = username + " posted in your timeline";
+                            }
+                        }
+                        HashMap<String,String> parameters = new HashMap<String, String>();
+                        parameters.put("toUserId",postedIn.getObjectId());
+                        parameters.put("timelinePostId",timelinePost.getObjectId());
+                        parameters.put("message",message);
+                        ParseCloud.callFunctionInBackground("sendNewTimelinePostPushNotificationV2",parameters);
+                        postedBy.increment(ParseUserColumns.POST_COUNT,1);
+                    }
+                }
+                completeRequest(timelinePost,parentPost,e);
+            }
+        });
+
+    }
+
+    private void completeRequest(ParseObject post, ParseObject parentPost, ParseException e) {
+
+        if(e!= null) {
+            Toast.makeText(this,"An error occured, try again later",Toast.LENGTH_SHORT).show();
+            btnSendComment.setText("Send");
+            btnSendComment.setBackground(ContextCompat.getDrawable(this,R.drawable.button_send));
+        } else {
+            btnSendComment.setText("Send");
+            btnSendComment.setBackground(ContextCompat.getDrawable(this,R.drawable.button_send));
+            AozoraForumsApp.setUpdatedParentPost(parentPost);
+            AozoraForumsApp.setUpdatedPost(post);
+            Intent intent = new Intent();
+            intent.putExtra("type",type);
+            setResult(RESULT_OK,intent);
+            finish();
+        }
+    }
+
+    private ParseObject updatePostable(final ParseObject post, Boolean isEditing) {
+
+        if(hasSpoilers) {
+            post.put(TimelinePost.CONTENT,etComment.getText().toString());
+            post.put(TimelinePost.SPOILER_CONTENT,etSpoilerText.getText().toString());
+        } else {
+            post.put(TimelinePost.CONTENT,etComment.getText().toString());
+        }
+
+        if(!isEditing) {
+            post.put(TimelinePost.POSTED_BY,postedBy);
+            post.put(TimelinePost.EDITED,false);
+        } else {
+            post.put(TimelinePost.EDITED,true);
+        }
+
+        post.put(TimelinePost.HAS_SPOILERS,hasSpoilers);
+        try {
+            if (imageGallery != null || imageDataWeb != null) {
+                if (imageDataWeb != null) {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("width", imageDataWeb.getWidth());
+                    jsonObject.put("height", imageDataWeb.getHeight());
+                    jsonObject.put("url",imageDataWeb.getUrl());
+                    JSONArray jsonArray = new JSONArray();
+                    jsonArray.put(jsonObject);
+                    post.put(TimelinePost.IMAGES, jsonArray);
+                } else {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("width", imageGallery.getWidth());
+                    jsonObject.put("height", imageGallery.getHeight());
+                    jsonObject.put("url",imageGallery.getUrl());
+                    JSONArray jsonArray = new JSONArray();
+                    jsonArray.put(jsonObject);
+                    post.put(TimelinePost.IMAGES, jsonArray);
+
+                    final ParseFile file = new ParseFile(imageGallery.getImageName(), imageGallery.getImageFile());
+                    file.save();
+                    post.put(TimelinePost.IMAGE,file);
+
+                }
+                postContentType = CONTENTTYPE_IMAGE;
+            } else {
+                post.put(TimelinePost.IMAGES, new JSONArray());
+            }
+        } catch (JSONException jEx) {
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        if(youtubeID != null) {
+            post.put(TimelinePost.YOUTUBE_ID,youtubeID);
+            postContentType = CONTENTTYPE_VIDEO;
+        }
+
+        if(selectedLinkData != null) {
+            post.put(TimelinePost.LINK,selectedLinkData.toJsonObject());
+            postContentType = CONTENTTYPE_LINK;
+        }
+
+        return post;
+    }
+
+    private boolean isValidPost() {
+        int max =Math.max(etSpoilerText.getText().length(),etComment.getText().length());
+        if(max < 1 && imageDataWeb == null && imageGallery == null && youtubeID == null && selectedLinkData == null){
+            AoUtils.showAlertWithTitleAndText(this,"Too Short","Message/spoiler should be 1 character or longer");
+            return false;
+        }
+        //check if its muted
+        if (PUser.isMuted(ParseUser.getCurrentUser()))
+            return false;
+        return true;
     }
 
     private void scrapeLinkWithURL(String link) {
@@ -361,7 +590,7 @@ public class CreatePostActivity extends AozoraActivity {
                 imageDataWeb = new ImageData();
                 imageDataWeb.setHeight(theBitmap.getHeight());
                 imageDataWeb.setWidth(theBitmap.getWidth());
-                imageDataWeb.setImageURL(imgURL);
+                imageDataWeb.setUrl(imgURL);
                 clearAttachments();
                 ivAddPhotoInternet.setColorFilter(ContextCompat.getColor(CreatePostActivity.this,R.color.red_airing));
             }

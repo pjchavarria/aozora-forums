@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -16,6 +17,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -407,11 +409,18 @@ public class AoUtils {
         userWhoReported.saveInBackground();
     }
 
+    public static void showAlertWithText(Context context, String text) {
+
+        new AlertDialog.Builder(context)
+                .setMessage(text)
+                .create()
+                .show();
+    }
 
     public static void showAlertWithTitleAndText(Context context,String title, String text) {
 
         new AlertDialog.Builder(context)
-                .setTitle("title")
+                .setTitle(title)
                 .setMessage(text)
                 .create()
                 .show();
@@ -483,6 +492,18 @@ public class AoUtils {
 
     public static ImageData resizeImage(Uri uri, Context context)  {
         try {
+            String fileName = "";
+            String[] filePathColumn = {MediaStore.Images.Media.DATA,
+                    MediaStore.Images.Media.DISPLAY_NAME};
+            Cursor cursor =
+                    context.getContentResolver().query(uri, filePathColumn, null, null, null);
+            if (cursor.moveToFirst()) {
+                int fileNameIndex = cursor.getColumnIndex(filePathColumn[1]);
+                fileName = cursor.getString(fileNameIndex);
+            }
+            cursor.close();
+
+
             BitmapFactory.Options o = new BitmapFactory.Options();
             o.inJustDecodeBounds = true;
             BitmapFactory.decodeStream(context.getContentResolver().openInputStream(uri), null, o);
@@ -505,6 +526,8 @@ public class AoUtils {
             imageData.setHeight(newHeight);
             imageData.setWidth(newWidth);
             imageData.setImageFile(stream.toByteArray());
+            imageData.setUrl("");
+            imageData.setImageName(fileName);
             return imageData;
 
         } catch (Exception ex ){
