@@ -3,6 +3,7 @@ package com.everfox.aozoraforums.activities;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -11,12 +12,14 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -24,14 +27,19 @@ import android.widget.Toast;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.activities.postthread.CreatePostActivity;
+import com.everfox.aozoraforums.activities.postthread.SearchImageActivity;
+import com.everfox.aozoraforums.activities.postthread.SearchYoutubeActivity;
 import com.everfox.aozoraforums.adapters.TimelinePostsAdapter;
+import com.everfox.aozoraforums.controllers.AddPostThreadHelper;
 import com.everfox.aozoraforums.controllers.PostParseHelper;
-import com.everfox.aozoraforums.controllers.ProfileParseHelper;
 import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
 import com.everfox.aozoraforums.dialogfragments.SimpleLoadingDialogFragment;
 import com.everfox.aozoraforums.fragments.FollowersFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.fragments.UserListFragment;
+import com.everfox.aozoraforums.models.ImageData;
+import com.everfox.aozoraforums.models.PUser;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.AoConstants;
@@ -44,17 +52,18 @@ import com.parse.ParseObject;
 import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
+import java.sql.Time;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Handler;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class TimelinePostActivity extends AozoraActivity implements PostParseHelper.OnGetTimelinePostCommentsListener, TimelinePostsAdapter.OnUsernameTappedListener,
 TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnListSelectedListener, PostUtils.OnDeletePostCallback, TimelinePostsAdapter.OnLikeTappedListener, TimelinePostsAdapter.OnRepostTappedListener,
-TimelinePostsAdapter.OnImageShareListener{
+TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedListener, AddPostThreadHelper.OnPerformPost{
 
+    private static final int REQUEST_NEW_TIMELINEPOST_REPLY = 550;
     private static final int REQUEST_WRITE_STORAGE = 100;
     View viewToShare;
     SimpleLoadingDialogFragment simpleLoadingDialogFragment = new SimpleLoadingDialogFragment();
@@ -73,14 +82,26 @@ TimelinePostsAdapter.OnImageShareListener{
     ProgressBar pbLoading;
     @BindView(R.id.rvComments)
     RecyclerView rvPostComments;
-    @BindView(R.id.llAddComment)
-    LinearLayout llAddComment;
     @BindView(R.id.swipeRefresh)
     SwipeRefreshLayout swipeRefreshPost;
     @BindView(R.id.rlContent)
     RelativeLayout rlContent;
     @BindView(R.id.flContent)
     FrameLayout flContent;
+    @BindView(R.id.llAddCommentLayout)
+    LinearLayout llAddCommentLayout;
+    @BindView(R.id.llAddComment)
+    LinearLayout llAddComment;
+    @BindView(R.id.etComment)
+    EditText etComment;
+    @BindView(R.id.ivAddPhotoInternet)
+    ImageView ivAddPhotoInternet;
+    @BindView(R.id.ivAddPhotoGallery)
+    ImageView ivAddPhotoGallery;
+    @BindView(R.id.ivAddVideo)
+    ImageView ivAddVideo;
+    @BindView(R.id.btnSendComment)
+    Button btnSendComment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,6 +180,8 @@ TimelinePostsAdapter.OnImageShareListener{
                     }
                 }));
         isLoading = true;
+
+        initAddCommentControls();
     }
 
 
@@ -343,9 +366,168 @@ TimelinePostsAdapter.OnImageShareListener{
                 } else {
                     Toast.makeText(this, "The app was not allowed to write to your storage. Hence, it cannot share the image. Please consider granting it this permission", Toast.LENGTH_LONG).show();
                 }
+                break;
+            }
+            case REQUEST_PICK_IMAGE: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    addPostThreadHelper.openGalleryIntent();
+                } else {
+                    Toast.makeText(this, "Permission denied. Please allow the permission", Toast.LENGTH_LONG).show();
+                }
+                break;
             }
         }
     }
 
 
+    @Override
+    public void onCommentTappedListener() {
+
+        selectedPost = null;
+        Intent i = new Intent(this,CreatePostActivity.class);
+        i.putExtra(CreatePostActivity.PARAM_TYPE,CreatePostActivity.NEW_TIMELINEPOST_REPLY);
+        AozoraForumsApp.setPostedBy(ParseUser.getCurrentUser());
+        AozoraForumsApp.setPostedIn(parentPost.getParseUser(TimelinePost.USER_TIMELINE));
+        AozoraForumsApp.setUpdatedParentPost(parentPost);
+        startActivityForResult(i,REQUEST_NEW_TIMELINEPOST_REPLY);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_NEW_TIMELINEPOST_REPLY && resultCode == RESULT_OK) {
+            TimelinePost post = (TimelinePost)AozoraForumsApp.getUpdatedPost();
+            allComments.add(post);
+            postsAdapter.notifyItemInserted(allComments.size()-1);
+        } else  if(requestCode == REQUEST_SEARCH_IMAGE) {
+            if(data != null && resultCode == SearchImageActivity.RESULT_SUCCESS) {
+                clearAttachments();
+                if (data.hasExtra(SearchImageActivity.IMAGE_DATA)){
+                    imageDataWeb = (ImageData) data.getSerializableExtra(SearchImageActivity.IMAGE_DATA);
+                    ivAddPhotoInternet.setColorFilter(ContextCompat.getColor(this,R.color.red_airing));
+                }
+            }
+        } else if(requestCode == REQUEST_PICK_IMAGE) {
+            if(resultCode == RESULT_OK) {
+                clearAttachments();
+                imageGallery = AoUtils.resizeImage(data.getData(),this);
+                ivAddPhotoGallery.setColorFilter(ContextCompat.getColor(this,R.color.red_airing));
+            }
+        } else if (requestCode == REQUEST_SEARCH_YOUTUBE) {
+            if(resultCode == RESULT_OK) {
+
+                clearAttachments();
+                if (data.hasExtra(SearchYoutubeActivity.YOUTUBE_ID)){
+                    youtubeID = data.getStringExtra(SearchYoutubeActivity.YOUTUBE_ID);
+                    ivAddVideo.setColorFilter(ContextCompat.getColor(this,R.color.red_airing));
+                }
+            }
+        }
+    }
+
+    final int REQUEST_SEARCH_YOUTUBE = 402;
+    final int REQUEST_PICK_IMAGE = 401;
+    final int REQUEST_SEARCH_IMAGE = 400;
+    ImageData imageDataWeb = null;
+    ImageData imageGallery = null;
+    String youtubeID = null;
+    AddPostThreadHelper addPostThreadHelper;
+
+    private void initAddCommentControls() {
+
+        addPostThreadHelper = new AddPostThreadHelper(this,REQUEST_PICK_IMAGE,ParseUser.getCurrentUser(),parentPost.getParseUser(TimelinePost.USER_TIMELINE),parentPost,AddPostThreadHelper.NEW_TIMELINEPOST_REPLY);
+        ivAddPhotoInternet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(imageDataWeb == null) {
+                    Intent i = new Intent(TimelinePostActivity.this, SearchImageActivity.class);
+                    startActivityForResult(i, REQUEST_SEARCH_IMAGE);
+                } else {
+                    imageDataWeb = null;
+                    ivAddPhotoInternet.clearColorFilter();
+                }
+            }
+        });
+        ivAddPhotoGallery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (imageGallery == null) {
+                    addPostThreadHelper.addPhotoGalleryTapped();
+                } else {
+                    imageGallery = null;
+                    ivAddPhotoGallery.clearColorFilter();
+                }
+            }
+        });
+        ivAddVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(youtubeID == null) {
+                    Intent i = new Intent(TimelinePostActivity.this, SearchYoutubeActivity.class);
+                    startActivityForResult(i, REQUEST_SEARCH_YOUTUBE);
+                }else {
+                    youtubeID = null;
+                    ivAddVideo.clearColorFilter();
+                }
+            }
+        });
+
+        btnSendComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(!isValidPost()){
+                    return;
+                }
+
+                btnSendComment.setText("Sending...");
+                btnSendComment.setBackground(ContextCompat.getDrawable(TimelinePostActivity.this,R.drawable.button_sending));
+                addPostThreadHelper.performTimelinePost(etComment.getText().toString(),"",false,false,imageGallery,imageDataWeb,youtubeID,null);
+            }
+        });
+    }
+
+    private boolean isValidPost() {
+        int max =Math.max(0,etComment.getText().length());
+        if(max < 1 && imageDataWeb == null && imageGallery == null && youtubeID == null){
+            AoUtils.showAlertWithTitleAndText(this,"Too Short","Message/spoiler should be 1 character or longer");
+            return false;
+        }
+        //check if its muted
+        if (PUser.isMuted(ParseUser.getCurrentUser()))
+            return false;
+        return true;
+    }
+
+    private void clearAttachments() {
+        youtubeID = null;
+        imageGallery = null;
+        imageDataWeb = null;
+        ivAddPhotoInternet.clearColorFilter();
+        ivAddPhotoGallery.clearColorFilter();
+        ivAddVideo.clearColorFilter();
+    }
+
+    @Override
+    public void onPerformPost(ParseObject post, ParseObject parentpost, ParseException e) {
+
+        if(e!= null) {
+            Toast.makeText(this,"An error occured, try again later",Toast.LENGTH_SHORT).show();
+            btnSendComment.setText("Send");
+            btnSendComment.setBackground(ContextCompat.getDrawable(this,R.drawable.button_send));
+        } else {
+            btnSendComment.setText("Send");
+            btnSendComment.setBackground(ContextCompat.getDrawable(this,R.drawable.button_send));
+            this.parentPost = (TimelinePost) parentpost;
+            allComments.add((TimelinePost)post);
+            postsAdapter.notifyItemInserted(allComments.size()-1);
+            etComment.setText("");
+            clearAttachments();
+            addPostThreadHelper = new AddPostThreadHelper(this,REQUEST_PICK_IMAGE,ParseUser.getCurrentUser(),parentPost.getParseUser(TimelinePost.USER_TIMELINE)
+                    ,parentPost,AddPostThreadHelper.NEW_TIMELINEPOST_REPLY);
+
+        }
+
+    }
 }

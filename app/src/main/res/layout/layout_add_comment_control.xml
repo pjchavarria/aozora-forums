@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/llAddComment"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@color/colorWhite"
+    android:paddingBottom="5dp"
+    android:paddingLeft="5dp"
+    android:paddingRight="10dp"
+    android:visibility="visible"
+    >
+    <EditText
+        android:id="@+id/etComment"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:hint="Write a comment"
+        android:paddingLeft="10dp"
+        android:paddingBottom="3dp"
+        android:paddingTop="3dp"
+        android:gravity="top"
+        android:background="@color/colorWhite"
+        android:textColor="@color/gray3C"
+        android:textSize="14sp"
+
+        />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="10dp">
+
+        <ImageView
+            android:id="@+id/ivAddPhotoInternet"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:src="@drawable/icon_online_image"
+            />
+
+        <ImageView
+            android:id="@+id/ivAddPhotoGallery"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:src="@drawable/icon_local_image"
+            android:layout_marginLeft="5dp"
+            />
+
+        <ImageView
+            android:id="@+id/ivAddVideo"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:layout_marginLeft="5dp"
+            android:src="@drawable/icon_video"
+            />
+
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
+
+        <Button
+            android:id="@+id/btnSendComment"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Send"
+            android:textAllCaps="false"
+            android:background="@drawable/button_send"
+            android:textColor="@color/colorWhite"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:paddingTop="7dp"
+            android:paddingBottom="7dp"
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:layout_marginRight="10dp"
+            />
+
+    </LinearLayout>
+</LinearLayout>

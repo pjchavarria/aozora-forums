@@ -25,6 +25,7 @@ import com.bumptech.glide.Glide;
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.AozoraActivity;
+import com.everfox.aozoraforums.controllers.AddPostThreadHelper;
 import com.everfox.aozoraforums.models.ImageData;
 import com.everfox.aozoraforums.models.LinkData;
 import com.everfox.aozoraforums.models.PUser;
@@ -55,7 +56,7 @@ import butterknife.ButterKnife;
  * Created by daniel.soto on 2/28/2017.
  */
 
-public class CreatePostActivity extends AozoraActivity {
+public class CreatePostActivity extends AozoraActivity implements AddPostThreadHelper.OnPerformPost {
 
     int REQUEST_SEARCH_YOUTUBE = 402;
     int REQUEST_PICK_IMAGE = 401;
@@ -89,6 +90,8 @@ public class CreatePostActivity extends AozoraActivity {
     Boolean hasSpoilers = false;
     Boolean isEditing = false;
     ParseObject parentPost = null;
+    AddPostThreadHelper addPostThreadHelper;
+
 
     @BindView(R.id.llSpoilerText)
     LinearLayout llSpoilerText;
@@ -137,6 +140,8 @@ public class CreatePostActivity extends AozoraActivity {
 
                 break;
         }
+
+        addPostThreadHelper = new AddPostThreadHelper(this,REQUEST_PICK_IMAGE,postedBy,postedIn,parentPost,type);
     }
 
     @Override
@@ -158,22 +163,7 @@ public class CreatePostActivity extends AozoraActivity {
             @Override
             public void onClick(View view) {
                 if (imageGallery == null) {
-
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-                        boolean hasPermission = (ContextCompat.checkSelfPermission(CreatePostActivity.this,
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED);
-                        if (!hasPermission) {
-
-                            ActivityCompat.requestPermissions(CreatePostActivity.this,
-                                    new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                                    REQUEST_PICK_IMAGE);
-                        } else {
-                            openGalleryIntent(REQUEST_PICK_IMAGE);
-                        }
-                    } else
-                        openGalleryIntent(REQUEST_PICK_IMAGE);
-
+                    addPostThreadHelper.addPhotoGalleryTapped();
                 } else {
                     imageGallery = null;
                     ivAddPhotoGallery.clearColorFilter();
@@ -220,51 +210,53 @@ public class CreatePostActivity extends AozoraActivity {
             }
         });
 
-        etComment.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+        if(type == NEW_TIMELINEPOST || type == NEW_AOTHREAD || type == EDIT_TIMELINEPOST || type == EDIT_AOTHREAD) {
+            etComment.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-
-                if(selectedLinkUrl == null) {
-                    List<String> lstUrls = AoUtils.extractLinks(etComment.getText().toString());
-                    if (lstUrls != null && lstUrls.size() > 0) {
-                        String link = lstUrls.get(0);
-                        Uri linkUri = Uri.parse(link);
-                        String host = linkUri.getHost();
-                        if (host != null && host.contains("youtube.com") || host.contains("youtu.be")) {
-                            //Video
-                            if (host.contains("youtube.com")) {
-                                clearAttachments();
-                                youtubeID = linkUri.getQueryParameter("v");
-                            } else if (host.contains("youtu.be")) {
-                                youtubeID = linkUri.getPathSegments().get(1);
-                            }
-                            ivAddVideo.setColorFilter(ContextCompat.getColor(CreatePostActivity.this, R.color.red_airing));
-                            return;
-                        }
-                        if (link.toLowerCase().endsWith(".png") || link.toLowerCase().endsWith(".jpeg")
-                                || link.toLowerCase().endsWith("jpg") || link.toLowerCase().endsWith(".gif")) {
-                            scrapeImageWithURL(link);
-                            return;
-                        }
-
-                        selectedLinkUrl = link;
-                        scrapeLinkWithURL(link);
-                        return;
-                    }
                 }
 
-            }
-        });
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+
+                    if (selectedLinkUrl == null) {
+                        List<String> lstUrls = AoUtils.extractLinks(etComment.getText().toString());
+                        if (lstUrls != null && lstUrls.size() > 0) {
+                            String link = lstUrls.get(0);
+                            Uri linkUri = Uri.parse(link);
+                            String host = linkUri.getHost();
+                            if (host != null && (host.contains("youtube.com") || host.contains("youtu.be"))   ) {
+                                //Video
+                                if (host.contains("youtube.com")) {
+                                    clearAttachments();
+                                    youtubeID = linkUri.getQueryParameter("v");
+                                } else if (host.contains("youtu.be")) {
+                                    youtubeID = linkUri.getPathSegments().get(1);
+                                }
+                                ivAddVideo.setColorFilter(ContextCompat.getColor(CreatePostActivity.this, R.color.red_airing));
+                                return;
+                            }
+                            if (link.toLowerCase().endsWith(".png") || link.toLowerCase().endsWith(".jpeg")
+                                    || link.toLowerCase().endsWith("jpg") || link.toLowerCase().endsWith(".gif")) {
+                                scrapeImageWithURL(link);
+                                return;
+                            }
+
+                            selectedLinkUrl = link;
+                            scrapeLinkWithURL(link);
+                            return;
+                        }
+                    }
+
+                }
+            });
+        }
 
         btnSendComment.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -283,7 +275,10 @@ public class CreatePostActivity extends AozoraActivity {
                 switch (type){
                     case NEW_TIMELINEPOST:
                     case NEW_TIMELINEPOST_REPLY:
-                        performTimelinePost();
+                        String content = etComment.getText().toString();
+                        String spoilers = etSpoilerText.getText().toString();
+                        addPostThreadHelper.performTimelinePost(content,spoilers,hasSpoilers
+                                ,isEditing,imageGallery,imageDataWeb, youtubeID,selectedLinkData);
                         break;
                 }
 
@@ -292,174 +287,6 @@ public class CreatePostActivity extends AozoraActivity {
         });
     }
 
-
-    private void performTimelinePost() {
-
-        timelinePost = (TimelinePost) updatePostable(timelinePost, isEditing);
-
-        if(parentPost != null) {
-            parentPost.put(TimelinePost.LAST_REPLY,timelinePost);
-            parentPost.increment(TimelinePost.REPLY_COUNT,1);
-            parentPost.saveInBackground();
-        }
-
-        if(type == EDIT_TIMELINEPOST_REPLY || type == NEW_TIMELINEPOST_REPLY){
-            timelinePost.put(TimelinePost.REPLY_LEVEL,1);
-            timelinePost.put(TimelinePost.USER_TIMELINE,parentPost.getParseObject(TimelinePost.USER_TIMELINE));
-            timelinePost.put(TimelinePost.PARENT_POST,parentPost);
-
-        } else {
-            timelinePost.put(TimelinePost.REPLY_LEVEL,0);
-            timelinePost.put(TimelinePost.USER_TIMELINE,postedIn);
-        }
-
-        timelinePost.saveInBackground( new SaveCallback() {
-            @Override
-            public void done(ParseException e) {
-                if(e== null){
-                    String message = null;
-                    String username = postedBy.getString(ParseUserColumns.AOZORA_USERNAME);
-                    String content =  etComment.getText().toString();
-                    if(content.length()>1) {
-                        message = username + ": " + content;
-                    }
-
-                    if(parentPost != null) {
-                        String parentPostID = parentPost.getObjectId();
-                        if(message == null) {
-                            switch (postContentType) {
-                                case CONTENTTYPE_LINK:
-                                    message = username + " replied with a link";
-                                    break;
-                                case CONTENTTYPE_IMAGE:
-                                    message = username + " replied with an image";
-                                    break;
-                                case CONTENTTYPE_VIDEO:
-                                    message = username + " replied with a video";
-                                    break;
-                                default:
-                                    message = username + " replied";
-                            }
-                        }
-
-                        HashMap<String,String> parameters = new HashMap<String, String>();
-                        parameters.put("toUserId",postedIn.getObjectId());
-                        parameters.put("timelinePostId",parentPostID);
-                        parameters.put("toUserUsername", postedIn.getString(ParseUserColumns.AOZORA_USERNAME));
-                        parameters.put("message",message);
-                        ParseCloud.callFunctionInBackground("sendNewTimelinePostReplyPushNotificationV2",parameters);
-                        postedBy.increment(ParseUserColumns.POST_COUNT,1);
-                    } else {
-                        if(message == null) {
-                            switch (postContentType) {
-                                case CONTENTTYPE_LINK:
-                                    message = username + " posted a link ";
-                                    break;
-                                case CONTENTTYPE_IMAGE:
-                                    message = username + " posted an image in your timeline";
-                                    break;
-                                case CONTENTTYPE_VIDEO:
-                                    message = username + " posted a video in your timeline";
-                                    break;
-                                default:
-                                    message = username + " posted in your timeline";
-                            }
-                        }
-                        HashMap<String,String> parameters = new HashMap<String, String>();
-                        parameters.put("toUserId",postedIn.getObjectId());
-                        parameters.put("timelinePostId",timelinePost.getObjectId());
-                        parameters.put("message",message);
-                        ParseCloud.callFunctionInBackground("sendNewTimelinePostPushNotificationV2",parameters);
-                        postedBy.increment(ParseUserColumns.POST_COUNT,1);
-                    }
-                }
-                completeRequest(timelinePost,parentPost,e);
-            }
-        });
-
-    }
-
-    private void completeRequest(ParseObject post, ParseObject parentPost, ParseException e) {
-
-        if(e!= null) {
-            Toast.makeText(this,"An error occured, try again later",Toast.LENGTH_SHORT).show();
-            btnSendComment.setText("Send");
-            btnSendComment.setBackground(ContextCompat.getDrawable(this,R.drawable.button_send));
-        } else {
-            btnSendComment.setText("Send");
-            btnSendComment.setBackground(ContextCompat.getDrawable(this,R.drawable.button_send));
-            AozoraForumsApp.setUpdatedParentPost(parentPost);
-            AozoraForumsApp.setUpdatedPost(post);
-            Intent intent = new Intent();
-            intent.putExtra("type",type);
-            setResult(RESULT_OK,intent);
-            finish();
-        }
-    }
-
-    private ParseObject updatePostable(final ParseObject post, Boolean isEditing) {
-
-        if(hasSpoilers) {
-            post.put(TimelinePost.CONTENT,etComment.getText().toString());
-            post.put(TimelinePost.SPOILER_CONTENT,etSpoilerText.getText().toString());
-        } else {
-            post.put(TimelinePost.CONTENT,etComment.getText().toString());
-        }
-
-        if(!isEditing) {
-            post.put(TimelinePost.POSTED_BY,postedBy);
-            post.put(TimelinePost.EDITED,false);
-        } else {
-            post.put(TimelinePost.EDITED,true);
-        }
-
-        post.put(TimelinePost.HAS_SPOILERS,hasSpoilers);
-        try {
-            if (imageGallery != null || imageDataWeb != null) {
-                if (imageDataWeb != null) {
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("width", imageDataWeb.getWidth());
-                    jsonObject.put("height", imageDataWeb.getHeight());
-                    jsonObject.put("url",imageDataWeb.getUrl());
-                    JSONArray jsonArray = new JSONArray();
-                    jsonArray.put(jsonObject);
-                    post.put(TimelinePost.IMAGES, jsonArray);
-                } else {
-                    JSONObject jsonObject = new JSONObject();
-                    jsonObject.put("width", imageGallery.getWidth());
-                    jsonObject.put("height", imageGallery.getHeight());
-                    jsonObject.put("url",imageGallery.getUrl());
-                    JSONArray jsonArray = new JSONArray();
-                    jsonArray.put(jsonObject);
-                    post.put(TimelinePost.IMAGES, jsonArray);
-
-                    final ParseFile file = new ParseFile(imageGallery.getImageName(), imageGallery.getImageFile());
-                    file.save();
-                    post.put(TimelinePost.IMAGE,file);
-
-                }
-                postContentType = CONTENTTYPE_IMAGE;
-            } else {
-                post.put(TimelinePost.IMAGES, new JSONArray());
-            }
-        } catch (JSONException jEx) {
-
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
-        if(youtubeID != null) {
-            post.put(TimelinePost.YOUTUBE_ID,youtubeID);
-            postContentType = CONTENTTYPE_VIDEO;
-        }
-
-        if(selectedLinkData != null) {
-            post.put(TimelinePost.LINK,selectedLinkData.toJsonObject());
-            postContentType = CONTENTTYPE_LINK;
-        }
-
-        return post;
-    }
 
     private boolean isValidPost() {
         int max =Math.max(etSpoilerText.getText().length(),etComment.getText().length());
@@ -500,12 +327,6 @@ public class CreatePostActivity extends AozoraActivity {
         task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,link);
     }
 
-    private void openGalleryIntent(int avatarBanner) {
-        Intent intent = new Intent();
-        intent.setType("image/*");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, ""), avatarBanner);
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -553,11 +374,30 @@ public class CreatePostActivity extends AozoraActivity {
                                            String permissions[], int[] grantResults) {
         if (grantResults.length > 0
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            openGalleryIntent(requestCode);
+            addPostThreadHelper.openGalleryIntent();
         } else {
-            Toast.makeText(this, "Permission denied. Please allow the permission to set the avatar", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, "Permission denied. Please allow the permission", Toast.LENGTH_LONG).show();
         }
         return;
+    }
+
+    @Override
+    public void onPerformPost(ParseObject post, ParseObject parentpost, ParseException e) {
+
+        if(e!= null) {
+            Toast.makeText(this,"An error occured, try again later",Toast.LENGTH_SHORT).show();
+            btnSendComment.setText("Send");
+            btnSendComment.setBackground(ContextCompat.getDrawable(this,R.drawable.button_send));
+        } else {
+            btnSendComment.setText("Send");
+            btnSendComment.setBackground(ContextCompat.getDrawable(this,R.drawable.button_send));
+            AozoraForumsApp.setUpdatedParentPost(parentPost);
+            AozoraForumsApp.setUpdatedPost(post);
+            Intent intent = new Intent();
+            intent.putExtra("type",type);
+            setResult(RESULT_OK,intent);
+            finish();
+        }
     }
 
     private class DownloadImage extends AsyncTask<String, Void, Void>{

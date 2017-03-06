@@ -135,6 +135,7 @@ public class MainActivity extends AozoraActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        //Check if fragment is valid?
     }
 
     private void OpenNotificationFragment() {

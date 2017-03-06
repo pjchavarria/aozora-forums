@@ -10,14 +10,16 @@ import com.parse.ParseException;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
+import java.io.Serializable;
 import java.util.Calendar;
 
 /**
  * Created by daniel.soto on 2/14/2017.
  */
 
-public class AozoraActivity extends AppCompatActivity {
+public class AozoraActivity extends AppCompatActivity implements Serializable {
 
+    private static final long serialVersionUID = -8223937543613143994L;
     private static int sessionDepth = 0;
     Boolean comesFromBackground= true;
 

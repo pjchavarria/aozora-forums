@@ -73,6 +73,10 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         public void onLikeTappedListener(TimelinePost post);
     }
 
+    private OnCommentTappedListener mOnCommentTappedListener;
+    public interface OnCommentTappedListener {
+        public void onCommentTappedListener();
+    }
 
 
     private OnImageShareListener mShareCallback;
@@ -91,6 +95,7 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         mOnLikeTappedListener = (OnLikeTappedListener) callback;
         mOnRepostTappedListener = (OnRepostTappedListener) callback;
         mShareCallback = (OnImageShareListener) callback;
+        mOnCommentTappedListener = (OnCommentTappedListener) callback;
     }
 
     @Override
@@ -307,8 +312,17 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         };
         holder.ivLikes.setOnClickListener(likeListener);
         holder.tvLikes.setOnClickListener(likeListener);
-        holder.itemView.setTag("imageLoaded");
 
+        View.OnClickListener commentListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnCommentTappedListener.onCommentTappedListener();
+            }
+        };
+        holder.tvComments.setOnClickListener(commentListener);
+        holder.ivComments.setOnClickListener(commentListener);
+
+        holder.itemView.setTag("imageLoaded");
         holder.ivMoreOptions.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
