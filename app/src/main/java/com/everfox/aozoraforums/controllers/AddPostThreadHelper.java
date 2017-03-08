@@ -97,7 +97,7 @@ public class AddPostThreadHelper {
 
     public void  performTimelinePost(final String content, String spoilers, Boolean hasSpoilers, Boolean isEditing, ImageData imageGallery, ImageData imageDataWeb, String youtubeID, LinkData selectedLinkData) {
 
-        timelinePost = new TimelinePost();
+        timelinePost = TimelinePost.create(TimelinePost.class);
         if(hasSpoilers) {
             timelinePost.put(TimelinePost.CONTENT,content);
             timelinePost.put(TimelinePost.SPOILER_CONTENT,spoilers);
@@ -157,15 +157,9 @@ public class AddPostThreadHelper {
             postContentType = CONTENTTYPE_LINK;
         }
 
-        if(parentPost != null) {
-            parentPost.put(TimelinePost.LAST_REPLY,timelinePost);
-            parentPost.increment(TimelinePost.REPLY_COUNT,1);
-            parentPost.saveInBackground();
-        }
-
         if(type == EDIT_TIMELINEPOST_REPLY || type == NEW_TIMELINEPOST_REPLY){
             timelinePost.put(TimelinePost.REPLY_LEVEL,1);
-            timelinePost.put(TimelinePost.USER_TIMELINE,parentPost.getParseObject(TimelinePost.USER_TIMELINE));
+            timelinePost.put(TimelinePost.USER_TIMELINE,postedIn);
             timelinePost.put(TimelinePost.PARENT_POST,parentPost);
 
         } else {
@@ -184,6 +178,9 @@ public class AddPostThreadHelper {
                     }
 
                     if(parentPost != null) {
+                        parentPost.put(TimelinePost.LAST_REPLY,timelinePost);
+                        parentPost.increment(TimelinePost.REPLY_COUNT,1);
+                        parentPost.saveInBackground();
                         String parentPostID = parentPost.getObjectId();
                         if (message == null) {
                             switch (postContentType) {

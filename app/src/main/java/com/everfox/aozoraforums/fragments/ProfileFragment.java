@@ -835,8 +835,6 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
         } else if (requestCode == REQUEST_NEW_TIMELINEPOST && resultCode == getActivity().RESULT_OK) {
             reloadPosts(true);
         }else if (requestCode == REQUEST_NEW_TIMELINEPOST_REPLY && resultCode == getActivity().RESULT_OK) {
-
-
             TimelinePost post = (TimelinePost)AozoraForumsApp.getUpdatedParentPost();
             int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,post);
             lstTimelinePost.set(position, post);
