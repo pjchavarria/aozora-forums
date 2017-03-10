@@ -12,7 +12,7 @@ import java.util.List;
  * Created by daniel.soto on 1/12/2017.
  */
 
-@ParseClassName("TimelinePostTest")
+@ParseClassName("TimelinePost")
 public class TimelinePost extends ParseObject implements Serializable {
 
 

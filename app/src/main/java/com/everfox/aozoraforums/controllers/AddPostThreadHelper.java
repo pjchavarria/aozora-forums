@@ -126,6 +126,7 @@ public class AddPostThreadHelper {
                     timelinePost.put(TimelinePost.IMAGES, jsonArray);
                 } else {
                     JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("property", "image");
                     jsonObject.put("width", imageGallery.getWidth());
                     jsonObject.put("height", imageGallery.getHeight());
                     jsonObject.put("url",imageGallery.getUrl());

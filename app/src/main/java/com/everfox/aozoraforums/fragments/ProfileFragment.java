@@ -274,24 +274,6 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
                 scrollView.setVisibility(View.GONE);
             } else {
                 //LoadProfile
-                swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        reloadPosts(true);
-                    }
-                });
-
-                fabNewTimelinePost.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        selectedPost = null;
-                        Intent i = new Intent(getActivity(),CreatePostActivity.class);
-                        i.putExtra(CreatePostActivity.PARAM_TYPE,CreatePostActivity.NEW_TIMELINEPOST);
-                        AozoraForumsApp.setPostedBy(ParseUser.getCurrentUser());
-                        AozoraForumsApp.setPostedIn(user);
-                        startActivityForResult(i,REQUEST_NEW_TIMELINEPOST);
-                    }
-                });
                 loadProfile();
             }
 
@@ -325,6 +307,24 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
 
     private void loadProfile() {
 
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                reloadPosts(true);
+            }
+        });
+
+        fabNewTimelinePost.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectedPost = null;
+                Intent i = new Intent(getActivity(),CreatePostActivity.class);
+                i.putExtra(CreatePostActivity.PARAM_TYPE,CreatePostActivity.NEW_TIMELINEPOST);
+                AozoraForumsApp.setPostedBy(ParseUser.getCurrentUser());
+                AozoraForumsApp.setPostedIn(user);
+                startActivityForResult(i,REQUEST_NEW_TIMELINEPOST);
+            }
+        });
 
         selectedList = ProfileParseHelper.PROFILE_LIST;
         ParseFile profilePic = user.getParseFile(ParseUserColumns.AVATAR_THUMB);
@@ -419,6 +419,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     @Override
     public void onResume() {
         super.onResume();
+
         if(user != null && !firstTime) {
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(user.getString(ParseUserColumns.AOZORA_USERNAME));
             if(selectedPost != null)

@@ -137,6 +137,7 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
                         parentPost = object;
                         userOP = AoUtils.GetOriginalPoster(parentPost);
                         setTitle(parentPost.getParseObject(TimelinePost.POSTED_BY).getString(ParseUserColumns.AOZORA_USERNAME));
+                        initAddCommentControls();
                         new PostParseHelper(TimelinePostActivity.this, TimelinePostActivity.this,null)
                                 .GetTimelinePostComments(parentPost, 0, 2000);
                     } else {
@@ -149,6 +150,8 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
 
             new PostParseHelper(this, this,null)
                     .GetTimelinePostComments(parentPost, 0, 2000);
+
+            initAddCommentControls();
         }
 
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
@@ -180,8 +183,6 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
                     }
                 }));
         isLoading = true;
-
-        initAddCommentControls();
     }
 
 

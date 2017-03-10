@@ -43,6 +43,7 @@ import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.drawee.controller.BaseControllerListener;
+import com.facebook.drawee.drawable.ScalingUtils;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.DraweeView;
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -203,11 +204,12 @@ public class PostUtils {
                                     .setControllerListener(frescoGifListener)
                                     .build();
 
+                            simpleDraweeView.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.CENTER_CROP);
+                            
                             simpleDraweeView.setController(controller);
                             imageView.setVisibility(View.GONE);
                             simpleDraweeView.setVisibility(View.VISIBLE);
 
-                            //Glide.with(context).load(data).asGif().crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.NONE).into(imageView);
                         }
                     }
                 }
@@ -230,6 +232,7 @@ public class PostUtils {
             params.height = maxAllowedHeight;
             iv.setLayoutParams(params);
             iv.requestLayout();
+
         } else {
             if (simpleDraweeView != null) {
                 simpleDraweeView.setAspectRatio((float) jsonWidth / (float) jsonHeight);

@@ -23,6 +23,7 @@
         android:largeHeap="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data android:name="com.parse.push.notification_icon" android:resource="@drawable/notification_icon"/>
         <meta-data
             android:name="com.everfox.aozoraforums.utils.MyGlideModule"
             android:value="MyGlideModule" />

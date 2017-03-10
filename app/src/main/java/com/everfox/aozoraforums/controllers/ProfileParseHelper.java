@@ -90,12 +90,12 @@ public class ProfileParseHelper {
                 break;
             case PROFILE_LIST:
                 query.whereEqualTo(TimelinePost.USER_TIMELINE,userProfile);
-                /*
+
                 lstVisibility.add("profile");
                 lstVisibility.add("update");
                 lstVisibility.add("popular");
                 query.whereContainedIn(TimelinePost.VISIBILITY,lstVisibility);
-                */
+
                 break;
         }
 

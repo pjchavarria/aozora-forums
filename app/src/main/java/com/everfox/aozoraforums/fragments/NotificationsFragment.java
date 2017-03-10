@@ -276,7 +276,7 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
                     profileFragment = ProfileFragment.newInstance(null, true, false,userID,true);
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                fragmentTransaction.add(R.id.flContent, profileFragment).addToBackStack(null).commitAllowingStateLoss();
+                fragmentTransaction.replace(R.id.flContent, profileFragment).addToBackStack(null).commitAllowingStateLoss();
             }
         }
     }

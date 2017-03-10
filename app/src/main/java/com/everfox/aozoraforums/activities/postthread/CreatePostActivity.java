@@ -427,11 +427,11 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
         protected void onPostExecute(Void aVoid) {
             super.onPostExecute(aVoid);
             if(theBitmap != null) {
+                clearAttachments();
                 imageDataWeb = new ImageData();
                 imageDataWeb.setHeight(theBitmap.getHeight());
                 imageDataWeb.setWidth(theBitmap.getWidth());
                 imageDataWeb.setUrl(imgURL);
-                clearAttachments();
                 ivAddPhotoInternet.setColorFilter(ContextCompat.getColor(CreatePostActivity.this,R.color.red_airing));
             }
         }
