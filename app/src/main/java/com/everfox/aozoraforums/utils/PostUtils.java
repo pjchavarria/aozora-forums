@@ -108,25 +108,24 @@ public class PostUtils {
             if(urlImage.toUpperCase().endsWith("GIF")) {
                 isGif = true;
             }
-
+            int jsonHeight = 0;
+            int jsonWidth = 0;
+            try {
+                jsonHeight = jsonImageInfo.getInt("height");
+                jsonWidth = jsonImageInfo.getInt("width");
+            } catch (JSONException e1) {
+                e1.printStackTrace();
+            }
             if(!isGif) {
 
                 if(!isComment && !fullscreen)
                     prepareImageView(jsonImageInfo,imageView,null );
 
-                int jsonHeight = 0;
-                int jsonWidth = 0;
-                try {
-                    jsonHeight = jsonImageInfo.getInt("height");
-                    jsonWidth = jsonImageInfo.getInt("width");
-                } catch (JSONException e1) {
-                    e1.printStackTrace();
-                }
                 if( (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT && !isComment && !fullscreen)
                     Glide.with(context).load(urlImage).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                 else
-                    Glide.with(context).load(urlImage).crossFade().fitCenter()
-                            .diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                    Glide.with(context).load(urlImage).crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+
                 imageView.setVisibility(View.VISIBLE);
                 imageView.requestLayout();
             }
@@ -136,6 +135,8 @@ public class PostUtils {
 
                 if(!fullscreen)
                     prepareImageView(jsonImageInfo,simpleDraweeView,simpleDraweeView);
+                else
+                    prepareSimpleDraweeViewFullScreen(jsonImageInfo,simpleDraweeView);
                 FrescoGifListener frescoGifListener = new FrescoGifListener(ivPlayGif, simpleDraweeView);
                 DraweeController controller = Fresco.newDraweeControllerBuilder()
                         .setUri(urlImage)
@@ -179,20 +180,22 @@ public class PostUtils {
                 @Override
                 public void done(byte[] data, com.parse.ParseException e) {
                     if (e == null) {
+
+                        int jsonHeight = 0;
+                        int jsonWidth = 0;
+                        try {
+                            jsonHeight = jsonImageInfo.getInt("height");
+                            jsonWidth = jsonImageInfo.getInt("width");
+                        } catch (JSONException e1) {
+                            e1.printStackTrace();
+                        }
                         if(!finalIsGif) {
 
-                            int jsonHeight = 0;
-                            int jsonWidth = 0;
-                            try {
-                                jsonHeight = jsonImageInfo.getInt("height");
-                                jsonWidth = jsonImageInfo.getInt("width");
-                            } catch (JSONException e1) {
-                                e1.printStackTrace();
-                            }
                             if( (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT && !fullscreen && !isComment)
                                 Glide.with(context).load(data).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                             else
                                 Glide.with(context).load(data).crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+
                             imageView.setVisibility(View.VISIBLE);
                             imageView.requestLayout();
                         }
@@ -203,9 +206,14 @@ public class PostUtils {
                                     .setAutoPlayAnimations(false)
                                     .setControllerListener(frescoGifListener)
                                     .build();
+                            try {
+                                if (!fullscreen)
+                                    prepareImageView(jsonImageInfo, simpleDraweeView, simpleDraweeView);
+                                else
+                                    prepareSimpleDraweeViewFullScreen(jsonImageInfo, simpleDraweeView);
+                            } catch (JSONException jex) {
 
-                            simpleDraweeView.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.CENTER_CROP);
-                            
+                            }
                             simpleDraweeView.setController(controller);
                             imageView.setVisibility(View.GONE);
                             simpleDraweeView.setVisibility(View.VISIBLE);
@@ -218,6 +226,18 @@ public class PostUtils {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private static void prepareSimpleDraweeViewFullScreen(JSONObject jsonImageInfo, SimpleDraweeView simpleDraweeView) throws JSONException {
+
+        final int jsonHeight = jsonImageInfo.getInt("height");
+        final int jsonWidth = jsonImageInfo.getInt("width");
+        if (jsonWidth > AozoraForumsApp.getScreenWidth()) {
+            simpleDraweeView.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.FIT_CENTER);
+        } else {
+            simpleDraweeView.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.FIT_XY);
+        }
+        simpleDraweeView.setAspectRatio((float) jsonWidth / (float) jsonHeight);
     }
 
     private static void prepareImageView(JSONObject jsonImageInfo,ImageView iv, SimpleDraweeView simpleDraweeView) throws JSONException {

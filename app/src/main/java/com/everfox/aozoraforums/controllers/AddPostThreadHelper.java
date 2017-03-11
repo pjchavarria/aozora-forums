@@ -134,7 +134,7 @@ public class AddPostThreadHelper {
                     jsonArray.put(jsonObject);
                     timelinePost.put(TimelinePost.IMAGES, jsonArray);
                     final ParseFile file = new ParseFile(imageGallery.getImageName(), imageGallery.getImageFile());
-                    file.save();
+                    file.saveInBackground();
                     timelinePost.put(TimelinePost.IMAGE,file);
                 }
 
@@ -144,8 +144,6 @@ public class AddPostThreadHelper {
             }
         } catch (JSONException jEx) {
 
-        } catch (ParseException e) {
-            e.printStackTrace();
         }
 
         if(youtubeID != null) {

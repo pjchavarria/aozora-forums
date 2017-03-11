@@ -502,24 +502,23 @@ public class AoUtils {
                 fileName = cursor.getString(fileNameIndex);
             }
             cursor.close();
-
-
             BitmapFactory.Options o = new BitmapFactory.Options();
             o.inJustDecodeBounds = true;
             BitmapFactory.decodeStream(context.getContentResolver().openInputStream(uri), null, o);
             int width_tmp = o.outWidth, height_tmp = o.outHeight;
             int scale = 1;
             int maxSize = 960;
+            int newHeight;
             int newWidth = Math.min(maxSize,width_tmp);
-            int newHeight = Math.min(maxSize,height_tmp);
-            float scaleWidth = ((float) newWidth) / width_tmp;
-            float scaleHeight = ((float) newHeight) / height_tmp;
-            // create a matrix for the manipulation
-            Matrix matrix = new Matrix();
-            // resize the bit map
-            matrix.postScale(scaleWidth, scaleHeight);
+            if(newWidth == maxSize)
+                newHeight =  height_tmp*newWidth/width_tmp;
+            else {
+                newHeight = Math.min(maxSize, height_tmp);
+                if(newHeight == maxSize)
+                    newWidth = width_tmp*newHeight /height_tmp ;
+            }
             // recreate the new Bitmap
-            Bitmap resizedBitmap = Bitmap.createBitmap(BitmapFactory.decodeStream(context.getContentResolver().openInputStream(uri)), 0, 0, newWidth, newHeight, matrix, false);
+            Bitmap resizedBitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeStream(context.getContentResolver().openInputStream(uri)),newWidth,newHeight,false);
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
             resizedBitmap.compress(Bitmap.CompressFormat.JPEG,100,stream);
             ImageData imageData = new ImageData();

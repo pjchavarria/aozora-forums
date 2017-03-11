@@ -17,6 +17,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
+import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.adapters.AoThreadAdapter;
 import com.everfox.aozoraforums.adapters.CommentPostAdapter;
@@ -29,6 +30,7 @@ import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.facebook.drawee.backends.pipeline.Fresco;
+import com.facebook.drawee.drawable.ScalingUtils;
 import com.facebook.drawee.interfaces.DraweeController;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.parse.GetDataCallback;
@@ -208,7 +210,14 @@ public class ThreadUtils {
             if(urlImage.toUpperCase().endsWith("GIF")) {
                 isGif = true;
             }
-
+            int jsonHeight = 0;
+            int jsonWidth = 0;
+            try {
+                jsonHeight = jsonImageInfo.getInt("height");
+                jsonWidth = jsonImageInfo.getInt("width");
+            } catch (JSONException e1) {
+                e1.printStackTrace();
+            }
             if(!isGif) {
 
                 if(!isComment && !fullscreen) {
@@ -218,19 +227,12 @@ public class ThreadUtils {
                         prepareImageView(jsonImageInfo, imageView, null);
                 }
 
-                int jsonHeight = 0;
-                int jsonWidth = 0;
-                try {
-                    jsonHeight = jsonImageInfo.getInt("height");
-                    jsonWidth = jsonImageInfo.getInt("width");
-                } catch (JSONException e1) {
-                    e1.printStackTrace();
-                }
+
                 if( (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT && !isComment && !fullscreen)
                     Glide.with(context).load(urlImage).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                 else
-                    Glide.with(context).load(urlImage).crossFade().fitCenter()
-                            .diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                    Glide.with(context).load(urlImage).crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+
                 imageView.setVisibility(View.VISIBLE);
                 imageView.requestLayout();
             }
@@ -240,6 +242,8 @@ public class ThreadUtils {
 
                 if(!fullscreen)
                     prepareImageView(jsonImageInfo,simpleDraweeView,simpleDraweeView);
+                else
+                    prepareSimpleDraweeViewFullScreen(jsonImageInfo,simpleDraweeView);
                 FrescoGifListener frescoGifListener = new FrescoGifListener(ivPlayGif, simpleDraweeView);
                 DraweeController controller = Fresco.newDraweeControllerBuilder()
                         .setUri(urlImage)
@@ -292,24 +296,35 @@ public class ThreadUtils {
                 @Override
                 public void done(byte[] data, com.parse.ParseException e) {
                     if (e == null) {
+                        int jsonHeight = 0;
+                        int jsonWidth = 0;
+                        try {
+                            jsonHeight = jsonImageInfo.getInt("height");
+                            jsonWidth = jsonImageInfo.getInt("width");
+                        } catch (JSONException e1) {
+                            e1.printStackTrace();
+                        }
                         if(!finalIsGif) {
 
-                            int jsonHeight = 0;
-                            int jsonWidth = 0;
-                            try {
-                                jsonHeight = jsonImageInfo.getInt("height");
-                                jsonWidth = jsonImageInfo.getInt("width");
-                            } catch (JSONException e1) {
-                                e1.printStackTrace();
-                            }
+
                             if( (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT && !fullscreen && !isComment)
                                 Glide.with(context).load(data).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                             else
                                 Glide.with(context).load(data).crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+
                             imageView.setVisibility(View.VISIBLE);
                             imageView.requestLayout();
                         }
                         else {
+
+                            try {
+                                if(!fullscreen)
+                                    prepareImageView(jsonImageInfo,simpleDraweeView,simpleDraweeView);
+                                else
+                                    prepareSimpleDraweeViewFullScreen(jsonImageInfo,simpleDraweeView);
+                            } catch (JSONException jex) {
+                            }
+
                             FrescoGifListener frescoGifListener = new FrescoGifListener(ivPlayGif, simpleDraweeView);
                             DraweeController controller = Fresco.newDraweeControllerBuilder()
                                     .setUri("data:mime/type;base64," + Base64.encodeToString(data,0))
@@ -330,8 +345,6 @@ public class ThreadUtils {
             e.printStackTrace();
         }
     }
-
-
     private static void prepareImageViewAoTalk(JSONObject jsonImageInfo,ImageView iv, SimpleDraweeView simpleDraweeView) throws JSONException {
 
         final int jsonHeight = jsonImageInfo.getInt("height");
@@ -369,7 +382,17 @@ public class ThreadUtils {
             }
         }
     }
+    private static void prepareSimpleDraweeViewFullScreen(JSONObject jsonImageInfo, SimpleDraweeView simpleDraweeView) throws JSONException {
 
+        final int jsonHeight = jsonImageInfo.getInt("height");
+        final int jsonWidth = jsonImageInfo.getInt("width");
+        if (jsonWidth > AozoraForumsApp.getScreenWidth()) {
+            simpleDraweeView.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.FIT_CENTER);
+        } else {
+            simpleDraweeView.getHierarchy().setActualImageScaleType(ScalingUtils.ScaleType.FIT_XY);
+        }
+        simpleDraweeView.setAspectRatio((float) jsonWidth / (float) jsonHeight);
+    }
     public static void setCommentPostUsernameAndText(Context context, final Post comment, TextView tvComment,
                                                      final CommentPostAdapter.OnUsernameTappedListener mCommentCallback) {
 

@@ -270,8 +270,10 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
                     return;
                 }
 
-                btnSendComment.setText("Sending...");
+                btnSendComment.setText("Sending");
                 btnSendComment.setBackground(ContextCompat.getDrawable(CreatePostActivity.this,R.drawable.button_sending));
+                btnSendComment.requestLayout();
+                btnSendComment.setEnabled(false);
                 switch (type){
                     case NEW_TIMELINEPOST:
                     case NEW_TIMELINEPOST_REPLY:
@@ -388,9 +390,11 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
             Toast.makeText(this,"An error occured, try again later",Toast.LENGTH_SHORT).show();
             btnSendComment.setText("Send");
             btnSendComment.setBackground(ContextCompat.getDrawable(this,R.drawable.button_send));
+            btnSendComment.setEnabled(true);
         } else {
             btnSendComment.setText("Send");
             btnSendComment.setBackground(ContextCompat.getDrawable(this,R.drawable.button_send));
+            btnSendComment.setEnabled(true);
             AozoraForumsApp.setUpdatedParentPost(parentPost);
             AozoraForumsApp.setUpdatedPost(post);
             Intent intent = new Intent();

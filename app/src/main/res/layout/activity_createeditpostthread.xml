@@ -24,6 +24,7 @@
             android:textSize="14sp"
             android:gravity="top"
             android:background="@color/colorWhite"
+            android:inputType="textCapSentences|textMultiLine"
             />
 
         <LinearLayout
@@ -53,6 +54,7 @@
                 android:textSize="14sp"
                 android:gravity="top"
                 android:background="@color/grayC5"
+                android:inputType="textCapSentences|textMultiLine"
                 />
         </LinearLayout>
     </LinearLayout>

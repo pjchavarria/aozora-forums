@@ -68,13 +68,17 @@ public class PUser extends ParseUser implements Serializable {
     }
 
     public static Boolean isMuted(ParseUser parseUser){
-        Date mutedUntil = parseUser.getParseObject("details").getDate("mutedUntil");
-        Date calendar = Calendar.getInstance().getTime();
+        try {
+            Date mutedUntil = parseUser.fetchIfNeeded().getParseObject("details").getDate("mutedUntil");
+            Date calendar = Calendar.getInstance().getTime();
 
-        if(mutedUntil != null && calendar.before(mutedUntil)){
-            return true;
+            if (mutedUntil != null && calendar.before(mutedUntil)) {
+                return true;
+            }
+            return false;
+        } catch (Exception ex) {
+            return false;
         }
-        return false;
 
     }
 }

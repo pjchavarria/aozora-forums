@@ -31,77 +31,12 @@
     </android.support.v4.widget.SwipeRefreshLayout>
 
     <LinearLayout
-        android:id="@+id/llAddComment"
+        android:id="@+id/llAddCommentLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:orientation="vertical"
-        android:background="@color/colorWhite"
-        android:paddingBottom="5dp"
-        android:paddingLeft="5dp"
-        android:paddingRight="10dp"
-        android:visibility="gone"
-        >
-        <EditText
-            android:id="@+id/etComment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Write a comment"
-            android:paddingLeft="10dp"
-            android:paddingBottom="3dp"
-            android:paddingTop="3dp"
-            android:background="@null"
-            />
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingLeft="10dp">
-
-            <ImageView
-                android:id="@+id/ivAddPhotoGallery"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/icon_like_small"
-                />
-            <ImageView
-                android:id="@+id/ivAddPhotoInternet"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:src="@drawable/icon_like_small"
-                />
-
-            <ImageView
-                android:id="@+id/tvAddVideo"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="20dp"
-                android:src="@drawable/icon_like_small"
-                />
-
-            <Space
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:layout_weight="1" />
-
-            <Button
-                android:id="@+id/btnSendComment"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Send"
-                android:textAllCaps="false"
-                android:background="@drawable/button_send"
-                android:textColor="@color/colorWhite"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="7dp"
-                android:paddingBottom="7dp"
-                android:minHeight="0dp"
-                android:minWidth="0dp"
-
-                />
-
-        </LinearLayout>
+        android:layout_alignParentStart="true"
+        android:visibility="gone">
+        <include  android:layout_width="match_parent" android:layout_height="wrap_content" layout="@layout/layout_add_comment_control"></include>
     </LinearLayout>
 </RelativeLayout>

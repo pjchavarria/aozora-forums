@@ -46,6 +46,7 @@ import com.everfox.aozoraforums.utils.AoConstants;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.everfox.aozoraforums.utils.PostUtils;
 import com.everfox.aozoraforums.utils.RecyclerItemClickListener;
+import com.everfox.aozoraforums.utils.RecyclerItemLongClickListener;
 import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
@@ -164,25 +165,28 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
             }
         });
 
-        rvPostComments.addOnItemTouchListener(new RecyclerItemClickListener(this, new RecyclerItemClickListener.OnItemClickListener() {
+        rvPostComments.addOnItemTouchListener(new RecyclerItemLongClickListener(this, new RecyclerItemLongClickListener.OnItemLongClickListener() {
+
+            @Override
+            public void onItemLongClick(View view, final int position) {
+                Runnable runnable = new Runnable() {
                     @Override
-                    public void onItemClick(View view, final int position) {
-                        Runnable runnable = new Runnable() {
-                            @Override
-                            public void run() {
-                                if(position > 0) {
-                                    if (!actionTapped) {
-                                        mOnCommentTapped(allComments.get(position),position);
-                                    }
-                                    actionTapped = false;
-                                }
+                    public void run() {
+                        if(position > 0) {
+                            if (!actionTapped) {
+                                mOnCommentLongTapped(allComments.get(position),position);
                             }
-                        };
-                        android.os.Handler handler = new android.os.Handler();
-                        handler.postDelayed(runnable,100);
+                            actionTapped = false;
+                        }
                     }
-                }));
+                };
+                android.os.Handler handler = new android.os.Handler();
+                handler.postDelayed(runnable,100);
+            }
+        }));
         isLoading = true;
+
+
     }
 
 
@@ -309,7 +313,7 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
         }
     }
 
-    public void mOnCommentTapped(TimelinePost post, int position) {
+    public void mOnCommentLongTapped(TimelinePost post, int position) {
         parentPostDelete = allComments.get(0);
         selectedPost = AoUtils.GetOriginalPost(post);
         selectedPosition = position;

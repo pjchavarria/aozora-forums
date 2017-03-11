@@ -119,6 +119,8 @@
             android:textColor="@color/gray3C"
             android:textSize="12sp"
             android:background="@null"
+            android:inputType="textEmailAddress"
+
             />
 
     </LinearLayout>
@@ -161,6 +163,7 @@
                     android:textColor="@color/gray3C"
                     android:textSize="12sp"
                     android:background="@null"
+                    android:inputType="textCapSentences|textMultiLine"
                     />
 
             </LinearLayout>

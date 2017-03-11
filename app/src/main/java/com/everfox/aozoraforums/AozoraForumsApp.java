@@ -39,6 +39,16 @@ public class AozoraForumsApp extends Application {
 
     Integer FacebookRequestCode = 334;
 
+    private static int screenWidth;
+
+    public static int getScreenWidth() {
+        return screenWidth;
+    }
+
+    public static void setScreenWidth(int screenWidth) {
+        AozoraForumsApp.screenWidth = screenWidth;
+    }
+
     private static ParseObject updatedPost;
 
     public static ParseObject getUpdatedPost() {

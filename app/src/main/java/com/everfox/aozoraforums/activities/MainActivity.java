@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -122,6 +123,9 @@ public class MainActivity extends AozoraActivity {
         markMenuAsUnselected();
         btnForum.setColorFilter(ContextCompat.getColor(MainActivity.this,R.color.bluemenu));
 
+        DisplayMetrics metrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(metrics);
+        AozoraForumsApp.setScreenWidth(metrics.widthPixels);
     }
 
     private void markMenuAsUnselected() {

@@ -143,6 +143,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
 
         } else {
             final ViewHolder itemViewHolder = (ViewHolder) holder;
+            itemViewHolder.tvRepostedBy.setText("");
             //si tiene repostsource sacar info de ahi
             final TimelinePost timelinePost = timelinePosts.get(position);
             if (timelinePost.getParseObject(TimelinePost.REPOST_SOURCE) != null) {
@@ -253,6 +254,7 @@ public class ProfileTimelineAdapter extends RecyclerView.Adapter<RecyclerView.Vi
         holder.tvCommentSpoilerOpen.setVisibility(View.GONE);
         holder.tvCommentSpoilerText.setVisibility(View.GONE);
         holder.tvViewPreviousComments.setVisibility(View.GONE);
+
         RelativeLayout.LayoutParams lp = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
         holder.ivPostImage.setLayoutParams(lp);
 
