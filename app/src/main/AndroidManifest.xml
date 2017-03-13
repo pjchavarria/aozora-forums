@@ -149,6 +149,12 @@
         </receiver>
         <meta-data android:name="com.parse.push.gcm_sender_id"
             android:value="id:1004335320504" />;
+
+        <activity
+            android:name=".activities.postthread.SelectTagActivity"
+            android:configChanges="orientation"
+            android:screenOrientation="portrait"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

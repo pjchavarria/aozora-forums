@@ -78,7 +78,6 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
         public void onCommentTappedListener();
     }
 
-
     private OnImageShareListener mShareCallback;
     public interface OnImageShareListener {
         public void mShareCallback(View view);

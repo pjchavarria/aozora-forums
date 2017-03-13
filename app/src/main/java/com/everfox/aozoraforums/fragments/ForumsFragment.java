@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -33,6 +34,7 @@ import com.everfox.aozoraforums.FirstActivity;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.activities.ThreadActivity;
+import com.everfox.aozoraforums.activities.postthread.CreatePostActivity;
 import com.everfox.aozoraforums.adapters.ForumsAdapter;
 import com.everfox.aozoraforums.controllers.ForumsHelper;
 import com.everfox.aozoraforums.controllers.ProfileParseHelper;
@@ -62,6 +64,8 @@ public class ForumsFragment extends Fragment implements ForumsHelper.OnGetGlobal
 OptionListDialogFragment.OnListSelectedListener, ForumsAdapter.OnGlobalThreadHideListener, ForumsAdapter.OnUpDownVoteListener,
 ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, ForumsAdapter.OnImageShareListener{
 
+
+    private static final int REQUEST_NEW_AOTHREAD = 500;
 
     private static final int REQUEST_WRITE_STORAGE = 100;
     View viewToShare;
@@ -99,13 +103,14 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, For
     View vAoTalk;
     @BindView(R.id.vOffical)
     View vOffical;
-
     @BindView(R.id.rvForums)
     RecyclerView rvForums;
     @BindView(R.id.pbLoading)
     ProgressBar pbLoading;
     @BindView(R.id.swipeRefreshForums)
     SwipeRefreshLayout swipeRefreshForums;
+    @BindView(R.id.fabNewThread)
+    FloatingActionButton fabNewThread;
 
 
     public static ForumsFragment newInstance() {
@@ -230,6 +235,19 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, For
         } else if(selectedViewType == ForumsAdapter.VIEW_AOOFFICIAL) {
             vOffical.setVisibility(View.VISIBLE);
         }
+
+        fabNewThread.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                selectedThread = null;
+                Intent i = new Intent(getActivity(),CreatePostActivity.class);
+                i.putExtra(CreatePostActivity.PARAM_TYPE,CreatePostActivity.NEW_AOTHREAD);
+                AozoraForumsApp.setPostedBy(ParseUser.getCurrentUser());
+                AozoraForumsApp.setPostedIn(null);
+                startActivityForResult(i,REQUEST_NEW_AOTHREAD);
+            }
+        });
+
     }
 
     public void setSelectedThread (AoThread thread) {

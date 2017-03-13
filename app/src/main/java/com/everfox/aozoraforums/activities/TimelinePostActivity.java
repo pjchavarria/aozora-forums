@@ -165,7 +165,7 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
             }
         });
 
-        rvPostComments.addOnItemTouchListener(new RecyclerItemLongClickListener(this, new RecyclerItemLongClickListener.OnItemLongClickListener() {
+        rvPostComments.addOnItemTouchListener(new RecyclerItemLongClickListener(this, rvPostComments, new RecyclerItemLongClickListener.OnItemLongClickListener() {
 
             @Override
             public void onItemLongClick(View view, final int position) {

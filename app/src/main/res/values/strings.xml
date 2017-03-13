@@ -136,4 +136,12 @@
     <string name="aodiscover_desc">Introducing a new way of discovering new anime. Just write a sentence describing the anime you want to find. That\'s it!</string>
     <string name="aotalk_desc">Chat with anyone! Inside or outside Aozora. Many features chat other apps don\'t have.</string>
     <string name="app_inconstruction">Sorry! Our robots are still building this app.</string>
+
+    <string name="aogur_desc">Post funny, interesting images and videos in AoGur section.\nSpend some time crafting your post. \nUpvoted posts stay in the top longer.</string>
+
+    <string name="aotalkforum_desc">Create a great conversation\nMake it relevant to this community \nIf it\'s about a specific Anime, search it above.</string>
+
+    <string name="aoart_desc">Post anime art \nIf the work is not yours, don\'t use tags like #MyFanart </string>
+
+    <string name="aonews_desc">Post anime industry related news\nInclude the source (url/video) to make your article valid</string>
 </resources>

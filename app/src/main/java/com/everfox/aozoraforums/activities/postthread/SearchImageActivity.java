@@ -53,7 +53,7 @@ SearchImageAdapter.OnItemClickListener{
     private Date _lastTypeTime;
     SearchView searchView;
     int selectedSearchIndex = 0;
-    int milisecondsToSearch = 1000;
+    int milisecondsToSearch = 750;
     String currentSearch;
     GridLayoutManager imagesLayoutManager;
     LinearLayoutManager gifLayoutManager;
@@ -87,10 +87,10 @@ SearchImageAdapter.OnItemClickListener{
                 if(!isSearching) {
                 if (selectedSearchIndex != 0) {
                     selectedSearchIndex = 0;
-                    tvSearchImages.setBackgroundColor(Color.BLACK);
-                    tvSearchImages.setTextColor(Color.WHITE);
-                    tvSearchGifs.setBackgroundColor(Color.WHITE);
-                    tvSearchGifs.setTextColor(ContextCompat.getColor(SearchImageActivity.this,R.color.gray3C));
+                    tvSearchGifs.setBackgroundColor(Color.BLACK);
+                    tvSearchGifs.setTextColor(Color.WHITE);
+                    tvSearchImages.setBackgroundColor(Color.WHITE);
+                    tvSearchImages.setTextColor(ContextCompat.getColor(SearchImageActivity.this,R.color.gray3C));
                     searchImageAdapter = new SearchImageAdapter(SearchImageActivity.this,new ArrayList<ImageData>(),true,SearchImageActivity.this);
                     rvSearchResults.setLayoutManager(imagesLayoutManager);
                     rvSearchResults.setAdapter(searchImageAdapter);
@@ -111,10 +111,10 @@ SearchImageAdapter.OnItemClickListener{
                     if (selectedSearchIndex != 1) {
                         isSearching = true;
                         selectedSearchIndex = 1;
-                        tvSearchGifs.setBackgroundColor(Color.BLACK);
-                        tvSearchGifs.setTextColor(Color.WHITE);
-                        tvSearchImages.setBackgroundColor(Color.WHITE);
-                        tvSearchImages.setTextColor(ContextCompat.getColor(SearchImageActivity.this, R.color.gray3C));
+                        tvSearchImages.setBackgroundColor(Color.BLACK);
+                        tvSearchImages.setTextColor(Color.WHITE);
+                        tvSearchGifs.setBackgroundColor(Color.WHITE);
+                        tvSearchGifs.setTextColor(ContextCompat.getColor(SearchImageActivity.this, R.color.gray3C));
                         searchImageAdapter = new SearchImageAdapter(SearchImageActivity.this, new ArrayList<ImageData>(), true,SearchImageActivity.this);
                         rvSearchResults.setLayoutManager(gifLayoutManager);
                         rvSearchResults.setAdapter(searchImageAdapter);

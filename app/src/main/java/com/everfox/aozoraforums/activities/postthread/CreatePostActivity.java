@@ -19,6 +19,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
@@ -26,6 +27,9 @@ import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.AozoraActivity;
 import com.everfox.aozoraforums.controllers.AddPostThreadHelper;
+import com.everfox.aozoraforums.models.Anime;
+import com.everfox.aozoraforums.models.AoThread;
+import com.everfox.aozoraforums.models.AoThreadTag;
 import com.everfox.aozoraforums.models.ImageData;
 import com.everfox.aozoraforums.models.LinkData;
 import com.everfox.aozoraforums.models.PUser;
@@ -58,6 +62,7 @@ import butterknife.ButterKnife;
 
 public class CreatePostActivity extends AozoraActivity implements AddPostThreadHelper.OnPerformPost {
 
+    int REQUEST_SELECT_TAG = 403;
     int REQUEST_SEARCH_YOUTUBE = 402;
     int REQUEST_PICK_IMAGE = 401;
     int REQUEST_SEARCH_IMAGE = 400;
@@ -95,10 +100,16 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
 
     @BindView(R.id.llSpoilerText)
     LinearLayout llSpoilerText;
+    @BindView(R.id.etTitle)
+    EditText etTitle;
     @BindView(R.id.etComment)
     EditText etComment;
     @BindView(R.id.etSpoilerText)
     EditText etSpoilerText;
+    @BindView(R.id.tvTag)
+    TextView tvTag;
+    @BindView(R.id.llTags)
+    LinearLayout llTags;
     @BindView(R.id.ivAddPhotoInternet)
     ImageView ivAddPhotoInternet;
     @BindView(R.id.ivAddPhotoGallery)
@@ -107,6 +118,8 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
     ImageView ivAddVideo;
     @BindView(R.id.ivAddLink)
     ImageView ivAddLink;
+    @BindView(R.id.btnForum)
+    Button btnForum;
     @BindView(R.id.btnSpoilers)
     Button btnSpoilers;
     @BindView(R.id.btnSendComment)
@@ -137,10 +150,28 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
                 parentPost =  AozoraForumsApp.getUpdatedParentPost();
                 ivAddLink.setVisibility(View.GONE);
                 btnSpoilers.setVisibility(View.GONE);
-
+                break;
+            case NEW_AOTHREAD:
+                setTitle("New Thread");
+                etComment.setHint("Write thread details");
+                etTitle.setVisibility(View.VISIBLE);
+                llTags.setVisibility(View.VISIBLE);
+                btnForum.setVisibility(View.VISIBLE);
+                btnSpoilers.setVisibility(View.GONE);
+                btnForum.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent i = new Intent(CreatePostActivity.this,SelectTagActivity.class);
+                        startActivityForResult(i,REQUEST_SELECT_TAG);
+                    }
+                });
+                break;
+            case NEW_AOTHREAD_REPLY:
+                setTitle("New Thread Reply");
+                ivAddLink.setVisibility(View.GONE);
+                btnSpoilers.setVisibility(View.GONE);
                 break;
         }
-
         addPostThreadHelper = new AddPostThreadHelper(this,REQUEST_PICK_IMAGE,postedBy,postedIn,parentPost,type);
     }
 
@@ -354,6 +385,15 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
                 if (data.hasExtra(SearchYoutubeActivity.YOUTUBE_ID)){
                     youtubeID = data.getStringExtra(SearchYoutubeActivity.YOUTUBE_ID);
                     ivAddVideo.setColorFilter(ContextCompat.getColor(this,R.color.red_airing));
+                }
+            }
+        } else if (requestCode == REQUEST_SELECT_TAG) {
+            if(resultCode == RESULT_OK){
+                ParseObject tag = AozoraForumsApp.getTagToPass();
+                if(tag instanceof AoThreadTag) {
+                    tvTag.setText("#"+tag.getString(AoThreadTag.NAME));
+                } else {
+                    tvTag.setText("#"+tag.getString(Anime.TITLE));
                 }
             }
         }

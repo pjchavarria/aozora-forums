@@ -81,6 +81,14 @@ public class AozoraForumsApp extends Application {
     public static void setPostedIn(ParseUser postedIn) {
         AozoraForumsApp.postedIn = postedIn;
     }
+    private static ParseObject tagToPass;
+    public static ParseObject getTagToPass() {
+        return tagToPass;
+    }
+
+    public static void setTagToPass(ParseObject tagToPass) {
+        AozoraForumsApp.tagToPass = tagToPass;
+    }
 
     private static AoThread threadToPass;
     public static AoThread getThreadToPass() {
@@ -159,7 +167,7 @@ public class AozoraForumsApp extends Application {
                 userType = 2;
                 return userType;
             }
-            if (jsonArray.toString().contains("Admin") || jsonArray.toString().contains("Mod"))
+            if (jsonArray.toString().contains("Mod"))
                 userType = 1;
             else
                 userType = 0;
@@ -219,5 +227,6 @@ public class AozoraForumsApp extends Application {
         globalThreads = null;
         postedBy = null;
         postedIn = null;
+        tagToPass = null;
     }
 }

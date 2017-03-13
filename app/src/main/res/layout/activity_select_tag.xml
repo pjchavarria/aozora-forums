@@ -16,7 +16,7 @@
         android:elevation="4dp"/>
 
     <LinearLayout
-        android:id="@+id/llSearchCategory"
+        android:id="@+id/llTagForums"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -24,41 +24,78 @@
 
         >
         <TextView
-            android:id="@+id/tvSearchImages"
+            android:id="@+id/tvAoGur"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.5"
-            android:text="Image"
+            android:layout_weight="0.25"
+            android:text="AoGur"
             android:layout_gravity="center"
             android:gravity="center"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:background="#FFFFFF"
             android:textColor="@color/gray3C"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             />
         <TextView
-            android:id="@+id/tvSearchGifs"
+            android:id="@+id/tvAoTalk"
             android:layout_width="0dp"
             android:layout_height="match_parent"
-            android:layout_weight="0.5"
-            android:text="GIF"
+            android:layout_weight="0.25"
+            android:text="AoTalk"
             android:layout_gravity="center"
             android:gravity="center"
-            android:textSize="18sp"
+            android:textSize="14sp"
             android:background="#000000"
-            android:textColor="@color/colorWhite"
+            android:textColor="#FFFFFF"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            />
+        <TextView
+            android:id="@+id/tvAoArt"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.25"
+            android:text="AoArt"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:background="#000000"
+            android:textColor="#FFFFFF"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            />
+        <TextView
+            android:id="@+id/tvAoNews"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="0.25"
+            android:text="AoNews"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:background="#000000"
+            android:textColor="#FFFFFF"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
             />
     </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvForumDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:textColor="@color/gray3C"
+        />
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/rvSearchResults"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:visibility="visible"
-        android:layout_below="@+id/tvSearchTitle"
+        android:layout_below="@+id/tvForumDescription"
+        android:background="@color/grayE4"
         />
 
     <ProgressBar

@@ -154,6 +154,14 @@ public class AoUtils {
         }
     }
 
+    public static String numberToStringOrInterrogation (Number number) {
+        if(number == null || number == (Number)0)
+            return "?";
+        else {
+            return String.valueOf(number.intValue());
+        }
+    }
+
     public static OkHttpClient getUnsafeOkHttpClient() {
         try {
             // Create a trust manager that does not validate certificate chains

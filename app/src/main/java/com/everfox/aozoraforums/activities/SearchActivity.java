@@ -101,10 +101,10 @@ SearchResultsUserAdapter.OnUsernameTappedListener, SearchHelper.OnGetSearchPopul
                     searchView.setQuery("", false);
                     searchView.setIconified(true);
                     selectedSearchIndex = 0;
-                    tvSearchUsers.setBackgroundColor(Color.BLACK);
-                    tvSearchUsers.setTextColor(Color.WHITE);
-                    tvSearchThreads.setBackgroundColor(Color.WHITE);
-                    tvSearchThreads.setTextColor(ContextCompat.getColor(SearchActivity.this,R.color.gray3C));
+                    tvSearchThreads.setBackgroundColor(Color.BLACK);
+                    tvSearchThreads.setTextColor(Color.WHITE);
+                    tvSearchUsers.setBackgroundColor(Color.WHITE);
+                    tvSearchUsers.setTextColor(ContextCompat.getColor(SearchActivity.this,R.color.gray3C));
                 }
             }
         });
@@ -115,10 +115,10 @@ SearchResultsUserAdapter.OnUsernameTappedListener, SearchHelper.OnGetSearchPopul
                     searchView.setQuery("", false);
                     searchView.setIconified(true);
                     selectedSearchIndex = 1;
-                    tvSearchThreads.setBackgroundColor(Color.BLACK);
-                    tvSearchThreads.setTextColor(Color.WHITE);
-                    tvSearchUsers.setBackgroundColor(Color.WHITE);
-                    tvSearchUsers.setTextColor(ContextCompat.getColor(SearchActivity.this,R.color.gray3C));
+                    tvSearchUsers.setBackgroundColor(Color.BLACK);
+                    tvSearchUsers.setTextColor(Color.WHITE);
+                    tvSearchThreads.setBackgroundColor(Color.WHITE);
+                    tvSearchThreads.setTextColor(ContextCompat.getColor(SearchActivity.this,R.color.gray3C));
                 }
             }
         });

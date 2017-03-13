@@ -19,24 +19,26 @@ public class RecyclerItemLongClickListener implements RecyclerView.OnItemTouchLi
 
     GestureDetector mGestureDetector;
 
-    public RecyclerItemLongClickListener(Context context, OnItemLongClickListener listener) {
+    public RecyclerItemLongClickListener(Context context, final RecyclerView recyclerView, OnItemLongClickListener listener) {
         mListener = listener;
         mGestureDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
 
             @Override
             public void onLongPress(MotionEvent e) {
-                return;
+                // triggers after onDown only for long press
+                View child=recyclerView.findChildViewUnder(e.getX(),e.getY());
+                if (child != null && mListener != null) {
+                    mListener.onItemLongClick(child, recyclerView.getChildAdapterPosition(child));
+                }
             }
 
         });
     }
 
+
     @Override
-    public boolean onInterceptTouchEvent(RecyclerView view, MotionEvent e) {
-        View childView = view.findChildViewUnder(e.getX(), e.getY());
-        if (childView != null && mListener != null && mGestureDetector.onTouchEvent(e)) {
-            mListener.onItemLongClick(childView, view.getChildAdapterPosition(childView));
-        }
+    public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+        mGestureDetector.onTouchEvent(e);
         return false;
     }
 

@@ -11,4 +11,7 @@ import com.parse.ParseObject;
 public class Anime extends ParseObject {
 
     public static final String TITLE = "title";
+    public static final String TYPE = "type";
+    public static final String EPISODES = "episodes";
+    public static final String DURATION = "duration";
 }
