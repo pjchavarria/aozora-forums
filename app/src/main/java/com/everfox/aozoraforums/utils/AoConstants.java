@@ -16,6 +16,7 @@ public class AoConstants {
     public static final int REPORT_POST_OPTIONS_DIALOG = 7;
     public static final int EDITDELETE_THREAD_OPTIONS_DIALOG = 8;
     public static final int EDITBAN_THREAD_OPTIONS_DIALOG = 9;
+    public static final int MY_PROFILE_OTHER_USER_ADMINOPTIONS_DIALOG = 10;
 
     public static final String POST_EDIT = "Edit";
     public static final String ADMIN_POST_DELETE = "Ban Post [Deletes it]";

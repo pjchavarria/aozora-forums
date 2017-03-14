@@ -7,13 +7,18 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 
 import com.everfox.aozoraforums.activities.TimelinePostActivity;
+import com.everfox.aozoraforums.activities.postthread.CreatePostActivity;
 import com.everfox.aozoraforums.activities.postthread.SearchImageActivity;
+import com.everfox.aozoraforums.models.AoThread;
+import com.everfox.aozoraforums.models.AoThreadTag;
 import com.everfox.aozoraforums.models.ImageData;
 import com.everfox.aozoraforums.models.LinkData;
 import com.everfox.aozoraforums.models.ParseUserColumns;
+import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.parse.ParseCloud;
 import com.parse.ParseException;
@@ -26,6 +31,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 /**
@@ -39,11 +45,13 @@ public class AddPostThreadHelper {
     ParseUser postedBy;
     ParseUser postedIn;
     ParseObject parentPost;
+    ParseObject parentThread;
     public static final int CONTENTTYPE_LINK = 0;
     public static final int CONTENTTYPE_IMAGE = 1;
     public static final int CONTENTTYPE_VIDEO = 2;
     int postContentType;
     TimelinePost timelinePost = new TimelinePost();
+    Post post = new Post();
     int type;
     public static final int NEW_TIMELINEPOST = 0;
     public static final int EDIT_TIMELINEPOST = 1;
@@ -54,20 +62,33 @@ public class AddPostThreadHelper {
     public static final int NEW_AOTHREAD_REPLY = 6;
     public static final int EDIT_AOTHREAD_REPLY = 7;
 
+    private OnPerformNewThread mOnPerformNewThread;
+    public interface OnPerformNewThread {
+        public void onPerformNewThread(AoThread thread ,ParseException e);
+    }
 
     private OnPerformPost mOnPerformPost;
     public interface OnPerformPost {
         public void onPerformPost(ParseObject post, ParseObject parentpost, ParseException e);
     }
 
-    public AddPostThreadHelper(Activity activity, int requestPickImage, ParseUser postedBy, ParseUser postedIn, ParseObject parentPost, int type) {
+    public AddPostThreadHelper(Activity activity,  int requestPickImage, ParseUser postedBy, ParseUser postedIn, ParseObject parentPost, ParseObject parentThread, int type) {
         this.activity = activity;
         this.requestPickImage = requestPickImage;
         this.postedBy = postedBy;
         this.postedIn = postedIn;
         this.parentPost = parentPost;
+        this.parentThread = parentThread;
         this.type = type;
         mOnPerformPost = (OnPerformPost) activity;
+        if (activity instanceof CreatePostActivity)
+            mOnPerformNewThread = (OnPerformNewThread) activity;
+
+    }
+
+    public void setFragmentCallback (Fragment fragmentCallback) {
+        mOnPerformPost = (OnPerformPost) fragmentCallback;
+        mOnPerformNewThread = null;
     }
 
     public void addPhotoGalleryTapped() {
@@ -95,7 +116,7 @@ public class AddPostThreadHelper {
         activity.startActivityForResult(Intent.createChooser(intent, ""), requestPickImage);
     }
 
-    public void  performTimelinePost(final String content, String spoilers, Boolean hasSpoilers, Boolean isEditing, ImageData imageGallery, ImageData imageDataWeb, String youtubeID, LinkData selectedLinkData) {
+    public void performTimelinePost(final String content, String spoilers, Boolean hasSpoilers, Boolean isEditing, ImageData imageGallery, ImageData imageDataWeb, String youtubeID, LinkData selectedLinkData) {
 
         timelinePost = TimelinePost.create(TimelinePost.class);
         if(hasSpoilers) {
@@ -231,6 +252,177 @@ public class AddPostThreadHelper {
                 mOnPerformPost.onPerformPost(timelinePost, parentPost, e);
             }
         });
+    }
+
+    public void performNewThread(final String content, String title,  ImageData imageGallery,
+                              ImageData imageDataWeb, String youtubeID, LinkData selectedLinkData, ParseObject tag) {
+
+        final AoThread aoThread = AoThread.create(AoThread.class);
+        aoThread.put(AoThread.EDITED,false);
+        aoThread.put(AoThread.REPLIES_COUNT,0);
+        aoThread.put(AoThread.LIKE_COUNT,1);
+        aoThread.put(AoThread.LIKED_BY, Arrays.asList(postedBy));
+        aoThread.put(AoThread.LASTPOSTEDBY,postedBy);
+        aoThread.put(AoThread.POSTEDBY,postedBy);
+
+        //updateThread
+        aoThread.put(AoThread.TITLE,title);
+        aoThread.put(AoThread.CONTENT,content);
+        aoThread.put(AoThread.TAGS,Arrays.asList(tag));
+        try {
+            if (imageGallery != null || imageDataWeb != null) {
+                if (imageDataWeb != null) {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("width", imageDataWeb.getWidth());
+                    jsonObject.put("height", imageDataWeb.getHeight());
+                    jsonObject.put("url",imageDataWeb.getUrl());
+                    JSONArray jsonArray = new JSONArray();
+                    jsonArray.put(jsonObject);
+                    aoThread.put(TimelinePost.IMAGES, jsonArray);
+                } else {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("property", "image");
+                    jsonObject.put("width", imageGallery.getWidth());
+                    jsonObject.put("height", imageGallery.getHeight());
+                    jsonObject.put("url",imageGallery.getUrl());
+                    JSONArray jsonArray = new JSONArray();
+                    jsonArray.put(jsonObject);
+                    aoThread.put(TimelinePost.IMAGES, jsonArray);
+                    final ParseFile file = new ParseFile(imageGallery.getImageName(), imageGallery.getImageFile());
+                    file.saveInBackground();
+                    aoThread.put(TimelinePost.IMAGE,file);
+                }
+
+                postContentType = CONTENTTYPE_IMAGE;
+            } else {
+                aoThread.put(TimelinePost.IMAGES, new JSONArray());
+            }
+        } catch (JSONException jEx) {
+
+        }
+
+        if(youtubeID != null) {
+            aoThread.put(TimelinePost.YOUTUBE_ID,youtubeID);
+            postContentType = CONTENTTYPE_VIDEO;
+        }
+
+        if(selectedLinkData != null) {
+            aoThread.put(TimelinePost.LINK,selectedLinkData.toJsonObject());
+            postContentType = CONTENTTYPE_LINK;
+        }
+        aoThread.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                if(e == null) {
+                    HashMap<String,String> parameters = new HashMap<String, String>();
+                    parameters.put("threadId",aoThread.getObjectId());
+                    ParseCloud.callFunctionInBackground("Thread.UpdateHotRanking",parameters);
+                    postedBy.increment(ParseUserColumns.POST_COUNT,1);
+                    postedBy.saveInBackground();
+                }
+                mOnPerformNewThread.onPerformNewThread(aoThread,e);
+            }
+        });
+    }
+
+    public void performPostPost(String content, Boolean isEditing, ImageData imageGallery, ImageData imageDataWeb, String youtubeID) {
+
+        post = Post.create(Post.class);
+        post.put(TimelinePost.CONTENT,content);
+        if(!isEditing) {
+            post.put(TimelinePost.POSTED_BY,postedBy);
+            post.put(TimelinePost.EDITED,false);
+        } else {
+            post.put(TimelinePost.EDITED,true);
+        }
+        try {
+            if (imageGallery != null || imageDataWeb != null) {
+                if (imageDataWeb != null) {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("width", imageDataWeb.getWidth());
+                    jsonObject.put("height", imageDataWeb.getHeight());
+                    jsonObject.put("url",imageDataWeb.getUrl());
+                    JSONArray jsonArray = new JSONArray();
+                    jsonArray.put(jsonObject);
+                    post.put(TimelinePost.IMAGES, jsonArray);
+                } else {
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("property", "image");
+                    jsonObject.put("width", imageGallery.getWidth());
+                    jsonObject.put("height", imageGallery.getHeight());
+                    jsonObject.put("url",imageGallery.getUrl());
+                    JSONArray jsonArray = new JSONArray();
+                    jsonArray.put(jsonObject);
+                    post.put(TimelinePost.IMAGES, jsonArray);
+                    final ParseFile file = new ParseFile(imageGallery.getImageName(), imageGallery.getImageFile());
+                    file.saveInBackground();
+                    post.put(TimelinePost.IMAGE,file);
+                }
+
+                postContentType = CONTENTTYPE_IMAGE;
+            } else {
+                post.put(TimelinePost.IMAGES, new JSONArray());
+            }
+        } catch (JSONException jEx) {
+
+        }
+
+        if(youtubeID != null) {
+            post.put(TimelinePost.YOUTUBE_ID,youtubeID);
+            postContentType = CONTENTTYPE_VIDEO;
+        }
+
+        //Hacerlo dsps d guardar post
+
+
+        if(parentPost != null) {
+            post.put(Post.REPLYLEVEL,1);
+            post.put(Post.THREAD,parentPost.getParseObject(Post.THREAD));
+            post.put(Post.PARENTPOST,parentPost);
+        } else {
+            post.put(Post.REPLYLEVEL,0);
+            post.put(Post.THREAD,parentThread);
+        }
+
+        post.getParseObject(Post.THREAD).increment(Post.REPLYCOUNT,1);
+        post.getParseObject(Post.THREAD).put(AoThread.LASTPOSTEDBY,postedBy);
+
+        post.saveInBackground(new SaveCallback() {
+            @Override
+            public void done(ParseException e) {
+                HashMap<String,String> parameters = new HashMap<String, String>();
+                parameters.put("threadId",post.getParseObject(Post.THREAD).getObjectId());
+                ParseCloud.callFunctionInBackground("Thread.UpdateHotRanking",parameters);
+
+                if(parentPost != null && parentPost instanceof  Post) {
+                    parentPost.increment(Post.REPLYCOUNT,1);
+                    parentPost.put(Post.LASTREPLY,post);
+                    parentPost.saveInBackground();
+                    HashMap<String,String> parametersNoti = new HashMap<String, String>();
+                    parameters.put("toUserId",parentPost.getParseUser(Post.POSTEDBY).getObjectId());
+                    parameters.put("postId",parentPost.getObjectId());
+                    parameters.put("threadName",post.getParseObject(Post.THREAD).getString("title"));
+                    ParseCloud.callFunctionInBackground("sendNewPostReplyPushNotification",parametersNoti);
+                } else {
+                    HashMap<String,String> parametersNoti = new HashMap<String, String>();
+                    parameters.put("postId",post.getObjectId());
+                    parameters.put("threadName",post.getParseObject(Post.THREAD).getString("title"));
+                    if(post.getParseObject(Post.THREAD).has(AoThread.STARTEDBY)) {
+                        parameters.put("toUserId",post.getParseObject(Post.THREAD).getParseUser(AoThread.STARTEDBY).getObjectId());
+                    }
+                    ParseCloud.callFunctionInBackground("sendNewPostPushNotification",parametersNoti);
+                }
+                if(parentPost == null)
+                    mOnPerformPost.onPerformPost(post,parentThread, e);
+                else
+                    mOnPerformPost.onPerformPost(post,parentPost, e);
+
+            }
+        });
+
+
+
+
     }
 
 }

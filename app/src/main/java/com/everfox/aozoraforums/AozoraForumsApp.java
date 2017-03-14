@@ -59,6 +59,17 @@ public class AozoraForumsApp extends Application {
         AozoraForumsApp.updatedPost = updatedPost;
     }
 
+
+    public static ParseObject getUpdatedParentThread() {
+        return updatedParentThread;
+    }
+
+    public static void setUpdatedParentThread(ParseObject updatedParentThread) {
+        AozoraForumsApp.updatedParentThread = updatedParentThread;
+    }
+
+    private static ParseObject updatedParentThread;
+
     private static ParseObject updatedParentPost;
     public static ParseObject getUpdatedParentPost() {
         return updatedParentPost;
@@ -228,5 +239,7 @@ public class AozoraForumsApp extends Application {
         postedBy = null;
         postedIn = null;
         tagToPass = null;
+        updatedParentPost = null;
+        updatedParentThread = null;
     }
 }

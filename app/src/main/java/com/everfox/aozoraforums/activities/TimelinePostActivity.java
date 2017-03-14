@@ -440,7 +440,8 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
 
     private void initAddCommentControls() {
 
-        addPostThreadHelper = new AddPostThreadHelper(this,REQUEST_PICK_IMAGE,ParseUser.getCurrentUser(),parentPost.getParseUser(TimelinePost.USER_TIMELINE),parentPost,AddPostThreadHelper.NEW_TIMELINEPOST_REPLY);
+        addPostThreadHelper = new AddPostThreadHelper(this,REQUEST_PICK_IMAGE,ParseUser.getCurrentUser(),parentPost.getParseUser(TimelinePost.USER_TIMELINE),
+                                                        parentPost,null,AddPostThreadHelper.NEW_TIMELINEPOST_REPLY);
         ivAddPhotoInternet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -530,7 +531,7 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
             etComment.setText("");
             clearAttachments();
             addPostThreadHelper = new AddPostThreadHelper(this,REQUEST_PICK_IMAGE,ParseUser.getCurrentUser(),parentPost.getParseUser(TimelinePost.USER_TIMELINE)
-                    ,parentPost,AddPostThreadHelper.NEW_TIMELINEPOST_REPLY);
+                    ,parentPost,null,AddPostThreadHelper.NEW_TIMELINEPOST_REPLY);
 
         }
 

@@ -393,8 +393,15 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
                 OptionListDialogFragment fragment;
                 if(isCurrentUser)
                     fragment = OptionListDialogFragment.newInstance(getActivity(),title,subtitle1,subtitle2,ProfileFragment.this, AoConstants.MY_PROFILE_OPTIONS_DIALOG,null);
-                else
-                    fragment = OptionListDialogFragment.newInstance(getActivity(),title,subtitle1,subtitle2,ProfileFragment.this, AoConstants.MY_PROFILE_OTHER_USER_OPTIONS_DIALOG,null);
+                else {
+
+                    if (AozoraForumsApp.getIsAdmin(ParseUser.getCurrentUser()) > 0) {
+                        fragment = OptionListDialogFragment.newInstance(getActivity(), title, subtitle1, subtitle2, ProfileFragment.this, AoConstants.MY_PROFILE_OTHER_USER_ADMINOPTIONS_DIALOG, null);
+                    } else {
+                        fragment = OptionListDialogFragment.newInstance(getActivity(), title, subtitle1, subtitle2, ProfileFragment.this, AoConstants.MY_PROFILE_OTHER_USER_OPTIONS_DIALOG, null);
+                    }
+
+                }
                 fragment.setCancelable(true);
                 fragment.show(getFragmentManager(),"");
             }

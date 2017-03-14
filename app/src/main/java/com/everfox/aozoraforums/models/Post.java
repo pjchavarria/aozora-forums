@@ -31,5 +31,6 @@ public class Post extends ParseObject {
     public static final String POSTEDBY = "postedBy";
     public static final String LASTREPLY = "lastReply";
     public static final String LASTREPLY_POSTEDBY = "lastReply.postedBy";
+    public static final String REPLYCOUNT = "replyCount";
 
 }

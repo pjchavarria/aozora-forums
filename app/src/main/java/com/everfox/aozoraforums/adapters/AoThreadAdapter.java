@@ -57,6 +57,7 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
     private View.OnClickListener upvoteClickListener;
     private View.OnClickListener downvoteClickListener;
     private View.OnClickListener likecommentClickListener;
+    private View.OnClickListener addPostClickListener;
 
 
 
@@ -74,7 +75,6 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
         public void onCommentTapped(ParseObject commentTapped);
     }
 
-
     public OnItemLongClickListener mOnItemLongClicked;
     public interface OnItemLongClickListener {
         public void onItemLongClicked(ParseObject aoThread);
@@ -83,6 +83,11 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
     private OnImageShareListener mShareCallback;
     public interface OnImageShareListener {
         public void mShareCallback(View view);
+    }
+
+    public OnAddPostTappedListener mOnAddPostTappedCallback;
+    public interface OnAddPostTappedListener {
+        public void onAddPostTapped();
     }
 
 
@@ -97,6 +102,7 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
         mOnUpDownVote = (OnUpDownVoteListener) callback;
         mOnItemLongClicked = (OnItemLongClickListener) callback;
         mShareCallback = (OnImageShareListener) callback;
+        mOnAddPostTappedCallback = (OnAddPostTappedListener) callback;
     }
 
     @Override
@@ -139,6 +145,12 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
             @Override
             public void onClick(View view) {
                 mOnUpDownVote.onUpDownVote(true,parseObject,position);
+            }
+        };
+        addPostClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mOnAddPostTappedCallback.onAddPostTapped();
             }
         };
 
@@ -279,11 +291,12 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
 
         //Load Upvote/Downvote/Comments
         updateUpvoteDownvote(viewHolder.ivUpvotes, viewHolder.tvUpvotes, viewHolder.ivDownvotes, viewHolder.tvDownvotes, viewHolder.tvComments,aoThread);
-
         viewHolder.ivUpvotes.setOnClickListener(upvoteClickListener);
         viewHolder.tvUpvotes.setOnClickListener(upvoteClickListener);
         viewHolder.ivDownvotes.setOnClickListener(downvoteClickListener);
         viewHolder.tvDownvotes.setOnClickListener(downvoteClickListener);
+        viewHolder.tvComments.setOnClickListener(addPostClickListener);
+        viewHolder.ivComments.setOnClickListener(addPostClickListener);
 
     }
 

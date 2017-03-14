@@ -282,6 +282,7 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, For
                     forumsAdapter.notifyItemInserted(lstThreads.size());
                 }
             });
+
             forumsHelper.GetThreads(selectedList, selectedSort, fetchCount * ForumsHelper.THREADS_FETCH_LIMIT, ForumsHelper.THREADS_FETCH_LIMIT);
             fetchCount++;
         }
@@ -336,6 +337,8 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, For
 
     private void loadForumThreads(List<AoThread> threads) {
 
+        if(threads.size() == 0)
+            fetchCount--;
         pbLoading.setVisibility(View.GONE);
         rvForums.setVisibility(View.VISIBLE);
         if (fetchCount == 1) {

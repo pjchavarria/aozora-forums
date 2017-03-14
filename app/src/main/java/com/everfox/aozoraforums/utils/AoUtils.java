@@ -228,6 +228,8 @@ public class AoUtils {
                 return Arrays.asList(context.getResources().getStringArray(R.array.edit_post_options));
             case AoConstants.REPORT_POST_OPTIONS_DIALOG:
                 return Arrays.asList(context.getResources().getStringArray(R.array.other_user_post_options));
+            case AoConstants.MY_PROFILE_OTHER_USER_ADMINOPTIONS_DIALOG:
+                return Arrays.asList(context.getResources().getStringArray(R.array.my_profile_other_user_admin));
         }
         return new ArrayList<String>();
     }

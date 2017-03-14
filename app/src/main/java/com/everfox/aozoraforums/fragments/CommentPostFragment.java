@@ -1,11 +1,13 @@
 package com.everfox.aozoraforums.fragments;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.LinearLayoutManager;
@@ -13,6 +15,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -20,18 +25,24 @@ import android.widget.Toast;
 
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.ThreadActivity;
+import com.everfox.aozoraforums.activities.postthread.SearchImageActivity;
+import com.everfox.aozoraforums.activities.postthread.SearchYoutubeActivity;
 import com.everfox.aozoraforums.adapters.CommentPostAdapter;
 import com.everfox.aozoraforums.adapters.TimelinePostsAdapter;
+import com.everfox.aozoraforums.controllers.AddPostThreadHelper;
 import com.everfox.aozoraforums.controllers.ForumsHelper;
 import com.everfox.aozoraforums.controllers.PostParseHelper;
 import com.everfox.aozoraforums.controllers.ThreadHelper;
 import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
 import com.everfox.aozoraforums.models.AoThread;
+import com.everfox.aozoraforums.models.ImageData;
+import com.everfox.aozoraforums.models.PUser;
 import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.AoConstants;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.everfox.aozoraforums.utils.PostUtils;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
@@ -46,7 +57,7 @@ import butterknife.ButterKnife;
  */
 
 public class CommentPostFragment extends Fragment implements ThreadHelper.OnGetPostCommentsListener, CommentPostAdapter.OnUsernameTappedListener, CommentPostAdapter.OnLikeListener,
-CommentPostAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelectedListener, PostUtils.OnDeletePostCallback{
+CommentPostAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelectedListener, PostUtils.OnDeletePostCallback, AddPostThreadHelper.OnPerformPost{
 
     Post post;
     LinearLayoutManager llm;
@@ -62,6 +73,17 @@ CommentPostAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelec
     LinearLayout llAddComment;
     @BindView(R.id.swipeRefresh)
     SwipeRefreshLayout swipeRefresh;
+    @BindView(R.id.etComment)
+    EditText etComment;
+    @BindView(R.id.ivAddPhotoInternet)
+    ImageView ivAddPhotoInternet;
+    @BindView(R.id.ivAddPhotoGallery)
+    ImageView ivAddPhotoGallery;
+    @BindView(R.id.ivAddVideo)
+    ImageView ivAddVideo;
+    @BindView(R.id.btnSendComment)
+    Button btnSendComment;
+
 
     public static CommentPostFragment newInstance (Post parentComment) {
         CommentPostFragment commentPostFragment = new CommentPostFragment();
@@ -89,6 +111,7 @@ CommentPostAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelec
         });
         new ThreadHelper(getActivity(),null,this).GetPostComments(post,0,2000);
         isLoading = true;
+        initAddCommentControls();
         return view;
     }
 
@@ -111,13 +134,12 @@ CommentPostAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelec
         pbLoading.setVisibility(View.GONE);
         swipeRefresh.setVisibility(View.VISIBLE);
         llAddComment.setVisibility(View.VISIBLE);
-        if(commentPostAdapter.getItemCount() == 0){
-            RecyclerView.RecycledViewPool recycledViewPool = rvThreadComments.getRecycledViewPool();
-            recycledViewPool.setMaxRecycledViews(TimelinePostsAdapter.ITEM_FIRST_POST,0);
-            recycledViewPool.setMaxRecycledViews(TimelinePostsAdapter.ITEM_COMMENT,0);
-            rvThreadComments.setRecycledViewPool(recycledViewPool);
-            rvThreadComments.setItemViewCacheSize(200);
-        }
+        RecyclerView.RecycledViewPool recycledViewPool = rvThreadComments.getRecycledViewPool();
+        recycledViewPool.setMaxRecycledViews(commentPostAdapter.ITEM_FIRST_POST,0);
+        recycledViewPool.setMaxRecycledViews(commentPostAdapter.ITEM_COMMENT,0);
+        rvThreadComments.setRecycledViewPool(recycledViewPool);
+        rvThreadComments.setItemViewCacheSize(200);
+
         isLoading = false;
     }
 
@@ -208,9 +230,140 @@ CommentPostAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelec
                 ((ThreadActivity) getActivity()).onPostDeletedFromFragment(post);
             getFragmentManager().popBackStack();
         }
-
-
-
     }
 
+    final int REQUEST_SEARCH_YOUTUBE = 502;
+    final int REQUEST_PICK_IMAGE = 501;
+    final int REQUEST_SEARCH_IMAGE = 500;
+    ImageData imageDataWeb = null;
+    ImageData imageGallery = null;
+    String youtubeID = null;
+    AddPostThreadHelper addPostThreadHelper;
+
+    private void initAddCommentControls() {
+
+        addPostThreadHelper = new AddPostThreadHelper(getActivity(),REQUEST_PICK_IMAGE,ParseUser.getCurrentUser(),null,
+                post,post.getParseObject(Post.THREAD),AddPostThreadHelper.NEW_AOTHREAD_REPLY);
+        addPostThreadHelper.setFragmentCallback(this);
+
+        ivAddPhotoInternet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(imageDataWeb == null) {
+                    Intent i = new Intent(getActivity(), SearchImageActivity.class);
+                    startActivityForResult(i, REQUEST_SEARCH_IMAGE);
+                } else {
+                    imageDataWeb = null;
+                    ivAddPhotoInternet.clearColorFilter();
+                }
+            }
+        });
+        ivAddPhotoGallery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (imageGallery == null) {
+                    addPostThreadHelper.addPhotoGalleryTapped();
+                } else {
+                    imageGallery = null;
+                    ivAddPhotoGallery.clearColorFilter();
+                }
+            }
+        });
+        ivAddVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(youtubeID == null) {
+                    Intent i = new Intent(getActivity(), SearchYoutubeActivity.class);
+                    startActivityForResult(i, REQUEST_SEARCH_YOUTUBE);
+                }else {
+                    youtubeID = null;
+                    ivAddVideo.clearColorFilter();
+                }
+            }
+        });
+
+        btnSendComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(!isValidPost()){
+                    return;
+                }
+                btnSendComment.setText("Sending...");
+                btnSendComment.setBackground(ContextCompat.getDrawable(getActivity(),R.drawable.button_sending));
+                addPostThreadHelper.performPostPost(etComment.getText().toString(),false,imageGallery,imageDataWeb,youtubeID);
+            }
+        });
+    }
+
+    private boolean isValidPost() {
+        int max =Math.max(0,etComment.getText().length());
+        if(max < 1 && imageDataWeb == null && imageGallery == null && youtubeID == null){
+            AoUtils.showAlertWithTitleAndText(getActivity(),"Too Short","Message/spoiler should be 1 character or longer");
+            return false;
+        }
+        //check if its muted
+        if (PUser.isMuted(ParseUser.getCurrentUser()))
+            return false;
+        return true;
+    }
+
+    private void clearAttachments() {
+        youtubeID = null;
+        imageGallery = null;
+        imageDataWeb = null;
+        ivAddPhotoInternet.clearColorFilter();
+        ivAddPhotoGallery.clearColorFilter();
+        ivAddVideo.clearColorFilter();
+    }
+
+    @Override
+    public void onPerformPost(ParseObject post, ParseObject parentpost, ParseException e) {
+        if(e!= null) {
+            Toast.makeText(getActivity(),"An error occured, try again later",Toast.LENGTH_SHORT).show();
+            btnSendComment.setText("Send");
+            btnSendComment.setBackground(ContextCompat.getDrawable(getActivity(),R.drawable.button_send));
+        } else {
+            btnSendComment.setText("Send");
+            btnSendComment.setBackground(ContextCompat.getDrawable(getActivity(),R.drawable.button_send));
+            this.post = (Post) parentpost;
+            lstComments.add((Post)post);
+            commentPostAdapter.notifyItemInserted(lstComments.size()-1);
+            etComment.setText("");
+            clearAttachments();
+            addPostThreadHelper = new AddPostThreadHelper(getActivity(),REQUEST_PICK_IMAGE,ParseUser.getCurrentUser(),null,
+                    post,post.getParseObject(Post.THREAD),AddPostThreadHelper.NEW_AOTHREAD_REPLY);
+            addPostThreadHelper.setFragmentCallback(this);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+         if(requestCode == REQUEST_SEARCH_IMAGE) {
+            if(data != null && resultCode == SearchImageActivity.RESULT_SUCCESS) {
+                clearAttachments();
+                if (data.hasExtra(SearchImageActivity.IMAGE_DATA)){
+                    imageDataWeb = (ImageData) data.getSerializableExtra(SearchImageActivity.IMAGE_DATA);
+                    ivAddPhotoInternet.setColorFilter(ContextCompat.getColor(getActivity(),R.color.red_airing));
+                }
+            }
+        } else if(requestCode == REQUEST_PICK_IMAGE) {
+            if(resultCode == getActivity().RESULT_OK) {
+                clearAttachments();
+                imageGallery = AoUtils.resizeImage(data.getData(),getActivity());
+                ivAddPhotoGallery.setColorFilter(ContextCompat.getColor(getActivity(),R.color.red_airing));
+            }
+        } else if (requestCode == REQUEST_SEARCH_YOUTUBE) {
+            if(resultCode == getActivity().RESULT_OK) {
+
+                clearAttachments();
+                if (data.hasExtra(SearchYoutubeActivity.YOUTUBE_ID)){
+                    youtubeID = data.getStringExtra(SearchYoutubeActivity.YOUTUBE_ID);
+                    ivAddVideo.setColorFilter(ContextCompat.getColor(getActivity(),R.color.red_airing));
+                }
+            }
+        }
+    }
 }

@@ -7,7 +7,7 @@ import com.parse.ParseObject;
  * Created by daniel.soto on 1/31/2017.
  */
 
-@ParseClassName("ThreadTest")
+@ParseClassName("Thread")
 public class AoThread extends ParseObject {
 
     public Boolean getHasMenu() {
@@ -63,4 +63,5 @@ public class AoThread extends ParseObject {
     public static final String CONTENT = "content";
     public static final String VIEWS = "views";
     public static final String UPDATEDAT = "updatedAt";
+    public static final String EDITED = "edited";
 }

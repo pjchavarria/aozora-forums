@@ -3,6 +3,7 @@ package com.everfox.aozoraforums.activities;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.PersistableBundle;
 import android.support.annotation.NonNull;
@@ -17,7 +18,10 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
@@ -25,8 +29,12 @@ import android.widget.Toast;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.activities.postthread.CreatePostActivity;
+import com.everfox.aozoraforums.activities.postthread.SearchImageActivity;
+import com.everfox.aozoraforums.activities.postthread.SearchYoutubeActivity;
 import com.everfox.aozoraforums.adapters.AoThreadAdapter;
 import com.everfox.aozoraforums.adapters.TimelinePostsAdapter;
+import com.everfox.aozoraforums.controllers.AddPostThreadHelper;
 import com.everfox.aozoraforums.controllers.ForumsHelper;
 import com.everfox.aozoraforums.controllers.PostParseHelper;
 import com.everfox.aozoraforums.controllers.ThreadHelper;
@@ -37,12 +45,15 @@ import com.everfox.aozoraforums.fragments.ForumsFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.fragments.UserListFragment;
 import com.everfox.aozoraforums.models.AoThread;
+import com.everfox.aozoraforums.models.ImageData;
+import com.everfox.aozoraforums.models.PUser;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.AoConstants;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.everfox.aozoraforums.utils.PostUtils;
+import com.parse.ParseException;
 import com.parse.ParseObject;
 import com.parse.ParseUser;
 
@@ -54,9 +65,10 @@ import butterknife.ButterKnife;
 
 public class ThreadActivity extends AozoraActivity implements AoThreadAdapter.OnUsernameTappedListener, ThreadHelper.OnGetThreadCommentsListener,
 AoThreadAdapter.OnCommentTappedListener, AoThreadAdapter.OnUpDownVoteListener, AoThreadAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelectedListener,
-PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAdapter.OnImageShareListener{
+PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAdapter.OnImageShareListener, AoThreadAdapter.OnAddPostTappedListener, AddPostThreadHelper.OnPerformPost{
 
     private static final int REQUEST_WRITE_STORAGE = 100;
+    private static final int REQUEST_ADD_POST = 401;
     View viewToShare;
     Boolean hasMenu = true;
     AoThread parentThread;
@@ -79,6 +91,16 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
     @BindView(R.id.flContent)
     FrameLayout flContent;
     ParseObject selectedComment;
+    @BindView(R.id.etComment)
+    EditText etComment;
+    @BindView(R.id.ivAddPhotoInternet)
+    ImageView ivAddPhotoInternet;
+    @BindView(R.id.ivAddPhotoGallery)
+    ImageView ivAddPhotoGallery;
+    @BindView(R.id.ivAddVideo)
+    ImageView ivAddVideo;
+    @BindView(R.id.btnSendComment)
+    Button btnSendComment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,7 +134,7 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
                 }
             }
         });
-
+        initAddCommentControls();
 
         isLoading = true;
     }
@@ -152,13 +174,11 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
         pbLoading.setVisibility(View.GONE);
         swipeRefresh.setVisibility(View.VISIBLE);
         llAddComment.setVisibility(View.VISIBLE);
-        if(aoThreadAdapter.getItemCount() == 0){
-            RecyclerView.RecycledViewPool recycledViewPool = rvThreadComments.getRecycledViewPool();
-            recycledViewPool.setMaxRecycledViews(TimelinePostsAdapter.ITEM_FIRST_POST,0);
-            recycledViewPool.setMaxRecycledViews(TimelinePostsAdapter.ITEM_COMMENT,0);
-            rvThreadComments.setRecycledViewPool(recycledViewPool);
-            rvThreadComments.setItemViewCacheSize(200);
-        }
+        RecyclerView.RecycledViewPool recycledViewPool = rvThreadComments.getRecycledViewPool();
+        recycledViewPool.setMaxRecycledViews(AoThreadAdapter.ITEM_FIRST_POST,0);
+        recycledViewPool.setMaxRecycledViews(AoThreadAdapter.ITEM_COMMENT,0);
+        rvThreadComments.setRecycledViewPool(recycledViewPool);
+        rvThreadComments.setItemViewCacheSize(200);
         isLoading = false;
     }
 
@@ -313,7 +333,162 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
                 } else {
                     Toast.makeText(this, "The app was not allowed to write to your storage. Hence, it cannot share the image. Please consider granting it this permission", Toast.LENGTH_LONG).show();
                 }
+                break;
             }
+        }
+    }
+
+    @Override
+    public void onAddPostTapped() {
+        selectedItem = null;
+        selectedComment = null;
+        Intent i = new Intent(this,CreatePostActivity.class);
+        i.putExtra(CreatePostActivity.PARAM_TYPE,CreatePostActivity.NEW_AOTHREAD_REPLY);
+        AozoraForumsApp.setPostedBy(ParseUser.getCurrentUser());
+        AozoraForumsApp.setPostedIn(null);
+        AozoraForumsApp.setUpdatedParentPost(null);
+        AozoraForumsApp.setUpdatedParentThread(parentThread);
+        startActivityForResult(i,REQUEST_ADD_POST);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_ADD_POST) {
+                if(resultCode == RESULT_OK){
+                    parentThread = (AoThread) AozoraForumsApp.getUpdatedParentPost();
+                    Post post = (Post)AozoraForumsApp.getUpdatedPost();
+                    lstComments.add(post);
+                    aoThreadAdapter.notifyItemInserted(lstComments.size()-1);
+                }
+        } else  if(requestCode == REQUEST_SEARCH_IMAGE) {
+            if(data != null && resultCode == SearchImageActivity.RESULT_SUCCESS) {
+                clearAttachments();
+                if (data.hasExtra(SearchImageActivity.IMAGE_DATA)){
+                    imageDataWeb = (ImageData) data.getSerializableExtra(SearchImageActivity.IMAGE_DATA);
+                    ivAddPhotoInternet.setColorFilter(ContextCompat.getColor(this,R.color.red_airing));
+                }
+            }
+        } else if(requestCode == REQUEST_PICK_IMAGE) {
+            if(resultCode == RESULT_OK) {
+                clearAttachments();
+                imageGallery = AoUtils.resizeImage(data.getData(),this);
+                ivAddPhotoGallery.setColorFilter(ContextCompat.getColor(this,R.color.red_airing));
+            }
+        } else if (requestCode == REQUEST_SEARCH_YOUTUBE) {
+            if(resultCode == RESULT_OK) {
+
+                clearAttachments();
+                if (data.hasExtra(SearchYoutubeActivity.YOUTUBE_ID)){
+                    youtubeID = data.getStringExtra(SearchYoutubeActivity.YOUTUBE_ID);
+                    ivAddVideo.setColorFilter(ContextCompat.getColor(this,R.color.red_airing));
+                }
+            }
+        }
+    }
+
+    final int REQUEST_SEARCH_YOUTUBE = 502;
+    final int REQUEST_PICK_IMAGE = 501;
+    final int REQUEST_SEARCH_IMAGE = 500;
+    ImageData imageDataWeb = null;
+    ImageData imageGallery = null;
+    String youtubeID = null;
+    AddPostThreadHelper addPostThreadHelper;
+
+    private void initAddCommentControls() {
+
+        addPostThreadHelper = new AddPostThreadHelper(this,REQUEST_PICK_IMAGE,ParseUser.getCurrentUser(),null,
+                null,parentThread,AddPostThreadHelper.NEW_AOTHREAD_REPLY);
+
+        ivAddPhotoInternet.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(imageDataWeb == null) {
+                    Intent i = new Intent(ThreadActivity.this, SearchImageActivity.class);
+                    startActivityForResult(i, REQUEST_SEARCH_IMAGE);
+                } else {
+                    imageDataWeb = null;
+                    ivAddPhotoInternet.clearColorFilter();
+                }
+            }
+        });
+        ivAddPhotoGallery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (imageGallery == null) {
+                    addPostThreadHelper.addPhotoGalleryTapped();
+                } else {
+                    imageGallery = null;
+                    ivAddPhotoGallery.clearColorFilter();
+                }
+            }
+        });
+        ivAddVideo.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(youtubeID == null) {
+                    Intent i = new Intent(ThreadActivity.this, SearchYoutubeActivity.class);
+                    startActivityForResult(i, REQUEST_SEARCH_YOUTUBE);
+                }else {
+                    youtubeID = null;
+                    ivAddVideo.clearColorFilter();
+                }
+            }
+        });
+
+        btnSendComment.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+                if(!isValidPost()){
+                    return;
+                }
+
+                btnSendComment.setText("Sending...");
+                btnSendComment.setBackground(ContextCompat.getDrawable(ThreadActivity.this,R.drawable.button_sending));
+                addPostThreadHelper.performPostPost(etComment.getText().toString(),false,imageGallery,imageDataWeb,youtubeID);
+            }
+        });
+    }
+
+    private boolean isValidPost() {
+        int max =Math.max(0,etComment.getText().length());
+        if(max < 1 && imageDataWeb == null && imageGallery == null && youtubeID == null){
+            AoUtils.showAlertWithTitleAndText(this,"Too Short","Message/spoiler should be 1 character or longer");
+            return false;
+        }
+        //check if its muted
+        if (PUser.isMuted(ParseUser.getCurrentUser()))
+            return false;
+        return true;
+    }
+
+    private void clearAttachments() {
+        youtubeID = null;
+        imageGallery = null;
+        imageDataWeb = null;
+        ivAddPhotoInternet.clearColorFilter();
+        ivAddPhotoGallery.clearColorFilter();
+        ivAddVideo.clearColorFilter();
+    }
+
+    @Override
+    public void onPerformPost(ParseObject post, ParseObject parentpost, ParseException e) {
+        if(e!= null) {
+            Toast.makeText(this,"An error occured, try again later",Toast.LENGTH_SHORT).show();
+            btnSendComment.setText("Send");
+            btnSendComment.setBackground(ContextCompat.getDrawable(this,R.drawable.button_send));
+        } else {
+            btnSendComment.setText("Send");
+            btnSendComment.setBackground(ContextCompat.getDrawable(this,R.drawable.button_send));
+            this.parentThread = (AoThread) parentpost;
+            lstComments.add(post);
+            aoThreadAdapter.notifyItemInserted(lstComments.size()-1);
+            etComment.setText("");
+            clearAttachments();
+            addPostThreadHelper = new AddPostThreadHelper(this,REQUEST_PICK_IMAGE,ParseUser.getCurrentUser(),null,null
+                    ,parentThread,AddPostThreadHelper.NEW_AOTHREAD_REPLY);
         }
     }
 }

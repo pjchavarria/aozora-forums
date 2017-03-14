@@ -112,14 +112,14 @@
         <item>New</item>
     </string-array>
 
-
-
     <string-array name="my_profile_other_user_options">
+        <item>Threads created</item>
+    </string-array>
+
+    <string-array name="my_profile_other_user_admin">
         <item>Threads created</item>
         <item>Mute</item>
     </string-array>
-
-
 
     <string-array name="no_results_message">
         <item>No results, but check this popular threads!</item>

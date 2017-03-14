@@ -177,6 +177,8 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
     @Override
     public void onGetUserThreads(List<AoThread> threads) {
 
+        if(threads.size() == 0)
+            fetchCount--;
         pbLoading.setVisibility(View.GONE);
         if(fetchCount == 1 && threads.size() == 0) {
             rvThreadByUser.setVisibility(View.GONE);
