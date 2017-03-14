@@ -88,7 +88,8 @@ public class ForumsHelper {
                         globalThreads.add(objects.get(i));
                     }
 
-                    globalThreads.get(globalThreads.size()-1).setHideDivider(true);
+                    if(globalThreads.size()>1)
+                        globalThreads.get(globalThreads.size()-1).setHideDivider(true);
                     AozoraForumsApp.setGlobalThreads(globalThreads);
                     mGetGlobalThreadsCallback.onGetGlobalThreads();
                 }

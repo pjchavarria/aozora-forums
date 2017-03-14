@@ -441,6 +441,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
             lstTimelinePost.set(position, selectedPost);
             timelineAdapter.notifyItemChanged(position, selectedPost);
         }
+        selectedPost = null;
     }
 
     @Override
@@ -752,7 +753,6 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     public void onUsernameTapped(ParseUser userTapped) {
         if(!AoUtils.isActivityInvalid(getActivity())) {
             if(!user.getObjectId().equals(userTapped.getObjectId())) {
-                rvTimeline.setVisibility(View.GONE);
                 ProfileFragment pf = null;
                 if(ParseUser.getCurrentUser().getObjectId().equals(userTapped.getObjectId()))
                     pf = ProfileFragment.newInstance(userTapped, true, true,null,hasMenu);

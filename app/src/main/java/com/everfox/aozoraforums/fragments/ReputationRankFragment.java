@@ -161,6 +161,7 @@ ReputationRankAdapter.OnUsernameTappedListener
 
     @Override
     public void onGetReputation(List<ParseObject> users) {
+        lstUsers.clear();
         lstUsers.addAll(users);
         reputationRankAdapter = new ReputationRankAdapter(getActivity(),lstUsers,this);
         rvUsers.setAdapter(reputationRankAdapter);

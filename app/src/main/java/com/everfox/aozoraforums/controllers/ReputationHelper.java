@@ -86,8 +86,6 @@ public class ReputationHelper {
     }
 
     private void onGetFollowing (ArrayList<ParseObject> following) {
-
-        following.addAll(following);
         following.add(ParseUser.getCurrentUser());
         Collections.sort(following,ReputationComparator);
         mOnGetReputationCallback.onGetReputation(following);

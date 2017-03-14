@@ -7,7 +7,7 @@ import com.parse.ParseObject;
  * Created by daniel.soto on 1/31/2017.
  */
 
-@ParseClassName("Thread")
+@ParseClassName("ThreadTest")
 public class AoThread extends ParseObject {
 
     public Boolean getHasMenu() {
