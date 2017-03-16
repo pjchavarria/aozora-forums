@@ -51,6 +51,7 @@ public class AddPostThreadHelper {
     public static final int CONTENTTYPE_VIDEO = 2;
     int postContentType;
     TimelinePost timelinePost = new TimelinePost();
+    AoThread aoThread = new AoThread();
     Post post = new Post();
     int type;
     public static final int NEW_TIMELINEPOST = 0;
@@ -117,7 +118,6 @@ public class AddPostThreadHelper {
     }
 
     public void performTimelinePost(final String content, String spoilers, Boolean hasSpoilers, Boolean isEditing, ImageData imageGallery, ImageData imageDataWeb, String youtubeID, LinkData selectedLinkData) {
-
         timelinePost = TimelinePost.create(TimelinePost.class);
         if(hasSpoilers) {
             timelinePost.put(TimelinePost.CONTENT,content);
@@ -154,9 +154,6 @@ public class AddPostThreadHelper {
                     JSONArray jsonArray = new JSONArray();
                     jsonArray.put(jsonObject);
                     timelinePost.put(TimelinePost.IMAGES, jsonArray);
-                    final ParseFile file = new ParseFile(imageGallery.getImageName(), imageGallery.getImageFile());
-                    file.saveInBackground();
-                    timelinePost.put(TimelinePost.IMAGE,file);
                 }
 
                 postContentType = CONTENTTYPE_IMAGE;
@@ -187,6 +184,21 @@ public class AddPostThreadHelper {
             timelinePost.put(TimelinePost.USER_TIMELINE,postedIn);
         }
 
+        if(imageGallery != null) {
+            ParseFile file = new ParseFile(imageGallery.getImageName(), imageGallery.getImageFile());
+            timelinePost.put(TimelinePost.IMAGE, file);
+            file.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    timelinePostSave(content);
+                }
+            });
+        } else {
+            timelinePostSave(content);
+        }
+    }
+
+    private void timelinePostSave(final String content) {
         timelinePost.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
@@ -252,12 +264,13 @@ public class AddPostThreadHelper {
                 mOnPerformPost.onPerformPost(timelinePost, parentPost, e);
             }
         });
+
     }
 
     public void performNewThread(final String content, String title,  ImageData imageGallery,
                               ImageData imageDataWeb, String youtubeID, LinkData selectedLinkData, ParseObject tag) {
 
-        final AoThread aoThread = AoThread.create(AoThread.class);
+        aoThread = AoThread.create(AoThread.class);
         aoThread.put(AoThread.EDITED,false);
         aoThread.put(AoThread.REPLIES_COUNT,0);
         aoThread.put(AoThread.LIKE_COUNT,1);
@@ -288,9 +301,7 @@ public class AddPostThreadHelper {
                     JSONArray jsonArray = new JSONArray();
                     jsonArray.put(jsonObject);
                     aoThread.put(TimelinePost.IMAGES, jsonArray);
-                    final ParseFile file = new ParseFile(imageGallery.getImageName(), imageGallery.getImageFile());
-                    file.saveInBackground();
-                    aoThread.put(TimelinePost.IMAGE,file);
+
                 }
 
                 postContentType = CONTENTTYPE_IMAGE;
@@ -310,6 +321,22 @@ public class AddPostThreadHelper {
             aoThread.put(TimelinePost.LINK,selectedLinkData.toJsonObject());
             postContentType = CONTENTTYPE_LINK;
         }
+
+        if(imageGallery != null) {
+            ParseFile file = new ParseFile(imageGallery.getImageName(), imageGallery.getImageFile());
+            aoThread.put(TimelinePost.IMAGE,file);
+            file.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    aoThreadSave();
+                }
+            });
+        } else {
+            aoThreadSave();
+        }
+    }
+
+    private void aoThreadSave() {
         aoThread.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
@@ -354,9 +381,6 @@ public class AddPostThreadHelper {
                     JSONArray jsonArray = new JSONArray();
                     jsonArray.put(jsonObject);
                     post.put(TimelinePost.IMAGES, jsonArray);
-                    final ParseFile file = new ParseFile(imageGallery.getImageName(), imageGallery.getImageFile());
-                    file.saveInBackground();
-                    post.put(TimelinePost.IMAGE,file);
                 }
 
                 postContentType = CONTENTTYPE_IMAGE;
@@ -387,6 +411,23 @@ public class AddPostThreadHelper {
         post.getParseObject(Post.THREAD).increment(Post.REPLYCOUNT,1);
         post.getParseObject(Post.THREAD).put(AoThread.LASTPOSTEDBY,postedBy);
 
+        if(imageGallery != null) {
+
+            ParseFile file = new ParseFile(imageGallery.getImageName(), imageGallery.getImageFile());
+            post.put(TimelinePost.IMAGE,file);
+            file.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    postSave();
+                }
+            });
+        } else {
+
+            postSave();
+        }
+    }
+
+    private void postSave(){
         post.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
@@ -419,10 +460,6 @@ public class AddPostThreadHelper {
 
             }
         });
-
-
-
-
     }
 
 }

@@ -520,17 +520,19 @@ public class AoUtils {
             int maxSize = 960;
             int newHeight;
             int newWidth = Math.min(maxSize,width_tmp);
-            if(newWidth == maxSize)
-                newHeight =  height_tmp*newWidth/width_tmp;
-            else {
+            if(width_tmp > height_tmp) {
                 newHeight = Math.min(maxSize, height_tmp);
-                if(newHeight == maxSize)
-                    newWidth = width_tmp*newHeight /height_tmp ;
+                newWidth = width_tmp*newHeight /height_tmp ;
+            } else {
+
+                newWidth = Math.min(maxSize, width_tmp);
+                newHeight = height_tmp*newWidth /width_tmp ;
             }
+
             // recreate the new Bitmap
             Bitmap resizedBitmap = Bitmap.createScaledBitmap(BitmapFactory.decodeStream(context.getContentResolver().openInputStream(uri)),newWidth,newHeight,false);
             ByteArrayOutputStream stream = new ByteArrayOutputStream();
-            resizedBitmap.compress(Bitmap.CompressFormat.JPEG,100,stream);
+            resizedBitmap.compress(Bitmap.CompressFormat.JPEG,40,stream);
             ImageData imageData = new ImageData();
             imageData.setHeight(newHeight);
             imageData.setWidth(newWidth);
