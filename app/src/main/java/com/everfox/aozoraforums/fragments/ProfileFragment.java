@@ -855,7 +855,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     public void onLikeTappedListener(TimelinePost post) {
         ParseObject newPost = PostUtils.likePost(post);
         if(newPost != null) {
-            int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,post);
+            int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,post.getRepostFather() == null ? post : post.getRepostFather());
             lstTimelinePost.set(position, (TimelinePost) newPost);
             timelineAdapter.notifyItemChanged(position, newPost);
         }

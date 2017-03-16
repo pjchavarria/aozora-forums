@@ -52,8 +52,8 @@ public class ThreadUtils {
     public static double MAX_DIFFERENCE_WIDTH_HEIGHT = 1.2;
     public static double MAX_DIFFERENCE_WIDTH_HEIGHT_SIZE = 1.3;
 
-    public static double MAX_DIFFERENCE_AOTALK_WIDTH_HEIGHT = 0.33;
-    public static double MAX_DIFFERENCE_AOTALK_WIDTH_HEIGHT_SIZE = 0.33;
+    public static double MAX_DIFFERENCE_AOTALK_WIDTH_HEIGHT = 0.5;
+    public static double MAX_DIFFERENCE_AOTALK_WIDTH_HEIGHT_SIZE = 0.5;
 
 
     public static void setThreadTagWhenPostedViewsBy(final AoThread aoThread, TextView textView,
