@@ -63,6 +63,7 @@ import com.parse.ParseQuery;
 import com.parse.ParseRelation;
 import com.parse.ParseUser;
 
+import java.sql.Time;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -83,11 +84,11 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
         ProfileTimelineAdapter.OnImageShareListener, ProfileTimelineAdapter.OnCommentTappedListener
 {
 
+    private static final int REQUEST_EDIT_TIMELINEPOST = 403;
     private static final int REQUEST_NEW_TIMELINEPOST_REPLY = 402;
     private static final int REQUEST_NEW_TIMELINEPOST = 401;
     private static final int REQUEST_WRITE_STORAGE = 100;
     View viewToShare;
-    SimpleLoadingDialogFragment simpleLoadingDialogFragment = new SimpleLoadingDialogFragment();
     Boolean isFollowing;
     ParseUser user;
     UserDetails userDetails;
@@ -687,7 +688,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
                             .setNegativeButton(android.R.string.cancel, null) // dismisses by default
                             .setPositiveButton(R.string.dialog_delete_post, new DialogInterface.OnClickListener() {
                                 @Override public void onClick(DialogInterface dialog, int which) {
-                                    simpleLoadingDialogFragment.show(getFragmentManager(),"loading");
+                                    Toast.makeText(getActivity(),"Deleting...",Toast.LENGTH_SHORT).show();
                                     new ProfileParseHelper(getActivity(),ProfileFragment.this).deletePost(selectedPost,null);
                                 }
                             })
@@ -695,7 +696,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
                             .show();
                     break;
                 case AoConstants.POST_EDIT:
-                    Toast.makeText(getActivity(),"Edit Admin", Toast.LENGTH_SHORT).show();
+                    editSelectedPost();
                     break;
             }
         }
@@ -754,6 +755,16 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
                     break;
             }
         }
+    }
+
+    private void editSelectedPost() {
+
+        Intent i = new Intent(getActivity(),CreatePostActivity.class);
+        i.putExtra(CreatePostActivity.PARAM_TYPE,CreatePostActivity.EDIT_TIMELINEPOST);
+        AozoraForumsApp.setPostedBy(selectedPost.getParseUser(TimelinePost.POSTED_BY));
+        AozoraForumsApp.setPostedIn(user);
+        AozoraForumsApp.setPostToUpdate(selectedPost);
+        startActivityForResult(i,REQUEST_EDIT_TIMELINEPOST);
     }
 
     @Override
@@ -818,8 +829,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
 
     @Override
     public void onDeletePost() {
-        if (simpleLoadingDialogFragment.isVisible())
-            simpleLoadingDialogFragment.dismissAllowingStateLoss();
+        Toast.makeText(getActivity(),"Deleted",Toast.LENGTH_SHORT).show();
         lstTimelinePost.remove(selectedPosition);
         timelineAdapter.notifyItemRemoved(selectedPosition);
     }
@@ -847,6 +857,11 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
             int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,post);
             lstTimelinePost.set(position, post);
             timelineAdapter.notifyItemChanged(position, post);
+        }else if (requestCode == REQUEST_EDIT_TIMELINEPOST && resultCode == getActivity().RESULT_OK) {
+            TimelinePost post = (TimelinePost)AozoraForumsApp.getUpdatedPost();
+            int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,post);
+            lstTimelinePost.set(position, post);
+            timelineAdapter.notifyItemChanged(position);
         }
 
     }
@@ -863,7 +878,21 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
 
     @Override
     public void onRepostTappedListener(TimelinePost post) {
-            ArrayList<ParseObject> repost = PostUtils.repostPost(post);
+
+        ParseObject sourceObject = post.getParseObject(TimelinePost.REPOST_SOURCE);
+        if(sourceObject == null) {
+            if(ParseUser.getCurrentUser().getObjectId().equals(post.getParseUser(TimelinePost.POSTED_BY).getObjectId())) {
+                Toast.makeText(getActivity(),"Can't repost your own post",Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } else {
+            if(ParseUser.getCurrentUser().getObjectId().equals(sourceObject.getParseUser(TimelinePost.POSTED_BY).getObjectId())) {
+                Toast.makeText(getActivity(),"Can't repost your own post",Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
+        ArrayList<ParseObject> repost = PostUtils.repostPost(post);
         if(isProfile) {
             if(repost.size()==1) {
                 //Se borro el repost

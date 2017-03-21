@@ -49,6 +49,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.Serializable;
+import java.sql.Time;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -98,6 +99,11 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
     ParseObject parentThread = null;
     AddPostThreadHelper addPostThreadHelper;
     ParseObject tag;
+    ParseObject postToUpdate = null;
+    boolean editImageGallery = false;
+    boolean editImageWeb = false;
+    boolean editLink = false;
+    boolean editYoutube = false;
 
 
     @BindView(R.id.llSpoilerText)
@@ -147,11 +153,24 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
             case NEW_TIMELINEPOST:
                 setTitle("New Post");
                 break;
+            case EDIT_TIMELINEPOST:
+                setTitle("Edit Post");
+                isEditing = true;
+                loadPost();
+                break;
             case NEW_TIMELINEPOST_REPLY:
                 setTitle("New Post Reply");
                 parentPost =  AozoraForumsApp.getUpdatedParentPost();
                 ivAddLink.setVisibility(View.GONE);
                 btnSpoilers.setVisibility(View.GONE);
+                break;
+            case EDIT_TIMELINEPOST_REPLY:
+                setTitle("Edit Post Reply");
+                isEditing = true;
+                parentPost =  AozoraForumsApp.getUpdatedParentPost();
+                ivAddLink.setVisibility(View.GONE);
+                btnSpoilers.setVisibility(View.GONE);
+                loadPost();
                 break;
             case NEW_AOTHREAD:
                 setTitle("New Thread");
@@ -160,13 +179,14 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
                 llTags.setVisibility(View.VISIBLE);
                 btnForum.setVisibility(View.VISIBLE);
                 btnSpoilers.setVisibility(View.GONE);
-                btnForum.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        Intent i = new Intent(CreatePostActivity.this,SelectTagActivity.class);
-                        startActivityForResult(i,REQUEST_SELECT_TAG);
-                    }
-                });
+                break;
+            case EDIT_AOTHREAD:
+                setTitle("Edit Thread");
+                etTitle.setVisibility(View.VISIBLE);
+                llTags.setVisibility(View.VISIBLE);
+                btnForum.setVisibility(View.VISIBLE);
+                btnSpoilers.setVisibility(View.GONE);
+                loadPost();
                 break;
             case NEW_AOTHREAD_REPLY:
                 setTitle("New Thread Reply");
@@ -175,33 +195,108 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
                 ivAddLink.setVisibility(View.GONE);
                 btnSpoilers.setVisibility(View.GONE);
                 break;
+            case EDIT_AOTHREAD_REPLY:
+                setTitle("Edit Thread Reply");
+                parentPost =  AozoraForumsApp.getUpdatedParentPost();
+                parentThread =  AozoraForumsApp.getUpdatedParentThread();
+                ivAddLink.setVisibility(View.GONE);
+                btnSpoilers.setVisibility(View.GONE);
+                loadPost();
+                break;
         }
-        addPostThreadHelper = new AddPostThreadHelper(this,REQUEST_PICK_IMAGE,postedBy,postedIn,parentPost,parentThread,type);
+        addPostThreadHelper = new AddPostThreadHelper(this,REQUEST_PICK_IMAGE,postedBy,postedIn,parentPost,parentThread,type,postToUpdate);
+
+
+    }
+
+    private void loadPost() {
+        postToUpdate = AozoraForumsApp.getPostToUpdate();
+        etComment.setText(postToUpdate.getString(TimelinePost.CONTENT));
+        if(postToUpdate.getBoolean(TimelinePost.HAS_SPOILERS)) {
+            hasSpoilers = true;
+            llSpoilerText.setVisibility(View.VISIBLE);
+            btnSpoilers.setTextColor(ContextCompat.getColor(CreatePostActivity.this,R.color.gray3C));
+            etSpoilerText.setText(postToUpdate.getString(TimelinePost.SPOILER_CONTENT));
+        }
+        if(postToUpdate.has(TimelinePost.IMAGES)) {
+            JSONArray json = postToUpdate.getJSONArray(TimelinePost.IMAGES);
+            if(json.length()>0) {
+                try {
+                    if(json.getJSONObject(0).has("property")) {
+                        //load image gallery
+                        ivAddPhotoGallery.setColorFilter(ContextCompat.getColor(this,R.color.red_airing));
+                        editImageGallery = true;
+                    } else {
+                        //load image web
+                        ivAddPhotoInternet.setColorFilter(ContextCompat.getColor(this,R.color.red_airing));
+                        editImageWeb = true;
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        if(postToUpdate.has(TimelinePost.LINK)) {
+            editLink = true;
+            ivAddLink.setColorFilter(ContextCompat.getColor(this,R.color.red_airing));
+        }
+        if(postToUpdate.has(TimelinePost.YOUTUBE_ID)) {
+            editYoutube = true;
+            ivAddVideo.setColorFilter(ContextCompat.getColor(this,R.color.red_airing));
+        }
+
+        if(type == EDIT_AOTHREAD){
+            etTitle.setText(postToUpdate.getString(AoThread.TITLE));
+            tag = (ParseObject)postToUpdate.getList(AoThread.TAGS).get(0);
+            if(tag instanceof AoThreadTag) {
+                tvTag.setText("#"+tag.getString(AoThreadTag.NAME));
+            } else {
+                tvTag.setText("#"+tag.getString(Anime.TITLE));
+            }
+        }
+
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+
+        btnForum.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent i = new Intent(CreatePostActivity.this,SelectTagActivity.class);
+                startActivityForResult(i,REQUEST_SELECT_TAG);
+            }
+        });
         ivAddPhotoInternet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(imageDataWeb == null) {
+                if(imageDataWeb == null && !editImageWeb ) {
                     Intent i = new Intent(CreatePostActivity.this, SearchImageActivity.class);
                     startActivityForResult(i, REQUEST_SEARCH_IMAGE);
                 } else {
                     imageDataWeb = null;
+                    editImageWeb = false;
                     ivAddPhotoInternet.clearColorFilter();
+                    if(postToUpdate != null) {
+                        postToUpdate.remove(TimelinePost.IMAGES);
+                    }
                 }
             }
         });
         ivAddPhotoGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (imageGallery == null) {
+                if (imageGallery == null && !editImageGallery) {
                     addPostThreadHelper.addPhotoGalleryTapped();
                 } else {
                     imageGallery = null;
+                    editImageGallery = false;
                     ivAddPhotoGallery.clearColorFilter();
+                    if(postToUpdate != null) {
+                        postToUpdate.remove(TimelinePost.IMAGE);
+                    }
                 }
             }
         });
@@ -209,12 +304,16 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
             @Override
             public void onClick(View view) {
 
-                if(youtubeID == null) {
+                if(youtubeID == null && !editYoutube) {
                     Intent i = new Intent(CreatePostActivity.this, SearchYoutubeActivity.class);
                     startActivityForResult(i, REQUEST_SEARCH_YOUTUBE);
                 }else {
                     youtubeID = null;
+                    editYoutube = false;
                     ivAddVideo.clearColorFilter();
+                    if(postToUpdate != null) {
+                        postToUpdate.remove(TimelinePost.YOUTUBE_ID);
+                    }
                 }
             }
         });
@@ -225,6 +324,10 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
                     hasSpoilers = false;
                     llSpoilerText.setVisibility(View.GONE);
                     btnSpoilers.setTextColor(ContextCompat.getColor(CreatePostActivity.this,R.color.grayC5));
+                    if(postToUpdate != null) {
+                        postToUpdate.put(TimelinePost.HAS_SPOILERS, false);
+                        postToUpdate.remove(TimelinePost.SPOILER_CONTENT);
+                    }
                 } else {
                     hasSpoilers = true;
                     llSpoilerText.setVisibility(View.VISIBLE);
@@ -236,11 +339,15 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
         ivAddLink.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(selectedLinkUrl == null) {
+                if(selectedLinkUrl == null && !editLink) {
                     Toast.makeText(CreatePostActivity.this,"Paste any link in the text area", Toast.LENGTH_SHORT).show();
                 } else {
                     selectedLinkUrl = null;
+                    editLink = false;
                     ivAddLink.clearColorFilter();
+                    if(postToUpdate != null) {
+                        postToUpdate.remove(TimelinePost.LINK);
+                    }
                 }
             }
         });
@@ -299,6 +406,7 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
 
                 switch (type) {
                     case NEW_AOTHREAD:
+                    case EDIT_AOTHREAD:
                         if(!isValidThread()){
                             return;
                         }
@@ -322,16 +430,20 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
                 switch (type){
                     case NEW_TIMELINEPOST:
                     case NEW_TIMELINEPOST_REPLY:
+                    case EDIT_TIMELINEPOST:
+                    case EDIT_TIMELINEPOST_REPLY:
                         String spoilers = etSpoilerText.getText().toString();
                         addPostThreadHelper.performTimelinePost(content,spoilers,hasSpoilers
                                 ,isEditing,imageGallery,imageDataWeb, youtubeID,selectedLinkData);
                         break;
                     case NEW_AOTHREAD:
+                    case EDIT_AOTHREAD:
                         String title = etTitle.getText().toString();
-                        addPostThreadHelper.performNewThread(content,title,imageGallery,imageDataWeb, youtubeID,selectedLinkData,tag);
+                        addPostThreadHelper.performNewThread(content,title,isEditing,imageGallery,imageDataWeb, youtubeID,selectedLinkData,tag);
                         break;
                     case NEW_AOTHREAD_REPLY:
-                        addPostThreadHelper.performPostPost(content,false,imageGallery,imageDataWeb, youtubeID);
+                    case EDIT_AOTHREAD_REPLY:
+                        addPostThreadHelper.performPostPost(content,isEditing,imageGallery,imageDataWeb, youtubeID);
                         break;
                 }
 
@@ -441,10 +553,25 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
         imageGallery = null;
         imageDataWeb = null;
         selectedLinkUrl = null;
+        editImageWeb = false;
+        editLink = false;
+        editYoutube = false;
+        editImageGallery = false;
         ivAddPhotoInternet.clearColorFilter();
         ivAddPhotoGallery.clearColorFilter();
         ivAddVideo.clearColorFilter();
         ivAddLink.clearColorFilter();
+        switch (type) {
+            case EDIT_AOTHREAD:
+            case EDIT_AOTHREAD_REPLY:
+            case EDIT_TIMELINEPOST:
+            case EDIT_TIMELINEPOST_REPLY:
+                postToUpdate.remove(TimelinePost.IMAGE);
+                postToUpdate.remove(TimelinePost.IMAGES);
+                postToUpdate.remove(TimelinePost.LINK);
+                postToUpdate.remove(TimelinePost.YOUTUBE_ID);
+                break;
+        }
 
     }
 
@@ -492,6 +619,7 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
             btnSendComment.setText("Send");
             btnSendComment.setBackground(ContextCompat.getDrawable(this,R.drawable.button_send));
             btnSendComment.setEnabled(true);
+            AozoraForumsApp.setUpdatedPost(thread);
             Intent intent = new Intent();
             intent.putExtra("type",type);
             setResult(RESULT_OK,intent);

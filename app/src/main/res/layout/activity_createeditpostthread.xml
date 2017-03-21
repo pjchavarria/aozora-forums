@@ -10,22 +10,26 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/llButtons"
+        android:layout_above="@+id/llBottomLayout"
+        android:layout_alignParentTop="true"
         >
 
         <EditText
             android:id="@+id/etTitle"
             android:hint="Title"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.1"
+            android:layout_height="wrap_content"
             android:padding="10dp"
             android:textColor="@color/gray3C"
             android:textSize="16sp"
             android:gravity="top"
             android:background="@color/colorWhite"
-            android:inputType="textCapSentences|textMultiLine"
+            android:inputType="textCapSentences"
             android:visibility="gone"
+            android:layout_marginTop="10dp"
+            android:lines="1"
+            android:maxLines="1"
+            android:ellipsize="end"
             />
 
         <EditText
@@ -75,6 +79,12 @@
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/llBottomLayout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true">
+    <LinearLayout
         android:id="@+id/llTags"
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -103,8 +113,7 @@
         android:id="@+id/llButtons"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true">
+        android:layout_height="wrap_content">
 
         <View
             android:layout_width="match_parent"
@@ -213,5 +222,5 @@
                 />
         </LinearLayout>
     </LinearLayout>
-
+    </LinearLayout>
 </RelativeLayout>

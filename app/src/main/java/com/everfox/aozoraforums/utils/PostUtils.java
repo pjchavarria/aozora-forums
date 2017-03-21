@@ -1,25 +1,18 @@
 package com.everfox.aozoraforums.utils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.Typeface;
-import android.graphics.drawable.Animatable;
-import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
-import android.text.style.TypefaceSpan;
-import android.text.style.URLSpan;
 import android.util.Base64;
-import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -28,10 +21,8 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
-import com.bumptech.glide.load.engine.cache.ExternalCacheDiskCacheFactory;
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
-import com.everfox.aozoraforums.adapters.AoThreadAdapter;
 import com.everfox.aozoraforums.adapters.ProfileTimelineAdapter;
 import com.everfox.aozoraforums.adapters.TimelinePostsAdapter;
 import com.everfox.aozoraforums.controls.CustomTypefaceSpan;
@@ -42,15 +33,9 @@ import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.facebook.drawee.backends.pipeline.Fresco;
-import com.facebook.drawee.controller.BaseControllerListener;
 import com.facebook.drawee.drawable.ScalingUtils;
 import com.facebook.drawee.interfaces.DraweeController;
-import com.facebook.drawee.view.DraweeView;
 import com.facebook.drawee.view.SimpleDraweeView;
-import com.facebook.imagepipeline.animated.base.AbstractAnimatedDrawable;
-import com.facebook.imagepipeline.animated.base.AnimatedDrawable;
-import com.facebook.imagepipeline.image.ImageInfo;
-import com.facebook.imagepipeline.request.ImageRequest;
 import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.GetCallback;
@@ -62,18 +47,13 @@ import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
 import java.net.URL;
-import java.sql.Time;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -121,10 +101,21 @@ public class PostUtils {
                 if(!isComment && !fullscreen)
                     prepareImageView(jsonImageInfo,imageView,null );
 
-                if( (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT && !isComment && !fullscreen)
+                if(  (  (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT ||
+                        (jsonHeight> 1500 || jsonWidth > 1500) )
+                        && !isComment && !fullscreen)
                     Glide.with(context).load(urlImage).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
-                else
-                    Glide.with(context).load(urlImage).crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                else {
+                    int[] sizes =  AoUtils.getBitmapSizes(jsonHeight,jsonWidth);
+                    if(sizes[0] > 0) {
+                        Glide.with(context).load(urlImage).crossFade().fitCenter().override(sizes[0], sizes[1])
+                                .diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                    } else {
+                        Glide.with(context).load(urlImage).crossFade().fitCenter()
+                                .diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                    }
+
+                }
 
                 imageView.setVisibility(View.VISIBLE);
                 imageView.requestLayout();
@@ -191,10 +182,23 @@ public class PostUtils {
                         }
                         if(!finalIsGif) {
 
-                            if( (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT && !fullscreen && !isComment)
+                            if(  (  (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT ||
+                                    (jsonHeight> 1500 || jsonWidth > 1500) )
+                                    && !fullscreen && !isComment)
                                 Glide.with(context).load(data).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
-                            else
-                                Glide.with(context).load(data).crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                            else {
+
+                                int[] sizes =  AoUtils.getBitmapSizes(jsonHeight,jsonWidth);
+                                    if (sizes[0] > 0) {
+                                        Glide.with(context).load(data).crossFade().fitCenter().
+                                                override(sizes[0], sizes[1]).
+                                                diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                                    } else {
+                                        Glide.with(context).load(data).crossFade().fitCenter().
+                                                diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                                    }
+
+                            }
 
                             imageView.setVisibility(View.VISIBLE);
                             imageView.requestLayout();

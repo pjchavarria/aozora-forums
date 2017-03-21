@@ -126,6 +126,7 @@ public class MainActivity extends AozoraActivity {
         DisplayMetrics metrics = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         AozoraForumsApp.setScreenWidth(metrics.widthPixels);
+        AozoraForumsApp.setDensity(metrics.density);
     }
 
     private void markMenuAsUnselected() {

@@ -27,6 +27,7 @@ import android.widget.Toast;
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.ThreadActivity;
+import com.everfox.aozoraforums.activities.postthread.CreatePostActivity;
 import com.everfox.aozoraforums.adapters.ForumsAdapter;
 import com.everfox.aozoraforums.controllers.ForumsHelper;
 import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
@@ -52,6 +53,7 @@ import butterknife.ButterKnife;
 public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGetUserThreadsListener,  ForumsAdapter.OnUpDownVoteListener, ForumsAdapter.OnItemLongClickListener,
         OptionListDialogFragment.OnListSelectedListener, ForumsHelper.OnBanDeletePostCallback, ForumsAdapter.OnImageShareListener {
 
+    private static final int REQUEST_EDIT_AOTHREAD = 501;
     private static final int REQUEST_WRITE_STORAGE = 100;
     View viewToShare;
     ParseUser user;
@@ -180,7 +182,7 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
         if(threads.size() == 0)
             fetchCount--;
         pbLoading.setVisibility(View.GONE);
-        if(fetchCount == 1 && threads.size() == 0) {
+        if(fetchCount == 1 && threads.size() == 0 && lstThreads.size() == 0) {
             rvThreadByUser.setVisibility(View.GONE);
             llEmptyMessage.setVisibility(View.VISIBLE);
         } else {
@@ -243,6 +245,11 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
                 forumsAdapter.notifyItemRemoved(index);
 
             }
+        }  else if (requestCode == REQUEST_EDIT_AOTHREAD && resultCode == getActivity().RESULT_OK) {
+            AoThread thread = (AoThread)AozoraForumsApp.getUpdatedPost();
+            int position =  lstThreads.indexOf(thread);
+            lstThreads.set(position, thread);
+            forumsAdapter.notifyItemChanged(position);
         }
     }
 
@@ -275,7 +282,7 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
                             .show();
                     break;
                 case AoConstants.POST_EDIT:
-                    Toast.makeText(getActivity(),"Edit Admin", Toast.LENGTH_SHORT).show();
+                    editSelectedThread();
                     break;
             }
         }   else if(selectedList == AoConstants.EDITBAN_THREAD_OPTIONS_DIALOG) {
@@ -294,10 +301,20 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
                             .show();
                     break;
                 case AoConstants.POST_EDIT:
-                    Toast.makeText(getActivity(),"Edit Admin", Toast.LENGTH_SHORT).show();
+                    editSelectedThread();
                     break;
             }
         }
+    }
+
+    private void editSelectedThread() {
+
+        Intent i = new Intent(getActivity(),CreatePostActivity.class);
+        i.putExtra(CreatePostActivity.PARAM_TYPE,CreatePostActivity.EDIT_AOTHREAD);
+        AozoraForumsApp.setPostedBy(selectedThread.getParseUser(TimelinePost.POSTED_BY));
+        AozoraForumsApp.setPostedIn(null);
+        AozoraForumsApp.setPostToUpdate(selectedThread);
+        startActivityForResult(i,REQUEST_EDIT_AOTHREAD);
     }
 
 

@@ -65,6 +65,7 @@ OptionListDialogFragment.OnListSelectedListener, ForumsAdapter.OnGlobalThreadHid
 ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, ForumsAdapter.OnImageShareListener{
 
 
+    private static final int REQUEST_EDIT_AOTHREAD = 501;
     private static final int REQUEST_NEW_AOTHREAD = 500;
 
     private static final int REQUEST_WRITE_STORAGE = 100;
@@ -438,7 +439,7 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, For
                                 .show();
                         break;
                     case AoConstants.POST_EDIT:
-                        Toast.makeText(getActivity(),"Edit Admin", Toast.LENGTH_SHORT).show();
+                        editSelectedThread();
                         break;
                 }
             }   else if(selectedList == AoConstants.EDITBAN_THREAD_OPTIONS_DIALOG) {
@@ -457,11 +458,21 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, For
                                 .show();
                         break;
                     case AoConstants.POST_EDIT:
-                        Toast.makeText(getActivity(),"Edit Admin", Toast.LENGTH_SHORT).show();
+                        editSelectedThread();
                         break;
                 }
             }
         }
+    }
+
+    private void editSelectedThread() {
+
+        Intent i = new Intent(getActivity(),CreatePostActivity.class);
+        i.putExtra(CreatePostActivity.PARAM_TYPE,CreatePostActivity.EDIT_AOTHREAD);
+        AozoraForumsApp.setPostedBy(selectedThread.getParseUser(TimelinePost.POSTED_BY));
+        AozoraForumsApp.setPostedIn(null);
+        AozoraForumsApp.setPostToUpdate(selectedThread);
+        startActivityForResult(i,REQUEST_EDIT_AOTHREAD);
     }
 
     @Override
@@ -515,6 +526,11 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, For
                 forumsAdapter.notifyItemRemoved(index);
 
             }
+        } else if (requestCode == REQUEST_EDIT_AOTHREAD && resultCode == getActivity().RESULT_OK) {
+            AoThread thread = (AoThread)AozoraForumsApp.getUpdatedPost();
+            int position =  lstThreads.indexOf(thread);
+            lstThreads.set(position, thread);
+            forumsAdapter.notifyItemChanged(position);
         }
     }
 

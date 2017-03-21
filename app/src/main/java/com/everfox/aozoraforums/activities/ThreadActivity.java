@@ -67,6 +67,8 @@ public class ThreadActivity extends AozoraActivity implements AoThreadAdapter.On
 AoThreadAdapter.OnCommentTappedListener, AoThreadAdapter.OnUpDownVoteListener, AoThreadAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelectedListener,
 PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAdapter.OnImageShareListener, AoThreadAdapter.OnAddPostTappedListener, AddPostThreadHelper.OnPerformPost{
 
+    private static final int REQUEST_EDIT_THREAD_REPLY = 504;
+    private static final int REQUEST_EDIT_THREAD = 503;
     private static final int REQUEST_WRITE_STORAGE = 100;
     private static final int REQUEST_ADD_POST = 401;
     View viewToShare;
@@ -275,11 +277,33 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
                             .show();
                     break;
                 case AoConstants.POST_EDIT:
-                    Toast.makeText(this,"Edit Admin", Toast.LENGTH_SHORT).show();
+                    editSelectedPostTHread();
                     break;
             }
         }
 
+    }
+
+    private void editSelectedPostTHread() {
+        if(selectedPosition == 0) {
+            //edit thread
+            Intent i = new Intent(this,CreatePostActivity.class);
+            i.putExtra(CreatePostActivity.PARAM_TYPE,CreatePostActivity.EDIT_AOTHREAD);
+            AozoraForumsApp.setPostedBy(selectedItem.getParseUser(TimelinePost.POSTED_BY));
+            AozoraForumsApp.setPostedIn(null);
+            AozoraForumsApp.setPostToUpdate(selectedItem);
+            startActivityForResult(i,REQUEST_EDIT_THREAD);
+        } else {
+            //edit post
+            Intent i = new Intent(this,CreatePostActivity.class);
+            i.putExtra(CreatePostActivity.PARAM_TYPE,CreatePostActivity.EDIT_AOTHREAD_REPLY);
+            AozoraForumsApp.setPostedBy(selectedItem.getParseUser(TimelinePost.POSTED_BY));
+            AozoraForumsApp.setPostedIn(null);
+            AozoraForumsApp.setPostToUpdate(selectedItem);
+            AozoraForumsApp.setUpdatedParentThread(selectedItem.getParseObject(Post.THREAD));
+            AozoraForumsApp.setUpdatedParentPost(null);
+            startActivityForResult(i,REQUEST_EDIT_THREAD_REPLY);
+        }
     }
 
     @Override
@@ -384,6 +408,15 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
                     ivAddVideo.setColorFilter(ContextCompat.getColor(this,R.color.red_airing));
                 }
             }
+        }  else if (requestCode == REQUEST_EDIT_THREAD && resultCode == RESULT_OK) {
+            AoThread thread = (AoThread)AozoraForumsApp.getUpdatedPost();
+            lstComments.set(0, thread);
+            aoThreadAdapter.notifyItemChanged(0);
+        } else if (requestCode == REQUEST_EDIT_THREAD_REPLY && resultCode == RESULT_OK) {
+            Post post = (Post) AozoraForumsApp.getUpdatedPost();
+            int position = lstComments.indexOf(post);
+            lstComments.set(position, post);
+            aoThreadAdapter.notifyItemChanged(position);
         }
     }
 
@@ -398,7 +431,7 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
     private void initAddCommentControls() {
 
         addPostThreadHelper = new AddPostThreadHelper(this,REQUEST_PICK_IMAGE,ParseUser.getCurrentUser(),null,
-                null,parentThread,AddPostThreadHelper.NEW_AOTHREAD_REPLY);
+                null,parentThread,AddPostThreadHelper.NEW_AOTHREAD_REPLY,null);
 
         ivAddPhotoInternet.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -488,7 +521,7 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
             etComment.setText("");
             clearAttachments();
             addPostThreadHelper = new AddPostThreadHelper(this,REQUEST_PICK_IMAGE,ParseUser.getCurrentUser(),null,null
-                    ,parentThread,AddPostThreadHelper.NEW_AOTHREAD_REPLY);
+                    ,parentThread,AddPostThreadHelper.NEW_AOTHREAD_REPLY,null);
         }
     }
 }

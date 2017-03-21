@@ -28,7 +28,7 @@ public class ProfileParseHelper {
 
 
     public static final int PROFILE_SKIP_STEP = 5;
-    public static final int PROFILE_FETCH_LIMIT = 5;
+    public static final int PROFILE_FETCH_LIMIT = 12;
 
     public static final int FOLLOWING_LIST = 0;
     public static final int AOZORA_LIST = 1;

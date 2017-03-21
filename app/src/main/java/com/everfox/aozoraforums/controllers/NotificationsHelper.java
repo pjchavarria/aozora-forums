@@ -18,7 +18,7 @@ import java.util.List;
 
 public class NotificationsHelper {
 
-    public static final int NOTIFICATION_FETCH_LIMIT = 20;
+    public static final int NOTIFICATION_FETCH_LIMIT = 25;
 
     private OnGetNotificationListener mOnGetNotificationCallback;
 

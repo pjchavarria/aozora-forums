@@ -23,8 +23,10 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.ThreadActivity;
+import com.everfox.aozoraforums.activities.postthread.CreatePostActivity;
 import com.everfox.aozoraforums.activities.postthread.SearchImageActivity;
 import com.everfox.aozoraforums.activities.postthread.SearchYoutubeActivity;
 import com.everfox.aozoraforums.adapters.CommentPostAdapter;
@@ -59,6 +61,7 @@ import butterknife.ButterKnife;
 public class CommentPostFragment extends Fragment implements ThreadHelper.OnGetPostCommentsListener, CommentPostAdapter.OnUsernameTappedListener, CommentPostAdapter.OnLikeListener,
 CommentPostAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelectedListener, PostUtils.OnDeletePostCallback, AddPostThreadHelper.OnPerformPost{
 
+    public static final int REQUEST_EDIT_AOTHREAD_REPLY = 503;
     Post post;
     LinearLayoutManager llm;
     CommentPostAdapter commentPostAdapter;
@@ -213,10 +216,26 @@ CommentPostAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelec
                             .show();
                     break;
                 case AoConstants.POST_EDIT:
-                    Toast.makeText(getActivity(),"Edit Admin", Toast.LENGTH_SHORT).show();
+                    editSelectedPost();
                     break;
             }
         }
+    }
+
+    private void editSelectedPost() {
+
+        Intent i = new Intent(getActivity(),CreatePostActivity.class);
+        i.putExtra(CreatePostActivity.PARAM_TYPE,CreatePostActivity.EDIT_AOTHREAD_REPLY);
+        AozoraForumsApp.setPostedBy(selectedItem.getParseUser(TimelinePost.POSTED_BY));
+        AozoraForumsApp.setPostedIn(null);
+        AozoraForumsApp.setPostToUpdate(selectedItem);
+        AozoraForumsApp.setUpdatedParentThread(post.getParseObject(Post.THREAD));
+        if(selectedPosition != 0) {
+            AozoraForumsApp.setUpdatedParentPost(post);
+        } else {
+            AozoraForumsApp.setUpdatedParentPost(null);
+        }
+        startActivityForResult(i,REQUEST_EDIT_AOTHREAD_REPLY);
     }
 
 
@@ -243,7 +262,7 @@ CommentPostAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelec
     private void initAddCommentControls() {
 
         addPostThreadHelper = new AddPostThreadHelper(getActivity(),REQUEST_PICK_IMAGE,ParseUser.getCurrentUser(),null,
-                post,post.getParseObject(Post.THREAD),AddPostThreadHelper.NEW_AOTHREAD_REPLY);
+                post,post.getParseObject(Post.THREAD),AddPostThreadHelper.NEW_AOTHREAD_REPLY,null);
         addPostThreadHelper.setFragmentCallback(this);
 
         ivAddPhotoInternet.setOnClickListener(new View.OnClickListener() {
@@ -333,7 +352,7 @@ CommentPostAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelec
             etComment.setText("");
             clearAttachments();
             addPostThreadHelper = new AddPostThreadHelper(getActivity(),REQUEST_PICK_IMAGE,ParseUser.getCurrentUser(),null,
-                    post,post.getParseObject(Post.THREAD),AddPostThreadHelper.NEW_AOTHREAD_REPLY);
+                    post,post.getParseObject(Post.THREAD),AddPostThreadHelper.NEW_AOTHREAD_REPLY,null);
             addPostThreadHelper.setFragmentCallback(this);
         }
     }
@@ -364,6 +383,11 @@ CommentPostAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelec
                     ivAddVideo.setColorFilter(ContextCompat.getColor(getActivity(),R.color.red_airing));
                 }
             }
-        }
+        } else if (requestCode == REQUEST_EDIT_AOTHREAD_REPLY && resultCode == getActivity().RESULT_OK) {
+             Post post = (Post)AozoraForumsApp.getUpdatedPost();
+             int position =  lstComments.indexOf(post);
+             lstComments.set(position, post);
+             commentPostAdapter.notifyItemChanged(position);
+         }
     }
 }

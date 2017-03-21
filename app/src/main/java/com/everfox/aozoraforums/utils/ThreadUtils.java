@@ -1,7 +1,6 @@
 package com.everfox.aozoraforums.utils;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -21,7 +20,6 @@ import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.adapters.AoThreadAdapter;
 import com.everfox.aozoraforums.adapters.CommentPostAdapter;
-import com.everfox.aozoraforums.adapters.TimelinePostsAdapter;
 import com.everfox.aozoraforums.controls.FrescoGifListener;
 import com.everfox.aozoraforums.models.Anime;
 import com.everfox.aozoraforums.models.AoThread;
@@ -228,10 +226,21 @@ public class ThreadUtils {
                 }
 
 
-                if( (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT && !isComment && !fullscreen)
+                if(  (  (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT ||
+                        (jsonHeight> 1500 || jsonWidth > 1500) )
+                        && !isComment && !fullscreen)
                     Glide.with(context).load(urlImage).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
-                else
-                    Glide.with(context).load(urlImage).crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                else {
+
+                    int [] sizes = AoUtils.getBitmapSizes(jsonHeight,jsonWidth);
+                    if(sizes[0] > 0) {
+                        Glide.with(context).load(urlImage).crossFade().override(sizes[0], sizes[1])
+                                .fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                    } else {
+                        Glide.with(context).load(urlImage).crossFade()
+                                .fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                    }
+                }
 
                 imageView.setVisibility(View.VISIBLE);
                 imageView.requestLayout();
@@ -307,10 +316,21 @@ public class ThreadUtils {
                         if(!finalIsGif) {
 
 
-                            if( (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT && !fullscreen && !isComment)
+                            if( (  (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT ||
+                                    (jsonHeight> 1500 || jsonWidth > 1500) )
+                                    && !fullscreen && !isComment)
                                 Glide.with(context).load(data).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
-                            else
-                                Glide.with(context).load(data).crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                            else {
+
+                                int [] sizes = AoUtils.getBitmapSizes(jsonHeight,jsonWidth);
+                                if(sizes[0] > 0) {
+                                    Glide.with(context).load(data).crossFade().fitCenter().override(sizes[0], sizes[1])
+                                            .diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                                } else {
+                                    Glide.with(context).load(data).crossFade().fitCenter()
+                                            .diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                                }
+                            }
 
                             imageView.setVisibility(View.VISIBLE);
                             imageView.requestLayout();

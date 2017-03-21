@@ -231,6 +231,11 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
 
 
     private void loadFirstPostInfo(final TimelinePost post, final ViewHolderFirstPost holder, final int position) {
+        holder.ivPostImage.setImageDrawable(null);
+        holder.sdvPostImageGif.setVisibility(View.GONE);
+        holder.ivPlay.setVisibility(View.GONE);
+        holder.tvSpoilerOpen.setVisibility(View.GONE);
+        holder.tvSpoilerText.setVisibility(View.GONE);
         if(!post.getParseObject(TimelinePost.USER_TIMELINE).equals(post.getParseObject(TimelinePost.POSTED_BY))) {
             // Es un post en el muro de otra persona
             PostUtils.setPostedByFromPost(context,post,holder.tvPostedBy,null,mOnUsernameTappedCallback);

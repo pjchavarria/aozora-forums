@@ -493,9 +493,12 @@ public class AoUtils {
 
         int position = posts.indexOf(post);
         if(position == -1) {
-            if(posts.get(0).has(TimelinePost.REPOST_SOURCE))
-                if(post.getObjectId().equals(posts.get(0).getParseObject(TimelinePost.REPOST_SOURCE).getObjectId()))
-                    position = 0;
+            for(int i=0;i<posts.size();i++) {
+                if(posts.get(i).has(TimelinePost.REPOST_SOURCE))
+                    if(post.getObjectId().equals(posts.get(i).getParseObject(TimelinePost.REPOST_SOURCE).getObjectId())) {
+                        return i;
+                    }
+            }
         }
         return position;
     }
@@ -555,5 +558,33 @@ public class AoUtils {
         }
 
         return links;
+    }
+
+    public static int[] getBitmapSizes(int jsonHeight, int jsonWidth) {
+        float sizeMultiplier = 1f;
+        float density = AozoraForumsApp.getDensity();
+        if(jsonHeight > jsonWidth) {
+            if(jsonHeight*density > 4096) {
+                sizeMultiplier = ((jsonHeight*density) / 4096) + 0.01f;
+            }
+        } else {
+            if(jsonWidth*density > 4096) {
+                sizeMultiplier = ((jsonWidth*density) / 4096) + 0.01f;
+            }
+        }
+        sizeMultiplier = 1/sizeMultiplier;
+        int[] sizes = new int[2];
+        if(sizeMultiplier == 1) {
+            sizes[0] = 0;
+            sizes[1] = 0;
+        } else {
+
+            sizes[0] = (int) (jsonWidth*density*sizeMultiplier);
+            sizes[1] = (int) (jsonHeight*density*sizeMultiplier);
+        }
+
+
+        return sizes;
+
     }
 }

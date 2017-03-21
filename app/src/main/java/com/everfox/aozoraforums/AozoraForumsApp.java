@@ -39,12 +39,20 @@ public class AozoraForumsApp extends Application {
 
     Integer FacebookRequestCode = 334;
 
-    private static int screenWidth;
+    private static float density;
 
+    public static float getDensity() {
+        return density;
+    }
+
+    public static void setDensity(float density) {
+        AozoraForumsApp.density = density;
+    }
+
+    private static int screenWidth;
     public static int getScreenWidth() {
         return screenWidth;
     }
-
     public static void setScreenWidth(int screenWidth) {
         AozoraForumsApp.screenWidth = screenWidth;
     }
@@ -101,11 +109,20 @@ public class AozoraForumsApp extends Application {
         AozoraForumsApp.tagToPass = tagToPass;
     }
 
+    private static ParseObject postToUpdate;
+
+    public static ParseObject getPostToUpdate() {
+        return postToUpdate;
+    }
+
+    public static void setPostToUpdate(ParseObject postToUpdate) {
+        AozoraForumsApp.postToUpdate = postToUpdate;
+    }
+
     private static AoThread threadToPass;
     public static AoThread getThreadToPass() {
         return threadToPass;
     }
-
     public static void setThreadToPass(AoThread threadToPass) {
         AozoraForumsApp.threadToPass = threadToPass;
     }
@@ -241,5 +258,6 @@ public class AozoraForumsApp extends Application {
         tagToPass = null;
         updatedParentPost = null;
         updatedParentThread = null;
+        postToUpdate = null;
     }
 }

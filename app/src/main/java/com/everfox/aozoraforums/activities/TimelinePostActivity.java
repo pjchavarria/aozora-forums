@@ -64,6 +64,8 @@ public class TimelinePostActivity extends AozoraActivity implements PostParseHel
 TimelinePostsAdapter.OnMoreOptionsTappedListener, OptionListDialogFragment.OnListSelectedListener, PostUtils.OnDeletePostCallback, TimelinePostsAdapter.OnLikeTappedListener, TimelinePostsAdapter.OnRepostTappedListener,
 TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedListener, AddPostThreadHelper.OnPerformPost{
 
+    private static final int REQUEST_EDIT_TIMELINEPOST_REPLY = 552;
+    private static final int REQUEST_EDIT_TIMELINEPOST = 551;
     private static final int REQUEST_NEW_TIMELINEPOST_REPLY = 550;
     private static final int REQUEST_WRITE_STORAGE = 100;
     View viewToShare;
@@ -250,6 +252,7 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
     @Override
     public void onMoreOptionsTappedCallback(TimelinePost post) {
 
+        selectedPosition = 0;
         selectedPost = post;
         parentPostTapped = true;
         OptionListDialogFragment fragment = AoUtils.getDialogFragmentMoreOptions(userOP,this,null,this,false);
@@ -272,7 +275,7 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
                             .setNegativeButton(android.R.string.cancel, null) // dismisses by default
                             .setPositiveButton(R.string.dialog_delete_post, new DialogInterface.OnClickListener() {
                                 @Override public void onClick(DialogInterface dialog, int which) {
-                                    simpleLoadingDialogFragment.show(getSupportFragmentManager(),"loading");
+                                    Toast.makeText(TimelinePostActivity.this,"Deleting...",Toast.LENGTH_SHORT).show();
                                     new PostParseHelper(TimelinePostActivity.this,TimelinePostActivity.this,null).deletePost(selectedPost,parentPostDelete);
                                     parentPostDelete = null;
                                 }
@@ -281,7 +284,7 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
                             .show();
                     break;
                 case AoConstants.POST_EDIT:
-                    Toast.makeText(this,"Edit Admin", Toast.LENGTH_SHORT).show();
+                    editSelectedPost();
                     break;
             }
         }
@@ -295,14 +298,32 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
         }
     }
 
+    private void editSelectedPost() {
+
+        Intent i = new Intent(this,CreatePostActivity.class);
+        AozoraForumsApp.setPostedBy(selectedPost.getParseUser(TimelinePost.POSTED_BY));
+        AozoraForumsApp.setPostedIn(selectedPost.getParseUser(TimelinePost.USER_TIMELINE));
+        AozoraForumsApp.setPostToUpdate(selectedPost);
+        AozoraForumsApp.setUpdatedParentPost(parentPost);
+
+        if(selectedPosition == 0) {
+            i.putExtra(CreatePostActivity.PARAM_TYPE, CreatePostActivity.EDIT_TIMELINEPOST);
+            startActivityForResult(i, REQUEST_EDIT_TIMELINEPOST);
+        }
+        else {
+            i.putExtra(CreatePostActivity.PARAM_TYPE,CreatePostActivity.EDIT_TIMELINEPOST_REPLY);
+            startActivityForResult(i, REQUEST_EDIT_TIMELINEPOST_REPLY);
+        }
+
+    }
+
     public static int PARENT_POST_DELETED = 400;
     int selectedPosition = -1;
 
 
     @Override
     public void onDeletePost() {
-        if (simpleLoadingDialogFragment.getDialog().isShowing())
-            simpleLoadingDialogFragment.dismissAllowingStateLoss();
+        Toast.makeText(TimelinePostActivity.this,"Deleted",Toast.LENGTH_SHORT).show();
         if(parentPostTapped) {
             setResult(PARENT_POST_DELETED);
             finish();
@@ -337,6 +358,18 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
     @Override
     public void onRepostTappedListener(TimelinePost post) {
 
+        ParseObject sourceObject = post.getParseObject(TimelinePost.REPOST_SOURCE);
+        if(sourceObject == null) {
+            if(ParseUser.getCurrentUser().getObjectId().equals(post.getParseUser(TimelinePost.POSTED_BY).getObjectId())) {
+                Toast.makeText(this,"Can't repost your own post",Toast.LENGTH_SHORT).show();
+                return;
+            }
+        } else {
+            if(ParseUser.getCurrentUser().getObjectId().equals(sourceObject.getParseUser(TimelinePost.POSTED_BY).getObjectId())) {
+                Toast.makeText(this,"Can't repost your own post",Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
         int position = AoUtils.getPositionOfTimelinePost(allComments,post);
         ArrayList<ParseObject> repost = PostUtils.repostPost(post);
         allComments.set(position,(TimelinePost)repost.get(0));
@@ -394,7 +427,11 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
         i.putExtra(CreatePostActivity.PARAM_TYPE,CreatePostActivity.NEW_TIMELINEPOST_REPLY);
         AozoraForumsApp.setPostedBy(ParseUser.getCurrentUser());
         AozoraForumsApp.setPostedIn(parentPost.getParseUser(TimelinePost.USER_TIMELINE));
-        AozoraForumsApp.setUpdatedParentPost(parentPost);
+        if(parentPost.getParseObject(TimelinePost.REPOST_SOURCE) != null) {
+            AozoraForumsApp.setUpdatedParentPost(parentPost.getParseObject(TimelinePost.REPOST_SOURCE));
+        } else {
+            AozoraForumsApp.setUpdatedParentPost(parentPost);
+        }
         startActivityForResult(i,REQUEST_NEW_TIMELINEPOST_REPLY);
     }
 
@@ -404,6 +441,11 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
             TimelinePost post = (TimelinePost)AozoraForumsApp.getUpdatedPost();
             allComments.add(post);
             postsAdapter.notifyItemInserted(allComments.size()-1);
+        } else   if ((requestCode == REQUEST_EDIT_TIMELINEPOST  || requestCode == REQUEST_EDIT_TIMELINEPOST_REPLY) && resultCode == RESULT_OK) {
+            TimelinePost post = (TimelinePost)AozoraForumsApp.getUpdatedPost();
+            int position = AoUtils.getPositionOfTimelinePost(allComments,post);
+            allComments.set(position, post);
+            postsAdapter.notifyItemChanged(position);
         } else  if(requestCode == REQUEST_SEARCH_IMAGE) {
             if(data != null && resultCode == SearchImageActivity.RESULT_SUCCESS) {
                 clearAttachments();
@@ -440,8 +482,14 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
 
     private void initAddCommentControls() {
 
+        ParseObject realParent;
+        if(parentPost.getParseObject(TimelinePost.REPOST_SOURCE) != null) {
+            realParent = parentPost.getParseObject(TimelinePost.REPOST_SOURCE);
+        } else {
+            realParent = parentPost;
+        }
         addPostThreadHelper = new AddPostThreadHelper(this,REQUEST_PICK_IMAGE,ParseUser.getCurrentUser(),parentPost.getParseUser(TimelinePost.USER_TIMELINE),
-                                                        parentPost,null,AddPostThreadHelper.NEW_TIMELINEPOST_REPLY);
+                realParent,null,AddPostThreadHelper.NEW_TIMELINEPOST_REPLY,null);
         ivAddPhotoInternet.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -531,7 +579,7 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
             etComment.setText("");
             clearAttachments();
             addPostThreadHelper = new AddPostThreadHelper(this,REQUEST_PICK_IMAGE,ParseUser.getCurrentUser(),parentPost.getParseUser(TimelinePost.USER_TIMELINE)
-                    ,parentPost,null,AddPostThreadHelper.NEW_TIMELINEPOST_REPLY);
+                    ,parentPost,null,AddPostThreadHelper.NEW_TIMELINEPOST_REPLY,null);
 
         }
 

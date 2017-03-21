@@ -31,6 +31,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.sql.Time;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -46,6 +47,7 @@ public class AddPostThreadHelper {
     ParseUser postedIn;
     ParseObject parentPost;
     ParseObject parentThread;
+    ParseObject postToUpdate;
     public static final int CONTENTTYPE_LINK = 0;
     public static final int CONTENTTYPE_IMAGE = 1;
     public static final int CONTENTTYPE_VIDEO = 2;
@@ -73,7 +75,8 @@ public class AddPostThreadHelper {
         public void onPerformPost(ParseObject post, ParseObject parentpost, ParseException e);
     }
 
-    public AddPostThreadHelper(Activity activity,  int requestPickImage, ParseUser postedBy, ParseUser postedIn, ParseObject parentPost, ParseObject parentThread, int type) {
+    public AddPostThreadHelper(Activity activity,  int requestPickImage, ParseUser postedBy, ParseUser postedIn,
+                               ParseObject parentPost, ParseObject parentThread, int type, ParseObject postToUpdate) {
         this.activity = activity;
         this.requestPickImage = requestPickImage;
         this.postedBy = postedBy;
@@ -84,6 +87,7 @@ public class AddPostThreadHelper {
         mOnPerformPost = (OnPerformPost) activity;
         if (activity instanceof CreatePostActivity)
             mOnPerformNewThread = (OnPerformNewThread) activity;
+        this.postToUpdate = postToUpdate;
 
     }
 
@@ -118,7 +122,11 @@ public class AddPostThreadHelper {
     }
 
     public void performTimelinePost(final String content, String spoilers, Boolean hasSpoilers, Boolean isEditing, ImageData imageGallery, ImageData imageDataWeb, String youtubeID, LinkData selectedLinkData) {
-        timelinePost = TimelinePost.create(TimelinePost.class);
+
+        if(postToUpdate == null)
+            timelinePost = TimelinePost.create(TimelinePost.class);
+        else
+            timelinePost = (TimelinePost)postToUpdate;
         if(hasSpoilers) {
             timelinePost.put(TimelinePost.CONTENT,content);
             timelinePost.put(TimelinePost.SPOILER_CONTENT,spoilers);
@@ -158,7 +166,8 @@ public class AddPostThreadHelper {
 
                 postContentType = CONTENTTYPE_IMAGE;
             } else {
-                timelinePost.put(TimelinePost.IMAGES, new JSONArray());
+                if(!isEditing)
+                    timelinePost.put(TimelinePost.IMAGES, new JSONArray());
             }
         } catch (JSONException jEx) {
 
@@ -177,7 +186,10 @@ public class AddPostThreadHelper {
         if(type == EDIT_TIMELINEPOST_REPLY || type == NEW_TIMELINEPOST_REPLY){
             timelinePost.put(TimelinePost.REPLY_LEVEL,1);
             timelinePost.put(TimelinePost.USER_TIMELINE,postedIn);
-            timelinePost.put(TimelinePost.PARENT_POST,parentPost);
+            if(parentPost.getParseObject(TimelinePost.REPOST_SOURCE) != null)
+                timelinePost.put(TimelinePost.PARENT_POST,parentPost.getParseObject(TimelinePost.REPOST_SOURCE));
+            else
+                timelinePost.put(TimelinePost.PARENT_POST,parentPost);
 
         } else {
             timelinePost.put(TimelinePost.REPLY_LEVEL,0);
@@ -209,56 +221,63 @@ public class AddPostThreadHelper {
                         message = username + ": " + content;
                     }
 
-                    if(parentPost != null) {
-                        parentPost.put(TimelinePost.LAST_REPLY,timelinePost);
-                        parentPost.increment(TimelinePost.REPLY_COUNT,1);
-                        parentPost.saveInBackground();
-                        String parentPostID = parentPost.getObjectId();
-                        if (message == null) {
-                            switch (postContentType) {
-                                case CONTENTTYPE_LINK:
-                                    message = username + " replied with a link";
-                                    break;
-                                case CONTENTTYPE_IMAGE:
-                                    message = username + " replied with an image";
-                                    break;
-                                case CONTENTTYPE_VIDEO:
-                                    message = username + " replied with a video";
-                                    break;
-                                default:
-                                    message = username + " replied";
-                            }
-                        }
+                    if(type != CreatePostActivity.EDIT_TIMELINEPOST && type != CreatePostActivity.EDIT_TIMELINEPOST_REPLY) {
 
-                        HashMap<String, String> parameters = new HashMap<String, String>();
-                        parameters.put("toUserId", postedIn.getObjectId());
-                        parameters.put("timelinePostId", parentPostID);
-                        parameters.put("toUserUsername", postedIn.getString(ParseUserColumns.AOZORA_USERNAME));
-                        parameters.put("message", message);
-                        ParseCloud.callFunctionInBackground("sendNewTimelinePostReplyPushNotificationV2", parameters);
-                        postedBy.increment(ParseUserColumns.POST_COUNT, 1);
-                    } else {
-                        if(message == null) {
-                            switch (postContentType) {
-                                case CONTENTTYPE_LINK:
-                                    message = username + " posted a link ";
-                                    break;
-                                case CONTENTTYPE_IMAGE:
-                                    message = username + " posted an image in your timeline";
-                                    break;
-                                case CONTENTTYPE_VIDEO:
-                                    message = username + " posted a video in your timeline";
-                                    break;
-                                default:
-                                    message = username + " posted in your timeline";
+                        if (parentPost != null) {
+                            parentPost.put(TimelinePost.LAST_REPLY, timelinePost);
+                            parentPost.increment(TimelinePost.REPLY_COUNT, 1);
+                            parentPost.saveInBackground();
+
+                            String parentPostID = parentPost.getObjectId();
+                            if (message == null) {
+                                switch (postContentType) {
+                                    case CONTENTTYPE_LINK:
+                                        message = username + " replied with a link";
+                                        break;
+                                    case CONTENTTYPE_IMAGE:
+                                        message = username + " replied with an image";
+                                        break;
+                                    case CONTENTTYPE_VIDEO:
+                                        message = username + " replied with a video";
+                                        break;
+                                    default:
+                                        message = username + " replied";
+                                }
+
+
+                                HashMap<String, String> parameters = new HashMap<String, String>();
+                                parameters.put("toUserId", postedIn.getObjectId());
+                                parameters.put("timelinePostId", parentPostID);
+                                parameters.put("toUserUsername", postedIn.getString(ParseUserColumns.AOZORA_USERNAME));
+                                parameters.put("message", message);
+                                ParseCloud.callFunctionInBackground("sendNewTimelinePostReplyPushNotificationV2", parameters);
                             }
+
+                            postedBy.increment(ParseUserColumns.POST_COUNT, 1);
+                        } else {
+                            if (message == null) {
+                                switch (postContentType) {
+                                    case CONTENTTYPE_LINK:
+                                        message = username + " posted a link ";
+                                        break;
+                                    case CONTENTTYPE_IMAGE:
+                                        message = username + " posted an image in your timeline";
+                                        break;
+                                    case CONTENTTYPE_VIDEO:
+                                        message = username + " posted a video in your timeline";
+                                        break;
+                                    default:
+                                        message = username + " posted in your timeline";
+                                }
+
+                                HashMap<String, String> parameters = new HashMap<String, String>();
+                                parameters.put("toUserId", postedIn.getObjectId());
+                                parameters.put("timelinePostId", timelinePost.getObjectId());
+                                parameters.put("message", message);
+                                ParseCloud.callFunctionInBackground("sendNewTimelinePostPushNotificationV2", parameters);
+                            }
+                            postedBy.increment(ParseUserColumns.POST_COUNT, 1);
                         }
-                        HashMap<String,String> parameters = new HashMap<String, String>();
-                        parameters.put("toUserId",postedIn.getObjectId());
-                        parameters.put("timelinePostId",timelinePost.getObjectId());
-                        parameters.put("message",message);
-                        ParseCloud.callFunctionInBackground("sendNewTimelinePostPushNotificationV2",parameters);
-                        postedBy.increment(ParseUserColumns.POST_COUNT,1);
                     }
                 }
                 mOnPerformPost.onPerformPost(timelinePost, parentPost, e);
@@ -267,21 +286,28 @@ public class AddPostThreadHelper {
 
     }
 
-    public void performNewThread(final String content, String title,  ImageData imageGallery,
+    public void performNewThread(final String content, String title, boolean isEditing,  ImageData imageGallery,
                               ImageData imageDataWeb, String youtubeID, LinkData selectedLinkData, ParseObject tag) {
+        if(postToUpdate == null)
+            aoThread = AoThread.create(AoThread.class);
+        else
+            aoThread = (AoThread)postToUpdate;
 
-        aoThread = AoThread.create(AoThread.class);
-        aoThread.put(AoThread.EDITED,false);
-        aoThread.put(AoThread.REPLIES_COUNT,0);
-        aoThread.put(AoThread.LIKE_COUNT,1);
-        aoThread.put(AoThread.LIKED_BY, Arrays.asList(postedBy));
-        aoThread.put(AoThread.LASTPOSTEDBY,postedBy);
-        aoThread.put(AoThread.POSTEDBY,postedBy);
+        if(!isEditing) {
+            aoThread.put(TimelinePost.POSTED_BY,postedBy);
+            aoThread.put(TimelinePost.EDITED,false);
+            aoThread.put(AoThread.REPLIES_COUNT,0);
+            aoThread.put(AoThread.LIKE_COUNT,1);
+            aoThread.put(AoThread.LIKED_BY, Arrays.asList(postedBy));
+            aoThread.put(AoThread.LASTPOSTEDBY,postedBy);
+            aoThread.put(AoThread.TAGS,Arrays.asList(tag));
+        } else {
+            aoThread.put(TimelinePost.EDITED,true);
+        }
 
         //updateThread
         aoThread.put(AoThread.TITLE,title);
         aoThread.put(AoThread.CONTENT,content);
-        aoThread.put(AoThread.TAGS,Arrays.asList(tag));
         try {
             if (imageGallery != null || imageDataWeb != null) {
                 if (imageDataWeb != null) {
@@ -341,11 +367,14 @@ public class AddPostThreadHelper {
             @Override
             public void done(ParseException e) {
                 if(e == null) {
-                    HashMap<String,String> parameters = new HashMap<String, String>();
-                    parameters.put("threadId",aoThread.getObjectId());
-                    ParseCloud.callFunctionInBackground("Thread.UpdateHotRanking",parameters);
-                    postedBy.increment(ParseUserColumns.POST_COUNT,1);
-                    postedBy.saveInBackground();
+
+                    if(type != CreatePostActivity.EDIT_AOTHREAD) {
+                        HashMap<String, String> parameters = new HashMap<String, String>();
+                        parameters.put("threadId", aoThread.getObjectId());
+                        ParseCloud.callFunctionInBackground("Thread.UpdateHotRanking", parameters);
+                        postedBy.increment(ParseUserColumns.POST_COUNT, 1);
+                        postedBy.saveInBackground();
+                    }
                 }
                 mOnPerformNewThread.onPerformNewThread(aoThread,e);
             }
@@ -353,8 +382,10 @@ public class AddPostThreadHelper {
     }
 
     public void performPostPost(String content, Boolean isEditing, ImageData imageGallery, ImageData imageDataWeb, String youtubeID) {
-
-        post = Post.create(Post.class);
+        if(postToUpdate == null)
+            post = Post.create(Post.class);
+        else
+            post = (Post)postToUpdate;
         post.put(TimelinePost.CONTENT,content);
         if(!isEditing) {
             post.put(TimelinePost.POSTED_BY,postedBy);
@@ -399,17 +430,18 @@ public class AddPostThreadHelper {
         //Hacerlo dsps d guardar post
 
 
-        if(parentPost != null) {
-            post.put(Post.REPLYLEVEL,1);
-            post.put(Post.THREAD,parentPost.getParseObject(Post.THREAD));
-            post.put(Post.PARENTPOST,parentPost);
-        } else {
-            post.put(Post.REPLYLEVEL,0);
-            post.put(Post.THREAD,parentThread);
+        if(!isEditing) {
+            if (parentPost != null) {
+                post.put(Post.REPLYLEVEL, 1);
+                post.put(Post.THREAD, parentPost.getParseObject(Post.THREAD));
+                post.put(Post.PARENTPOST, parentPost);
+            } else {
+                post.put(Post.REPLYLEVEL, 0);
+                post.put(Post.THREAD, parentThread);
+            }
+            post.getParseObject(Post.THREAD).increment(Post.REPLYCOUNT, 1);
+            post.getParseObject(Post.THREAD).put(AoThread.LASTPOSTEDBY, postedBy);
         }
-
-        post.getParseObject(Post.THREAD).increment(Post.REPLYCOUNT,1);
-        post.getParseObject(Post.THREAD).put(AoThread.LASTPOSTEDBY,postedBy);
 
         if(imageGallery != null) {
 
@@ -431,28 +463,30 @@ public class AddPostThreadHelper {
         post.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                HashMap<String,String> parameters = new HashMap<String, String>();
-                parameters.put("threadId",post.getParseObject(Post.THREAD).getObjectId());
-                ParseCloud.callFunctionInBackground("Thread.UpdateHotRanking",parameters);
-
-                if(parentPost != null && parentPost instanceof  Post) {
-                    parentPost.increment(Post.REPLYCOUNT,1);
-                    parentPost.put(Post.LASTREPLY,post);
-                    parentPost.saveInBackground();
-                    HashMap<String,String> parametersNoti = new HashMap<String, String>();
-                    parameters.put("toUserId",parentPost.getParseUser(Post.POSTEDBY).getObjectId());
-                    parameters.put("postId",parentPost.getObjectId());
-                    parameters.put("threadName",post.getParseObject(Post.THREAD).getString("title"));
-                    ParseCloud.callFunctionInBackground("sendNewPostReplyPushNotification",parametersNoti);
-                } else {
-                    HashMap<String,String> parametersNoti = new HashMap<String, String>();
-                    parameters.put("postId",post.getObjectId());
-                    parameters.put("threadName",post.getParseObject(Post.THREAD).getString("title"));
-                    if(post.getParseObject(Post.THREAD).has(AoThread.STARTEDBY)) {
-                        parameters.put("toUserId",post.getParseObject(Post.THREAD).getParseUser(AoThread.STARTEDBY).getObjectId());
+                if(type != EDIT_AOTHREAD_REPLY) {
+                    HashMap<String, String> parameters = new HashMap<String, String>();
+                    parameters.put("threadId", post.getParseObject(Post.THREAD).getObjectId());
+                    ParseCloud.callFunctionInBackground("Thread.UpdateHotRanking", parameters);
+                    if (parentPost != null && parentPost instanceof Post) {
+                        parentPost.increment(Post.REPLYCOUNT, 1);
+                        parentPost.put(Post.LASTREPLY, post);
+                        parentPost.saveInBackground();
+                        HashMap<String, String> parametersNoti = new HashMap<String, String>();
+                        parameters.put("toUserId", parentPost.getParseUser(Post.POSTEDBY).getObjectId());
+                        parameters.put("postId", parentPost.getObjectId());
+                        parameters.put("threadName", post.getParseObject(Post.THREAD).getString("title"));
+                        ParseCloud.callFunctionInBackground("sendNewPostReplyPushNotification", parametersNoti);
+                    } else {
+                        HashMap<String, String> parametersNoti = new HashMap<String, String>();
+                        parameters.put("postId", post.getObjectId());
+                        parameters.put("threadName", post.getParseObject(Post.THREAD).getString("title"));
+                        if (post.getParseObject(Post.THREAD).has(AoThread.STARTEDBY)) {
+                            parameters.put("toUserId", post.getParseObject(Post.THREAD).getParseUser(AoThread.STARTEDBY).getObjectId());
+                        }
+                        ParseCloud.callFunctionInBackground("sendNewPostPushNotification", parametersNoti);
                     }
-                    ParseCloud.callFunctionInBackground("sendNewPostPushNotification",parametersNoti);
                 }
+
                 if(parentPost == null)
                     mOnPerformPost.onPerformPost(post,parentThread, e);
                 else
