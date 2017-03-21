@@ -358,7 +358,7 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
     @Override
     public void onRepostTappedListener(TimelinePost post) {
 
-        ParseObject sourceObject = post.getParseObject(TimelinePost.REPOST_SOURCE);
+        TimelinePost sourceObject = (TimelinePost)post.getParseObject(TimelinePost.REPOST_SOURCE);
         if(sourceObject == null) {
             if(ParseUser.getCurrentUser().getObjectId().equals(post.getParseUser(TimelinePost.POSTED_BY).getObjectId())) {
                 Toast.makeText(this,"Can't repost your own post",Toast.LENGTH_SHORT).show();
@@ -370,7 +370,7 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
                 return;
             }
         }
-        int position = AoUtils.getPositionOfTimelinePost(allComments,post);
+        int position = AoUtils.getPositionOfTimelinePost(allComments,sourceObject == null ? post : sourceObject);
         ArrayList<ParseObject> repost = PostUtils.repostPost(post);
         allComments.set(position,(TimelinePost)repost.get(0));
         postsAdapter.notifyItemChanged(position,repost.get(0));

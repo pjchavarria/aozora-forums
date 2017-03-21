@@ -188,7 +188,7 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
         } else {
             llEmptyMessage.setVisibility(View.GONE);
             rvThreadByUser.setVisibility(View.VISIBLE);
-            if (fetchCount == 1) {
+            if (fetchCount == 1 && threads.size() != 0) {
                 lstThreads.addAll(threads);
                 forumsAdapter = new ForumsAdapter(getActivity(), lstThreads, -1, this);
                 rvThreadByUser.setAdapter(forumsAdapter);

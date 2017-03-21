@@ -896,12 +896,12 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
         if(isProfile) {
             if(repost.size()==1) {
                 //Se borro el repost
-                int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,post);
+                int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,post.getParseObject(TimelinePost.REPOST_SOURCE) == null ? post : (TimelinePost)post.getParseObject(TimelinePost.REPOST_SOURCE));
                 lstTimelinePost.remove(position);
                 timelineAdapter.notifyItemRemoved(position);
             } else {
                 //Reemplazamos para que se actualize icono de repost
-                int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,post);
+                int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,post.getParseObject(TimelinePost.REPOST_SOURCE)== null ? post :(TimelinePost)post.getParseObject(TimelinePost.REPOST_SOURCE));
                 lstTimelinePost.set(position,(TimelinePost)repost.get(0));
                 timelineAdapter.notifyItemChanged(position,repost.get(0));
                 //Agregamos post al comienzo
@@ -910,7 +910,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
                     timelineAdapter.notifyItemInserted(0);
             }
         } else {
-            int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,post);
+            int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,post.getParseObject(TimelinePost.REPOST_SOURCE) == null ? post :(TimelinePost)post.getParseObject(TimelinePost.REPOST_SOURCE));
             lstTimelinePost.set(position,(TimelinePost)repost.get(0));
             timelineAdapter.notifyItemChanged(position,repost.get(0));
         }
