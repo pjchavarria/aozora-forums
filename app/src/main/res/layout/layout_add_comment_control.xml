@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="40dp"
         android:hint="Write a comment"
-        android:paddingLeft="10dp"
+        android:paddingStart="10dp"
         android:paddingBottom="3dp"
         android:paddingTop="3dp"
         android:gravity="top"
@@ -33,7 +33,7 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:paddingLeft="10dp">
+        android:paddingStart="10dp">
 
         <ImageView
             android:id="@+id/ivAddPhotoInternet"
@@ -47,14 +47,14 @@
             android:layout_width="wrap_content"
             android:layout_height="30dp"
             android:src="@drawable/icon_local_image"
-            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
             />
 
         <ImageView
             android:id="@+id/ivAddVideo"
             android:layout_width="wrap_content"
             android:layout_height="30dp"
-            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
             android:src="@drawable/icon_video"
             />
 
@@ -77,7 +77,7 @@
             android:paddingBottom="7dp"
             android:minHeight="0dp"
             android:minWidth="0dp"
-            android:layout_marginRight="10dp"
+            android:layout_marginEnd="10dp"
             />
 
     </LinearLayout>
