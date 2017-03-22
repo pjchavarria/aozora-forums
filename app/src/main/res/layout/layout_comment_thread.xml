@@ -10,8 +10,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="5dp"
-        android:paddingLeft="10dp"
-        android:paddingRight="15dp"
+        android:paddingStart="10dp"
+        android:paddingEnd="15dp"
         >
 
         <RelativeLayout
@@ -42,7 +42,7 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="5dp">
+            android:layout_marginStart="5dp">
             <TextView
                 android:id="@+id/tvCommentText"
                 android:text=""
@@ -98,7 +98,7 @@
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="20dp"
-        android:layout_marginLeft="50dp"
+        android:layout_marginStart="50dp"
         android:layout_marginTop="5dp"
         >
 
@@ -115,7 +115,7 @@
             android:src="@drawable/icon_like_small"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="10dp"
+            android:layout_marginStart="10dp"
             android:adjustViewBounds="true"
             />
 
@@ -125,7 +125,7 @@
             android:layout_height="wrap_content"
             android:textColor="@color/gray3C"
             android:text="1 - likes"
-            android:layout_marginLeft="5dp"
+            android:layout_marginStart="5dp"
             android:layout_gravity="center_vertical"
             />
     </LinearLayout>
@@ -148,14 +148,14 @@
         <TextView
             android:id="@+id/tvViewPreviousComments"
             android:text="View previous comments"
-            android:layout_marginLeft="40dp"
+            android:layout_marginStart="40dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="visible"
             />
 
         <include
-            android:layout_marginLeft="40dp"
+            android:layout_marginStart="40dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             layout="@layout/layout_lastcomment"></include>

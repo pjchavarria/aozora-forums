@@ -14,7 +14,7 @@
         android:scaleType="fitXY"
         android:adjustViewBounds="true"
         android:layout_gravity="start"
-        android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
         android:paddingBottom="5dp"
         android:paddingTop="5dp"
 

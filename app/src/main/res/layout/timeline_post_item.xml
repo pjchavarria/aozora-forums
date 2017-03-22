@@ -27,7 +27,7 @@
         <TextView
             android:id="@+id/tvViewPreviousComments"
             android:text="View previous comments"
-            android:layout_marginLeft="40dp"
+            android:layout_marginStart="40dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="visible"

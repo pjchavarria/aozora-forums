@@ -11,10 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
         android:layout_alignParentTop="true"
-        android:visibility="gone"
+        android:visibility="visible"
         />
 
     <View
@@ -90,8 +90,8 @@
             android:layout_height="wrap_content"
             android:padding="5dp">
             <ImageView
-                android:layout_marginRight="8dp"
-                android:layout_toLeftOf="@+id/tvFacebookButtonMessage"
+                android:layout_marginEnd="8dp"
+                android:layout_toStartOf="@+id/tvFacebookButtonMessage"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"
                 android:src="@drawable/facebook"/>
@@ -114,8 +114,8 @@
             android:layout_height="wrap_content"
             android:padding="5dp">
             <ImageView
-                android:layout_toLeftOf="@+id/tvMailSignUp"
-                android:layout_marginRight="8dp"
+                android:layout_toStartOf="@+id/tvMailSignUp"
+                android:layout_marginEnd="8dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/message_filled"/>
@@ -133,7 +133,6 @@
             android:id="@+id/tvLogin"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
             android:textColor="#FFFFFF"
             android:text="@string/activity_first_btnLogin_Text"
             android:gravity="center_horizontal"

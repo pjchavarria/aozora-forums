@@ -31,7 +31,7 @@
                 android:layout_weight="0.5"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content">
-z
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -147,7 +147,7 @@ z
                             android:scaleType="fitXY"
                             android:adjustViewBounds="true"
                             android:layout_gravity="start"
-                            android:layout_marginLeft="5dp"
+                            android:layout_marginStart="5dp"
                             />
 
                         <RelativeLayout
@@ -155,7 +155,7 @@ z
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginTop="10dp"
-                            android:layout_marginLeft="5dp"
+                            android:layout_marginStart="5dp"
                             >
                             <TextView
                                 android:id="@+id/tvPopularity"
@@ -171,9 +171,9 @@ z
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:text="PRO+"
-                                android:layout_toRightOf="@+id/tvPopularity"
+                                android:layout_toEndOf="@+id/tvPopularity"
                                 android:background="@drawable/text_yellow_rounded_corner"
-                                android:layout_marginLeft="5dp"
+                                android:layout_marginStart="5dp"
                                 android:padding="5dp"
                                 android:textColor="@color/colorWhite"
                                 />
@@ -183,7 +183,7 @@ z
                                 android:layout_height="wrap_content"
                                 android:text="Manager"
                                 android:layout_below="@id/tvPopularity"
-                                android:layout_alignLeft="@id/tvPopularity"
+                                android:layout_alignStart="@id/tvPopularity"
                                 android:background="@drawable/text_purple_rounded_corner"
                                 android:layout_marginTop="5dp"
                                 android:padding="5dp"
@@ -194,14 +194,14 @@ z
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="5dp"
-                                android:layout_alignParentRight="true">
+                                android:layout_alignParentEnd="true">
 
                                     <ImageView
                                         android:id="@+id/ivMoreOptions"
                                         android:layout_width="30dp"
                                         android:layout_height="30dp"
                                         android:src="@drawable/ic_more_filled"
-                                        android:layout_toLeftOf="@id/ivMoreOptions"
+                                        android:layout_toStartOf="@id/ivMoreOptions"
                                         android:layout_gravity="center_vertical"
                                         />
 
@@ -224,7 +224,7 @@ z
                         android:orientation="horizontal"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginLeft="5dp">
+                        android:layout_marginStart="5dp">
                         <TextView
                             android:id="@+id/tvUsername"
                             android:text="Shaz"
@@ -238,7 +238,7 @@ z
                             android:text="ACTIVE NOW"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginLeft="10dp"
+                            android:layout_marginStart="10dp"
                             android:textColor="@color/grayC5"
                             android:textSize="12sp"
                             />
@@ -250,7 +250,7 @@ z
                         android:layout_height="wrap_content"
                         android:textColor="@color/gray3C"
                         android:text="All but a memory"
-                        android:layout_marginLeft="5dp"
+                        android:layout_marginStart="5dp"
                         android:layout_marginTop="5dp"
                         />
 
@@ -259,7 +259,7 @@ z
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="5dp"
-                        android:layout_marginLeft="5dp"
+                        android:layout_marginStart="5dp"
                         android:paddingBottom="5dp"
                         >
 
@@ -277,7 +277,7 @@ z
 
                             <TextView
                                 android:text="FOLLOWING"
-                                android:layout_marginLeft="2dp"
+                                android:layout_marginStart="2dp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/grayC5" />
@@ -288,7 +288,7 @@ z
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content">
                             <TextView
-                                android:layout_marginLeft="20dp"
+                                android:layout_marginStart="20dp"
                                 android:id="@+id/tvFollowers"
                                 android:textColor="@color/colorBlack"
                                 android:text="999"
@@ -297,7 +297,7 @@ z
 
                             <TextView
                                 android:text="FOLLOWERS"
-                                android:layout_marginLeft="2dp"
+                                android:layout_marginStart="2dp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/grayC5"
@@ -350,7 +350,7 @@ z
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true"
         android:elevation="16dp"
         android:layout_margin="16dp"
         android:visibility="visible"

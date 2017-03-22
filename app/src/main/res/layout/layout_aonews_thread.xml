@@ -41,7 +41,7 @@
         </LinearLayout>
 
         <RelativeLayout
-            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
             android:id="@+id/rlNewsImage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
