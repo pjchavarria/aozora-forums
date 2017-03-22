@@ -26,6 +26,7 @@ import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.adapters.SearchResultsThreadAdapter;
 import com.everfox.aozoraforums.adapters.SearchResultsUserAdapter;
 import com.everfox.aozoraforums.controllers.SearchHelper;
+import com.everfox.aozoraforums.controls.AoLinearLayoutManager;
 import com.everfox.aozoraforums.fragments.FollowersFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.fragments.UserListFragment;
@@ -59,7 +60,7 @@ SearchResultsUserAdapter.OnUsernameTappedListener, SearchHelper.OnGetSearchPopul
     private Date _lastTypeTime   = null;
     SearchResultsThreadAdapter threadAdapter;
     SearchResultsUserAdapter userAdapter;
-    LinearLayoutManager llm;
+    AoLinearLayoutManager llm;
     SearchHelper searchHelper;
     String currentSearch;
     List<String> noMessagesResults;
@@ -89,7 +90,7 @@ SearchResultsUserAdapter.OnUsernameTappedListener, SearchHelper.OnGetSearchPopul
         setSupportActionBar(tool_bar);
 
         noMessagesResults = Arrays.asList(getResources().getStringArray(R.array.no_results_message));
-        llm = new LinearLayoutManager(this);
+        llm = new AoLinearLayoutManager(this);
         rvSearchResults.setLayoutManager(llm);
         threadAdapter = new SearchResultsThreadAdapter(this,new ArrayList<AoThread>());
         userAdapter = new SearchResultsUserAdapter(this,new ArrayList<ParseUser>(),this);

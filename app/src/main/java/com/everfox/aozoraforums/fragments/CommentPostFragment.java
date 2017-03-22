@@ -35,6 +35,7 @@ import com.everfox.aozoraforums.controllers.AddPostThreadHelper;
 import com.everfox.aozoraforums.controllers.ForumsHelper;
 import com.everfox.aozoraforums.controllers.PostParseHelper;
 import com.everfox.aozoraforums.controllers.ThreadHelper;
+import com.everfox.aozoraforums.controls.AoLinearLayoutManager;
 import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.ImageData;
@@ -63,7 +64,7 @@ CommentPostAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelec
 
     public static final int REQUEST_EDIT_AOTHREAD_REPLY = 503;
     Post post;
-    LinearLayoutManager llm;
+    AoLinearLayoutManager llm;
     CommentPostAdapter commentPostAdapter;
     Boolean isLoading = false;
     ArrayList<Post> lstComments = new ArrayList<>();
@@ -100,7 +101,7 @@ CommentPostAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelec
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_commentthread,container,false);
         ButterKnife.bind(this,view);
-        llm = new LinearLayoutManager(getActivity());
+        llm = new AoLinearLayoutManager(getActivity());
         rvThreadComments.setLayoutManager(llm);
         commentPostAdapter = new CommentPostAdapter(getActivity(),new ArrayList<Post>(),this);
         rvThreadComments.setAdapter(commentPostAdapter);

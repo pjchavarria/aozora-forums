@@ -33,6 +33,7 @@ import com.everfox.aozoraforums.activities.postthread.SearchYoutubeActivity;
 import com.everfox.aozoraforums.adapters.TimelinePostsAdapter;
 import com.everfox.aozoraforums.controllers.AddPostThreadHelper;
 import com.everfox.aozoraforums.controllers.PostParseHelper;
+import com.everfox.aozoraforums.controls.AoLinearLayoutManager;
 import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
 import com.everfox.aozoraforums.dialogfragments.SimpleLoadingDialogFragment;
 import com.everfox.aozoraforums.fragments.FollowersFragment;
@@ -75,7 +76,7 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
 
     TimelinePost parentPostDelete = null;
     TimelinePost parentPost;
-    LinearLayoutManager llm;
+    AoLinearLayoutManager llm;
     TimelinePostsAdapter postsAdapter;
     Boolean isLoading = false;
     ParseUser userOP;
@@ -114,7 +115,7 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
         parentPost = AozoraForumsApp.getTimelinePostToPass();
         if(parentPost != null)
             userOP = AoUtils.GetOriginalPoster(parentPost);
-        llm = new LinearLayoutManager(TimelinePostActivity.this);
+        llm = new AoLinearLayoutManager(TimelinePostActivity.this);
         rvPostComments.setLayoutManager(llm);
         postsAdapter = new TimelinePostsAdapter(TimelinePostActivity.this,new ArrayList<TimelinePost>(),TimelinePostActivity.this, ParseUser.getCurrentUser());
         rvPostComments.setAdapter(postsAdapter);

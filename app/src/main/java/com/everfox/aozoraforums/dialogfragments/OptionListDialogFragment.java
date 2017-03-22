@@ -20,6 +20,7 @@ import android.widget.TextView;
 
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.adapters.OptionListAdapter;
+import com.everfox.aozoraforums.controls.AoLinearLayoutManager;
 import com.everfox.aozoraforums.utils.AoConstants;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.everfox.aozoraforums.utils.RecyclerItemClickListener;
@@ -101,7 +102,7 @@ public class OptionListDialogFragment extends DialogFragment {
         Bundle bundle = getArguments();
         options = (ArrayList<String>)bundle.getSerializable("options");
         rvLists = (RecyclerView)view.findViewById(R.id.rvList);
-        rvLists.setLayoutManager(new LinearLayoutManager(mContext));
+        rvLists.setLayoutManager(new AoLinearLayoutManager(mContext));
         rvLists.setAdapter(new OptionListAdapter(options, mContext));
         rvLists.addOnItemTouchListener(new RecyclerItemClickListener
                 (mContext, new RecyclerItemClickListener.OnItemClickListener() {

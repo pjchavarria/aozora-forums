@@ -38,6 +38,7 @@ import com.everfox.aozoraforums.controllers.AddPostThreadHelper;
 import com.everfox.aozoraforums.controllers.ForumsHelper;
 import com.everfox.aozoraforums.controllers.PostParseHelper;
 import com.everfox.aozoraforums.controllers.ThreadHelper;
+import com.everfox.aozoraforums.controls.AoLinearLayoutManager;
 import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
 import com.everfox.aozoraforums.fragments.CommentPostFragment;
 import com.everfox.aozoraforums.fragments.FollowersFragment;
@@ -74,7 +75,7 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
     View viewToShare;
     Boolean hasMenu = true;
     AoThread parentThread;
-    LinearLayoutManager llm;
+    AoLinearLayoutManager llm;
     AoThreadAdapter aoThreadAdapter;
     Boolean isLoading = false;
     ArrayList<ParseObject> lstComments = new ArrayList<>();
@@ -110,8 +111,12 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
         setContentView(R.layout.activity_thread_post);
         ButterKnife.bind(this);
         parentThread = AozoraForumsApp.getThreadToPass();
+        if(parentThread == null) {
+            AoUtils.startMainActivity(this);
+            return;
+        }
         hasMenu = parentThread.getHasMenu();
-        llm = new LinearLayoutManager(this);
+        llm = new AoLinearLayoutManager(this);
         rvThreadComments.setLayoutManager(llm);
         aoThreadAdapter = new AoThreadAdapter(this,new ArrayList<ParseObject>(),this);
         rvThreadComments.setAdapter(aoThreadAdapter);

@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.adapters.FollowersAdapter;
 import com.everfox.aozoraforums.controllers.UserListHelper;
+import com.everfox.aozoraforums.controls.AoGridLayoutManager;
 import com.everfox.aozoraforums.models.PUser;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.parse.ParseUser;
@@ -45,7 +46,7 @@ public class UserListFragment extends Fragment implements UserListHelper.OnGetUs
 
     UserListHelper userListHelper;
     ParseUser user;
-    GridLayoutManager gridLayoutManager;
+    AoGridLayoutManager gridLayoutManager;
     int listType;
     FollowersAdapter userAdapter;
     String title = "";
@@ -68,7 +69,7 @@ public class UserListFragment extends Fragment implements UserListHelper.OnGetUs
         View view = inflater.inflate(R.layout.fragment_followers,container,false);
         ButterKnife.bind(this,view);
         setHasOptionsMenu(true);
-        gridLayoutManager = new GridLayoutManager(getActivity(),3);
+        gridLayoutManager = new AoGridLayoutManager(getActivity(),3);
         userAdapter = new FollowersAdapter(getActivity(),new ArrayList<PUser>(),this,user,showFollow);
         rvUsers.setLayoutManager(gridLayoutManager);
         rvUsers.setAdapter(userAdapter);

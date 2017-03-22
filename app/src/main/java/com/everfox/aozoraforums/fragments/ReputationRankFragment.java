@@ -23,6 +23,7 @@ import com.everfox.aozoraforums.adapters.ForumsAdapter;
 import com.everfox.aozoraforums.adapters.ReputationRankAdapter;
 import com.everfox.aozoraforums.controllers.ForumsHelper;
 import com.everfox.aozoraforums.controllers.ReputationHelper;
+import com.everfox.aozoraforums.controls.AoLinearLayoutManager;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.parse.ParseObject;
@@ -49,7 +50,7 @@ ReputationRankAdapter.OnUsernameTappedListener
 
     Integer type;
     ParseUser user;
-    LinearLayoutManager llm;
+    AoLinearLayoutManager llm;
     ReputationRankAdapter reputationRankAdapter;
     Boolean isLoading = false;
     ArrayList<ParseObject> lstUsers = new ArrayList<>();
@@ -80,7 +81,7 @@ ReputationRankAdapter.OnUsernameTappedListener
         ButterKnife.bind(this,view);
         setHasOptionsMenu(true);
         reputationHelper = new ReputationHelper(getActivity(),this);
-        llm = new LinearLayoutManager(getActivity());
+        llm = new AoLinearLayoutManager(getActivity());
         rvUsers.setLayoutManager(llm);
         reputationRankAdapter = new ReputationRankAdapter(getActivity(),new ArrayList<ParseObject>(),this);
         rvUsers.setAdapter(reputationRankAdapter);

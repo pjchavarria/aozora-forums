@@ -38,6 +38,7 @@ import com.everfox.aozoraforums.activities.postthread.CreatePostActivity;
 import com.everfox.aozoraforums.adapters.ForumsAdapter;
 import com.everfox.aozoraforums.controllers.ForumsHelper;
 import com.everfox.aozoraforums.controllers.ProfileParseHelper;
+import com.everfox.aozoraforums.controls.AoLinearLayoutManager;
 import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
 import com.everfox.aozoraforums.dialogfragments.SimpleLoadingDialogFragment;
 import com.everfox.aozoraforums.models.AoThread;
@@ -78,7 +79,7 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, For
     String selectedList = "aoArt";
     int selectedViewType = ForumsAdapter.VIEW_AOART;
     String selectedSort = AoConstants.POPULAR;
-    LinearLayoutManager llm;
+    AoLinearLayoutManager llm;
     ForumsHelper forumsHelper;
     ArrayList<AoThread> lstThreads = new ArrayList<>();
     Boolean hasMenu = true;
@@ -132,7 +133,7 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, For
         forumsHelper = new ForumsHelper(getActivity(),this,null);
         forumsHelper.GetGlobalThreads();
         fetchingGlobalThreads = true;
-        llm = new LinearLayoutManager(getActivity());
+        llm = new AoLinearLayoutManager(getActivity());
         rvForums.setLayoutManager(llm);
         forumsAdapter = new ForumsAdapter(getActivity(),new ArrayList<AoThread>(),selectedViewType,this);
         rvForums.setAdapter(forumsAdapter);

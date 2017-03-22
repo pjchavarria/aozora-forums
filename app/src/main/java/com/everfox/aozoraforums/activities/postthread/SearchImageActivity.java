@@ -25,6 +25,8 @@ import com.everfox.aozoraforums.activities.AozoraActivity;
 import com.everfox.aozoraforums.activities.SearchActivity;
 import com.everfox.aozoraforums.adapters.SearchImageAdapter;
 import com.everfox.aozoraforums.controllers.SearchImageHelper;
+import com.everfox.aozoraforums.controls.AoGridLayoutManager;
+import com.everfox.aozoraforums.controls.AoLinearLayoutManager;
 import com.everfox.aozoraforums.models.ImageData;
 import com.everfox.aozoraforums.utils.RecyclerItemClickListener;
 
@@ -55,8 +57,8 @@ SearchImageAdapter.OnItemClickListener{
     int selectedSearchIndex = 0;
     int milisecondsToSearch = 750;
     String currentSearch;
-    GridLayoutManager imagesLayoutManager;
-    LinearLayoutManager gifLayoutManager;
+    AoGridLayoutManager imagesLayoutManager;
+    AoLinearLayoutManager gifLayoutManager;
     @BindView(R.id.pbLoading)
     ProgressBar pbLoading;
     @BindView(R.id.rvSearchResults)
@@ -76,8 +78,8 @@ SearchImageAdapter.OnItemClickListener{
         ButterKnife.bind(this);
         tool_bar.setTitle("Search");
         setSupportActionBar(tool_bar);
-        imagesLayoutManager = new GridLayoutManager(this,2);
-        gifLayoutManager = new LinearLayoutManager(this);
+        imagesLayoutManager = new AoGridLayoutManager(this,2);
+        gifLayoutManager = new AoLinearLayoutManager(this);
         rvSearchResults.setLayoutManager(imagesLayoutManager);
         searchImageAdapter = new SearchImageAdapter(this,new ArrayList<ImageData>(),true,this);
         rvSearchResults.setAdapter(searchImageAdapter);

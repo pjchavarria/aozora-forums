@@ -19,6 +19,7 @@ import android.widget.Toast;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.adapters.FollowersAdapter;
 import com.everfox.aozoraforums.controllers.FollowersHelper;
+import com.everfox.aozoraforums.controls.AoGridLayoutManager;
 import com.everfox.aozoraforums.models.PUser;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.parse.ParseUser;
@@ -38,7 +39,7 @@ FollowersAdapter.OnFollowTappedListener, FollowersAdapter.OnUserTappedListener{
 
     FollowersHelper followersHelper;
 
-    GridLayoutManager gridLayoutManager;
+    AoGridLayoutManager gridLayoutManager;
     FollowersAdapter followersAdapter;
     ParseUser user;
     Boolean isFollowers;
@@ -65,7 +66,7 @@ FollowersAdapter.OnFollowTappedListener, FollowersAdapter.OnUserTappedListener{
         View view = inflater.inflate(R.layout.fragment_followers, container, false);
         ButterKnife.bind(this,view);
         setHasOptionsMenu(true);
-        gridLayoutManager = new GridLayoutManager(getActivity(),3);
+        gridLayoutManager = new AoGridLayoutManager(getActivity(),3);
         followersAdapter = new FollowersAdapter(getActivity(),new ArrayList<PUser>(),this,user,true);
         rvFollowers.setLayoutManager(gridLayoutManager);
         rvFollowers.setAdapter(followersAdapter);

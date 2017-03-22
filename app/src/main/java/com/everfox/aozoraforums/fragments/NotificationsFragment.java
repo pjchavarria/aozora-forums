@@ -35,6 +35,7 @@ import com.everfox.aozoraforums.adapters.TimelinePostsAdapter;
 import com.everfox.aozoraforums.controllers.NotificationsHelper;
 import com.everfox.aozoraforums.controllers.PostParseHelper;
 import com.everfox.aozoraforums.controllers.ProfileParseHelper;
+import com.everfox.aozoraforums.controls.AoLinearLayoutManager;
 import com.everfox.aozoraforums.models.AoNotification;
 import com.everfox.aozoraforums.models.ParseUserColumns;
 import com.everfox.aozoraforums.models.TimelinePost;
@@ -56,7 +57,7 @@ import butterknife.ButterKnife;
 
 public class NotificationsFragment extends Fragment implements NotificationsHelper.OnGetNotificationListener, NotificationsAdapter.OnNotificationTappedListener  {
 
-    LinearLayoutManager llm;
+    AoLinearLayoutManager llm;
     NotificationsAdapter notiAdapter;
     Boolean isLoading = false;
     ArrayList<AoNotification> lstNotifications = new ArrayList<>();
@@ -91,7 +92,7 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
         View view = inflater.inflate(R.layout.fragment_notifications, container, false);
         ButterKnife.bind(this,view);
         lstNotifications = new ArrayList<>();
-        llm = new LinearLayoutManager(getActivity());
+        llm = new AoLinearLayoutManager(getActivity());
         tvReadAll.setTypeface(AozoraForumsApp.getAwesomeTypeface());
         rvNotifications.setLayoutManager(llm);
         notiAdapter = new NotificationsAdapter(getActivity(),new ArrayList<AoNotification>(),NotificationsFragment.this, ParseUser.getCurrentUser());

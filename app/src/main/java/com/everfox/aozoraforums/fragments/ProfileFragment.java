@@ -40,6 +40,7 @@ import com.everfox.aozoraforums.activities.TimelinePostActivity;
 import com.everfox.aozoraforums.activities.postthread.CreatePostActivity;
 import com.everfox.aozoraforums.adapters.ProfileTimelineAdapter;
 import com.everfox.aozoraforums.controllers.ProfileParseHelper;
+import com.everfox.aozoraforums.controls.AoLinearLayoutManager;
 import com.everfox.aozoraforums.controls.EndlessScrollView;
 import com.everfox.aozoraforums.dialogfragments.MuteUserDialogFragment;
 import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
@@ -96,7 +97,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     Boolean isCurrentUser;
     ProfileTimelineAdapter timelineAdapter;
     String postCount;
-    LinearLayoutManager llm;
+    AoLinearLayoutManager llm;
     Boolean loadingMorePosts = false;
     private int fetchCount = 0;
     ArrayList<TimelinePost> lstTimelinePost = new ArrayList<>();
@@ -173,25 +174,31 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
         lstTimelinePost = new ArrayList<>();
         firstTime = true;
         fetchCount = 0;
-        if(isProfile) {
-            rvTimeline = (RecyclerView) view.findViewById(R.id.rvTimeline);
-        } else {
-            fabNewTimelinePost.setVisibility(View.GONE);
-            rvTimeline = (RecyclerView) view.findViewById(R.id.rvFeed);
+        if(isProfile == null) {
+            AoUtils.startMainActivity(getActivity());
+            return view;
         }
-        llm = new LinearLayoutManager(getActivity());
-        rvTimeline.setLayoutManager(llm);
-        timelineAdapter = new ProfileTimelineAdapter(getActivity(),new ArrayList<TimelinePost>(),ProfileFragment.this,ParseUser.getCurrentUser());
-        rvTimeline.setAdapter(timelineAdapter);
-        scrollView.setScrollViewListener(this);
-        pbLoading.setVisibility(View.VISIBLE);
-        llProfileContent.setVisibility(View.GONE);
-        ivProfileBanner.setVisibility(View.GONE);
-        llProfileTimeline.setVisibility(View.GONE);
-        if(user != null)
-            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(user.getString(ParseUserColumns.AOZORA_USERNAME));
-        setHasOptionsMenu(true);
-        return view;
+        else {
+            if(isProfile) {
+                rvTimeline = (RecyclerView) view.findViewById(R.id.rvTimeline);
+            } else {
+                fabNewTimelinePost.setVisibility(View.GONE);
+                rvTimeline = (RecyclerView) view.findViewById(R.id.rvFeed);
+            }
+            llm = new AoLinearLayoutManager(getActivity());
+            rvTimeline.setLayoutManager(llm);
+            timelineAdapter = new ProfileTimelineAdapter(getActivity(), new ArrayList<TimelinePost>(), ProfileFragment.this, ParseUser.getCurrentUser());
+            rvTimeline.setAdapter(timelineAdapter);
+            scrollView.setScrollViewListener(this);
+            pbLoading.setVisibility(View.VISIBLE);
+            llProfileContent.setVisibility(View.GONE);
+            ivProfileBanner.setVisibility(View.GONE);
+            llProfileTimeline.setVisibility(View.GONE);
+            if (user != null)
+                ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(user.getString(ParseUserColumns.AOZORA_USERNAME));
+            setHasOptionsMenu(true);
+            return view;
+        }
     }
 
     @Override

@@ -32,6 +32,7 @@ import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.FirstActivity;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.AozoraActivity;
+import com.everfox.aozoraforums.activities.MainActivity;
 import com.everfox.aozoraforums.activities.SettingsActivity;
 import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
 import com.everfox.aozoraforums.dialogfragments.SimpleLoadingDialogFragment;
@@ -585,6 +586,14 @@ public class AoUtils {
 
 
         return sizes;
+
+    }
+
+    public static void startMainActivity(Context context) {
+        Intent i = new Intent(context, MainActivity.class);
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(i);
 
     }
 }

@@ -30,6 +30,7 @@ import com.everfox.aozoraforums.activities.ThreadActivity;
 import com.everfox.aozoraforums.activities.postthread.CreatePostActivity;
 import com.everfox.aozoraforums.adapters.ForumsAdapter;
 import com.everfox.aozoraforums.controllers.ForumsHelper;
+import com.everfox.aozoraforums.controls.AoLinearLayoutManager;
 import com.everfox.aozoraforums.dialogfragments.OptionListDialogFragment;
 import com.everfox.aozoraforums.models.AoThread;
 import com.everfox.aozoraforums.models.ParseUserColumns;
@@ -57,7 +58,7 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
     private static final int REQUEST_WRITE_STORAGE = 100;
     View viewToShare;
     ParseUser user;
-    LinearLayoutManager llm;
+    AoLinearLayoutManager llm;
     ForumsAdapter forumsAdapter;
     Boolean isLoading = false;
     int fetchCount = 0;
@@ -86,7 +87,7 @@ public class ThreadByUserFragment extends Fragment implements ForumsHelper.OnGet
         ButterKnife.bind(this, view);
         setHasOptionsMenu(true);
         forumsHelper = new ForumsHelper(getActivity(), this,null);
-        llm = new LinearLayoutManager(getActivity());
+        llm = new AoLinearLayoutManager(getActivity());
         rvThreadByUser.setLayoutManager(llm);
         forumsAdapter = new ForumsAdapter(getActivity(), new ArrayList<AoThread>(), -1, this);
         rvThreadByUser.setAdapter(forumsAdapter);

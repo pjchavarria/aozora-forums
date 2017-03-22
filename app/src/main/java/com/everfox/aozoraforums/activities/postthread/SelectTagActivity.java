@@ -25,6 +25,7 @@ import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.AozoraActivity;
 import com.everfox.aozoraforums.adapters.SelectTagAdapter;
 import com.everfox.aozoraforums.controllers.ThreadTagHelper;
+import com.everfox.aozoraforums.controls.AoLinearLayoutManager;
 import com.everfox.aozoraforums.models.Anime;
 import com.everfox.aozoraforums.models.AoThreadTag;
 import com.everfox.aozoraforums.utils.AoConstants;
@@ -47,7 +48,7 @@ import butterknife.ButterKnife;
 public class SelectTagActivity extends AozoraActivity implements ThreadTagHelper.OnGetSearchAnimeListener, ThreadTagHelper.OnGetSearchTagsListener,
 SelectTagAdapter.OnItemTappedListener{
 
-    LinearLayoutManager linearLayoutManager;
+    AoLinearLayoutManager linearLayoutManager;
 
     MenuItem searchMenuItem;
     @BindView(R.id.tool_bar)
@@ -88,7 +89,7 @@ SelectTagAdapter.OnItemTappedListener{
         ButterKnife.bind(this);
         tool_bar.setTitle("Search an anime to talk about");
         setSupportActionBar(tool_bar);
-        linearLayoutManager= new LinearLayoutManager(this);
+        linearLayoutManager= new AoLinearLayoutManager(this);
         rvSearchResults.setLayoutManager(linearLayoutManager);
         selectTagAdapter = new SelectTagAdapter(this,new ArrayList<AoThreadTag>(),null,this);
         rvSearchResults.setAdapter(selectTagAdapter);
