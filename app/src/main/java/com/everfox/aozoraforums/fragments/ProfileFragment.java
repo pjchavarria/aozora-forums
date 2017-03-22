@@ -106,6 +106,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     Date lastItemDate = null;
     Boolean hasMenu = true;
     Boolean firstTime = true;
+    Boolean reloadActivity = false;
 
     RecyclerView rvTimeline;
 
@@ -176,6 +177,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
         fetchCount = 0;
         if(isProfile == null) {
             AoUtils.startMainActivity(getActivity());
+            reloadActivity = true;
             return view;
         }
         else {
@@ -215,6 +217,8 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        if(reloadActivity) return;
 
         if(user != null) {
             if (!isProfile) {

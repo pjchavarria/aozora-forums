@@ -144,6 +144,10 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, For
         lstThreads.clear();
         forumsHelper.GetThreads(selectedList,selectedSort,0,ForumsHelper.THREADS_FETCH_LIMIT);
 
+        int a = 5;
+        lstThreads.clear();
+        isLoading = true;
+        fetchCount = 1;
         return view;
     }
 

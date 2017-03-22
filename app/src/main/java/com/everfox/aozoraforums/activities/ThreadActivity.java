@@ -144,6 +144,8 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
         initAddCommentControls();
 
         isLoading = true;
+
+
     }
 
     private void reloadThread() {
@@ -187,6 +189,9 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
         rvThreadComments.setRecycledViewPool(recycledViewPool);
         rvThreadComments.setItemViewCacheSize(200);
         isLoading = false;
+        if(parentThread.has(AoThread.LOCKED) && parentThread.getBoolean(AoThread.LOCKED)) {
+            llAddComment.setVisibility(View.GONE);
+        }
     }
 
 
@@ -208,12 +213,16 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
     @Override
     public void onCommentTapped(ParseObject commentTapped) {
         if(!AoUtils.isActivityInvalid(this)) {
-            CommentPostFragment commentPostFragment = null;
-            commentPostFragment = CommentPostFragment.newInstance((Post)commentTapped);
-            selectedComment = commentTapped;
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.add(R.id.flContent, commentPostFragment).addToBackStack(null).commitAllowingStateLoss();
+            if(parentThread.has(AoThread.LOCKED) && parentThread.getBoolean(AoThread.LOCKED)) {
+                Toast.makeText(this,"Thread is locked",Toast.LENGTH_SHORT).show();
+            } else {
+                CommentPostFragment commentPostFragment = null;
+                commentPostFragment = CommentPostFragment.newInstance((Post) commentTapped);
+                selectedComment = commentTapped;
+                FragmentManager fragmentManager = getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                fragmentTransaction.add(R.id.flContent, commentPostFragment).addToBackStack(null).commitAllowingStateLoss();
+            }
         }
     }
 
@@ -369,15 +378,19 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
 
     @Override
     public void onAddPostTapped() {
-        selectedItem = null;
-        selectedComment = null;
-        Intent i = new Intent(this,CreatePostActivity.class);
-        i.putExtra(CreatePostActivity.PARAM_TYPE,CreatePostActivity.NEW_AOTHREAD_REPLY);
-        AozoraForumsApp.setPostedBy(ParseUser.getCurrentUser());
-        AozoraForumsApp.setPostedIn(null);
-        AozoraForumsApp.setUpdatedParentPost(null);
-        AozoraForumsApp.setUpdatedParentThread(parentThread);
-        startActivityForResult(i,REQUEST_ADD_POST);
+        if(parentThread.has(AoThread.LOCKED) && parentThread.getBoolean(AoThread.LOCKED)) {
+            Toast.makeText(this,"Thread is locked",Toast.LENGTH_SHORT).show();
+        } else {
+            selectedItem = null;
+            selectedComment = null;
+            Intent i = new Intent(this, CreatePostActivity.class);
+            i.putExtra(CreatePostActivity.PARAM_TYPE, CreatePostActivity.NEW_AOTHREAD_REPLY);
+            AozoraForumsApp.setPostedBy(ParseUser.getCurrentUser());
+            AozoraForumsApp.setPostedIn(null);
+            AozoraForumsApp.setUpdatedParentPost(null);
+            AozoraForumsApp.setUpdatedParentThread(parentThread);
+            startActivityForResult(i, REQUEST_ADD_POST);
+        }
     }
 
     @Override
