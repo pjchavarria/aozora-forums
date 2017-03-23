@@ -115,8 +115,6 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
         parentPost = AozoraForumsApp.getTimelinePostToPass();
         if(parentPost != null)
             userOP = AoUtils.GetOriginalPoster(parentPost);
-        else
-
         llm = new AoLinearLayoutManager(TimelinePostActivity.this);
         rvPostComments.setLayoutManager(llm);
         postsAdapter = new TimelinePostsAdapter(TimelinePostActivity.this,new ArrayList<TimelinePost>(),TimelinePostActivity.this, ParseUser.getCurrentUser());
