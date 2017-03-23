@@ -115,6 +115,8 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
         parentPost = AozoraForumsApp.getTimelinePostToPass();
         if(parentPost != null)
             userOP = AoUtils.GetOriginalPoster(parentPost);
+        else
+
         llm = new AoLinearLayoutManager(TimelinePostActivity.this);
         rvPostComments.setLayoutManager(llm);
         postsAdapter = new TimelinePostsAdapter(TimelinePostActivity.this,new ArrayList<TimelinePost>(),TimelinePostActivity.this, ParseUser.getCurrentUser());
@@ -140,10 +142,16 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
                     if(object != null && e==null) {
                         parentPost = object;
                         userOP = AoUtils.GetOriginalPoster(parentPost);
-                        setTitle(parentPost.getParseObject(TimelinePost.POSTED_BY).getString(ParseUserColumns.AOZORA_USERNAME));
-                        initAddCommentControls();
-                        new PostParseHelper(TimelinePostActivity.this, TimelinePostActivity.this,null)
-                                .GetTimelinePostComments(parentPost, 0, 2000);
+                        try {
+                            setTitle(parentPost.getParseObject(TimelinePost.POSTED_BY).getString(ParseUserColumns.AOZORA_USERNAME));
+                            initAddCommentControls();
+                            new PostParseHelper(TimelinePostActivity.this, TimelinePostActivity.this, null)
+                                    .GetTimelinePostComments(parentPost, 0, 2000);
+                        } catch(Exception ex) {
+
+                            AoUtils.startMainActivity(TimelinePostActivity.this);
+                            return;
+                        }
                     } else {
                         Toast.makeText(TimelinePostActivity.this,"A problem occured, try again later",Toast.LENGTH_SHORT).show();
                         finish();
