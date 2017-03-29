@@ -140,16 +140,11 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
                     if(object != null && e==null) {
                         parentPost = object;
                         userOP = AoUtils.GetOriginalPoster(parentPost);
-                        try {
                             setTitle(parentPost.getParseObject(TimelinePost.POSTED_BY).getString(ParseUserColumns.AOZORA_USERNAME));
                             initAddCommentControls();
                             new PostParseHelper(TimelinePostActivity.this, TimelinePostActivity.this, null)
                                     .GetTimelinePostComments(parentPost, 0, 2000);
-                        } catch(Exception ex) {
 
-                            AoUtils.startMainActivity(TimelinePostActivity.this);
-                            return;
-                        }
                     } else {
                         Toast.makeText(TimelinePostActivity.this,"A problem occured, try again later",Toast.LENGTH_SHORT).show();
                         finish();
@@ -158,6 +153,10 @@ TimelinePostsAdapter.OnImageShareListener, TimelinePostsAdapter.OnCommentTappedL
             });
         } else {
 
+            if(parentPost == null) {
+                AoUtils.startMainActivity(TimelinePostActivity.this);
+                return;
+            }
             new PostParseHelper(this, this,null)
                     .GetTimelinePostComments(parentPost, 0, 2000);
 
