@@ -44,42 +44,46 @@ public class PostParseHelper {
 
     public void GetTimelinePostComments(TimelinePost timelinePost, int skip, int limit) {
 
-        ParseQuery<TimelinePost> query = ParseQuery.getQuery(TimelinePost.class);
-        query.setSkip(skip);
-        query.setLimit(limit);
-        query.addAscendingOrder(TimelinePost.CREATED_AT);
+        try {
+            ParseQuery<TimelinePost> query = ParseQuery.getQuery(TimelinePost.class);
+            query.setSkip(skip);
+            query.setLimit(limit);
+            query.addAscendingOrder(TimelinePost.CREATED_AT);
 
-        if(timelinePost.getParseObject(TimelinePost.REPOST_SOURCE) != null) {
-            query.whereEqualTo(TimelinePost.PARENT_POST,timelinePost.getParseObject(TimelinePost.REPOST_SOURCE));
-        } else {
-            query.whereEqualTo(TimelinePost.PARENT_POST, timelinePost);
+            if (timelinePost.getParseObject(TimelinePost.REPOST_SOURCE) != null) {
+                query.whereEqualTo(TimelinePost.PARENT_POST, timelinePost.getParseObject(TimelinePost.REPOST_SOURCE));
+            } else {
+                query.whereEqualTo(TimelinePost.PARENT_POST, timelinePost);
 
-        }
-        query.include(TimelinePost.EPISODE);
-        query.include(TimelinePost.POSTED_BY);
-        query.include(TimelinePost.USER_TIMELINE);
-        query.include(TimelinePost.REPOSTED_BY);
-        query.include(TimelinePost.REPOST_SOURCE+"."+TimelinePost.EPISODE);
-        query.include(TimelinePost.REPOST_SOURCE+"."+TimelinePost.POSTED_BY);
-        query.include(TimelinePost.REPOST_SOURCE + "." + TimelinePost.USER_TIMELINE);
-        query.include(TimelinePost.REPOST_SOURCE + "." + TimelinePost.LAST_REPLY);
-        query.include(TimelinePost.REPOST_SOURCE + "." + TimelinePost.LAST_REPLY+ "." + TimelinePost.POSTED_BY);
-        query.include(TimelinePost.REPOST_SOURCE + "." + TimelinePost.LAST_REPLY+ "." + TimelinePost.USER_TIMELINE);
-        query.include(TimelinePost.REPOST_SOURCE + "." + TimelinePost.REPOSTED_BY);
-
-        query.findInBackground(new FindCallback<TimelinePost>() {
-            @Override
-            public void done(List<TimelinePost> objects, ParseException e) {
-                if(e== null) {
-                    for(int i=0;i<objects.size();i++) {
-                        objects.get(i).setReplies(null);
-                        objects.get(i).setRepostFather(null);
-                    }
-                    mOnGetTimelinePostCommentsCallback.onTimelinePostComments(objects);
-
-                }
             }
-        });
+            query.include(TimelinePost.EPISODE);
+            query.include(TimelinePost.POSTED_BY);
+            query.include(TimelinePost.USER_TIMELINE);
+            query.include(TimelinePost.REPOSTED_BY);
+            query.include(TimelinePost.REPOST_SOURCE + "." + TimelinePost.EPISODE);
+            query.include(TimelinePost.REPOST_SOURCE + "." + TimelinePost.POSTED_BY);
+            query.include(TimelinePost.REPOST_SOURCE + "." + TimelinePost.USER_TIMELINE);
+            query.include(TimelinePost.REPOST_SOURCE + "." + TimelinePost.LAST_REPLY);
+            query.include(TimelinePost.REPOST_SOURCE + "." + TimelinePost.LAST_REPLY + "." + TimelinePost.POSTED_BY);
+            query.include(TimelinePost.REPOST_SOURCE + "." + TimelinePost.LAST_REPLY + "." + TimelinePost.USER_TIMELINE);
+            query.include(TimelinePost.REPOST_SOURCE + "." + TimelinePost.REPOSTED_BY);
+
+            query.findInBackground(new FindCallback<TimelinePost>() {
+                @Override
+                public void done(List<TimelinePost> objects, ParseException e) {
+                    if (e == null) {
+                        for (int i = 0; i < objects.size(); i++) {
+                            objects.get(i).setReplies(null);
+                            objects.get(i).setRepostFather(null);
+                        }
+                        mOnGetTimelinePostCommentsCallback.onTimelinePostComments(objects);
+
+                    }
+                }
+            });
+        } catch(Exception ex) {
+            throw ex;
+        }
     }
 
     public void deletePost(ParseObject post, ParseObject parseObject) {

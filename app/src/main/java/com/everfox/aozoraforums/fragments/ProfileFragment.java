@@ -39,6 +39,7 @@ import com.everfox.aozoraforums.activities.SettingsActivity;
 import com.everfox.aozoraforums.activities.TimelinePostActivity;
 import com.everfox.aozoraforums.activities.postthread.CreatePostActivity;
 import com.everfox.aozoraforums.adapters.ProfileTimelineAdapter;
+import com.everfox.aozoraforums.controllers.FriendsController;
 import com.everfox.aozoraforums.controllers.ProfileParseHelper;
 import com.everfox.aozoraforums.controls.AoLinearLayoutManager;
 import com.everfox.aozoraforums.controls.EndlessScrollView;
@@ -175,6 +176,8 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
         lstTimelinePost = new ArrayList<>();
         firstTime = true;
         fetchCount = 0;
+        if (FriendsController.following == null)
+            FriendsController.fetchFollowing();
         if(isProfile == null) {
             AoUtils.startMainActivity(getActivity());
             reloadActivity = true;
