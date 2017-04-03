@@ -11,6 +11,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.TextUtils;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.AoTubeActivity;
@@ -246,47 +249,57 @@ public class AoThreadAdapter extends RecyclerView.Adapter {
         //ThreadTag
         ThreadUtils.setThreadTagWhenPostedViewsBy(aoThread,viewHolder.tvThreadTagPostedWhen, mOnUsernameTappedCallback);
         viewHolder.tvThreadTitle.setText(aoThread.getString(AoThread.TITLE));
-        String content =  aoThread.getString(AoThread.CONTENT);
-        if(content == null || content.length() == 0) {
-            viewHolder.tvThreadText.setVisibility(View.GONE);
+
+        if(aoThread.getParseObject(AoThread.EPISODE) == null) {
+            String content =  aoThread.getString(AoThread.CONTENT);
+            if(content == null || content.length() == 0) {
+                viewHolder.tvThreadText.setVisibility(View.GONE);
+            } else {
+                viewHolder.tvThreadText.setVisibility(View.VISIBLE);
+                viewHolder.tvThreadText.setText(content);
+            }
+
+            if (aoThread.getParseFile(TimelinePost.IMAGE) != null) {
+                //File
+                ThreadUtils.loadThreadImageFileToImageView(context, aoThread, viewHolder.sdvThreadImageGif, viewHolder.ivThreadImage, viewHolder.ivPlay, true, false);
+            } else if (aoThread.getJSONArray(TimelinePost.IMAGES) != null && aoThread.getJSONArray(TimelinePost.IMAGES).length() > 0) {
+                ThreadUtils.loadThreadImageURLToImageView(context, aoThread, viewHolder.sdvThreadImageGif, viewHolder.ivThreadImage, viewHolder.ivPlay, true, false);
+            } else if (aoThread.getString(TimelinePost.YOUTUBE_ID) != null) {
+                PostUtils.loadYoutubeImageIntoImageView(context, aoThread, viewHolder.ivThreadImage, viewHolder.ivPlay);
+                viewHolder.ivThreadImage.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        Intent i = new Intent(context, AoTubeActivity.class);
+                        i.putExtra(AoTubeActivity.YOUTUBEID_PARAM, aoThread.getString(TimelinePost.YOUTUBE_ID));
+                        context.startActivity(i);
+                    }
+                });
+            } else if (aoThread.getJSONObject(TimelinePost.LINK) != null) {
+                PostUtils.loadLinkIntoLinkLayout(context, aoThread, viewHolder.llLinkLayout);
+                //ABRIR LINK
+                try {
+                    if (!aoThread.getJSONObject(TimelinePost.LINK).getString("url").equals("")) {
+                        final String link = aoThread.getJSONObject(TimelinePost.LINK).getString("url");
+                        viewHolder.llLinkLayout.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
+                                context.startActivity(browserIntent);
+                            }
+                        });
+                    }
+                } catch (JSONException jex) {
+                    jex.printStackTrace();
+                }
+            }
         } else {
             viewHolder.tvThreadText.setVisibility(View.VISIBLE);
-            viewHolder.tvThreadText.setText(content);
-        }
-
-        if(aoThread.getParseFile(TimelinePost.IMAGE) != null) {
-            //File
-            ThreadUtils.loadThreadImageFileToImageView(context,aoThread,viewHolder.sdvThreadImageGif,viewHolder.ivThreadImage, viewHolder.ivPlay,true,false);
-        } else if(aoThread.getJSONArray(TimelinePost.IMAGES) != null  && aoThread.getJSONArray(TimelinePost.IMAGES) .length()>0 ) {
-            ThreadUtils.loadThreadImageURLToImageView(context,aoThread,viewHolder.sdvThreadImageGif,viewHolder.ivThreadImage, viewHolder.ivPlay,true,false);
-        } else if(aoThread.getString(TimelinePost.YOUTUBE_ID) != null) {
-            PostUtils.loadYoutubeImageIntoImageView(context,aoThread,viewHolder.ivThreadImage, viewHolder.ivPlay);
-            viewHolder.ivThreadImage.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent i = new Intent(context, AoTubeActivity.class);
-                    i.putExtra(AoTubeActivity.YOUTUBEID_PARAM, aoThread.getString(TimelinePost.YOUTUBE_ID));
-                    context.startActivity(i);
-                }
-            });
-        }else if (aoThread.getJSONObject(TimelinePost.LINK) != null) {
-            PostUtils.loadLinkIntoLinkLayout(context,aoThread,viewHolder.llLinkLayout);
-            //ABRIR LINK
-            try {
-                if (!aoThread.getJSONObject(TimelinePost.LINK).getString("url").equals("")) {
-                    final String link = aoThread.getJSONObject(TimelinePost.LINK).getString("url");
-                    viewHolder.llLinkLayout.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(link));
-                            context.startActivity(browserIntent);
-                        }
-                    });
-                }
-            }
-            catch (JSONException jex) {
-                jex.printStackTrace();
-            }
+            viewHolder.tvThreadText.setText(aoThread.getParseObject(AoThread.EPISODE).getString("overview"));
+            viewHolder.tvThreadText.setMaxLines(5);
+            viewHolder.tvThreadText.setEllipsize(TextUtils.TruncateAt.END);
+            Glide.with(context).load(aoThread.getParseObject(AoThread.EPISODE).getString("screenshot")).crossFade()
+                    .fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(viewHolder.ivThreadImage);
+            viewHolder.ivThreadImage.setVisibility(View.VISIBLE);
         }
 
         //Load Upvote/Downvote/Comments

@@ -29,6 +29,7 @@ import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.FirstActivity;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.MainActivity;
+import com.everfox.aozoraforums.activities.ThreadActivity;
 import com.everfox.aozoraforums.activities.TimelinePostActivity;
 import com.everfox.aozoraforums.adapters.NotificationsAdapter;
 import com.everfox.aozoraforums.adapters.TimelinePostsAdapter;
@@ -38,6 +39,7 @@ import com.everfox.aozoraforums.controllers.ProfileParseHelper;
 import com.everfox.aozoraforums.controls.AoLinearLayoutManager;
 import com.everfox.aozoraforums.models.AoNotification;
 import com.everfox.aozoraforums.models.ParseUserColumns;
+import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.parse.ParseException;
@@ -279,6 +281,10 @@ public class NotificationsFragment extends Fragment implements NotificationsHelp
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.flContent, profileFragment).addToBackStack(null).commitAllowingStateLoss();
             }
+        } else if(notificationTaped.getString(AoNotification.TARGET_CLASS).equals(Post.TABLE_NAME)) {
+            Intent i = new Intent(getActivity(), ThreadActivity.class);
+            i.putExtra(ThreadActivity.EXTRA_POST_ID, notificationTaped.getString(AoNotification.TARGET_ID));
+            startActivity(i);
         }
     }
 }

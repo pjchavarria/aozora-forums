@@ -54,8 +54,10 @@ import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.utils.AoConstants;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.everfox.aozoraforums.utils.PostUtils;
+import com.parse.GetCallback;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 
 import java.util.ArrayList;
@@ -68,6 +70,7 @@ public class ThreadActivity extends AozoraActivity implements AoThreadAdapter.On
 AoThreadAdapter.OnCommentTappedListener, AoThreadAdapter.OnUpDownVoteListener, AoThreadAdapter.OnItemLongClickListener, OptionListDialogFragment.OnListSelectedListener,
 PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAdapter.OnImageShareListener, AoThreadAdapter.OnAddPostTappedListener, AddPostThreadHelper.OnPerformPost{
 
+    public static String EXTRA_POST_ID = "PostID";
     private static final int REQUEST_EDIT_THREAD_REPLY = 504;
     private static final int REQUEST_EDIT_THREAD = 503;
     private static final int REQUEST_WRITE_STORAGE = 100;
@@ -111,11 +114,11 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
         setContentView(R.layout.activity_thread_post);
         ButterKnife.bind(this);
         parentThread = AozoraForumsApp.getThreadToPass();
-        if(parentThread == null) {
+        String postID = getIntent().getStringExtra(EXTRA_POST_ID);
+        if(parentThread == null && postID == null) {
             AoUtils.startMainActivity(this);
             return;
         }
-        hasMenu = parentThread.getHasMenu();
         llm = new AoLinearLayoutManager(this);
         rvThreadComments.setLayoutManager(llm);
         aoThreadAdapter = new AoThreadAdapter(this,new ArrayList<ParseObject>(),this);
@@ -128,7 +131,6 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
                     reloadThread();
             }
         });
-        new ThreadHelper(this,this,null).GetThreadComments(parentThread,0,2000);
         getSupportFragmentManager().addOnBackStackChangedListener(new FragmentManager.OnBackStackChangedListener() {
             @Override
             public void onBackStackChanged() {
@@ -141,10 +143,37 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
                 }
             }
         });
-        initAddCommentControls();
-
         isLoading = true;
+        if(parentThread != null) {
+            hasMenu = parentThread.getHasMenu();
+            new ThreadHelper(this, this, null).GetThreadComments(parentThread, 0, 2000);
+            initAddCommentControls();
+        }
+        else {
+            ParseQuery<Post> postParseQuery = ParseQuery.getQuery(Post.class);
+            postParseQuery.whereEqualTo(TimelinePost.OBJECT_ID,postID);
+            postParseQuery.include(Post.THREAD);
+            postParseQuery.include(Post.THREAD+"."+AoThread.TAGS);
+            postParseQuery.include(Post.THREAD+"."+AoThread.STARTEDBY);
+            postParseQuery.include(Post.THREAD+"."+AoThread.POSTEDBY);
+            postParseQuery.include(Post.THREAD+"."+AoThread.LASTPOSTEDBY);
+            postParseQuery.include(Post.THREAD+"."+AoThread.EPISODE);
+            postParseQuery.getFirstInBackground(new GetCallback<Post>() {
+                @Override
+                public void done(Post object, ParseException e) {
+                    if(object != null && e==null) {
+                       parentThread = (AoThread)object.getParseObject(Post.THREAD);
+                        setTitle(parentThread.getString(AoThread.TITLE));
+                        new ThreadHelper(ThreadActivity.this, ThreadActivity.this, null).GetThreadComments(parentThread, 0, 2000);
+                        initAddCommentControls();
 
+                    } else {
+                        Toast.makeText(ThreadActivity.this,"A problem occured, try again later",Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                }
+            });
+        }
 
     }
 

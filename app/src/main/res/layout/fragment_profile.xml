@@ -277,7 +277,7 @@
 
                             <TextView
                                 android:text="FOLLOWING"
-                                android:layout_marginStart="2dp"
+                                android:layout_marginStart="4dp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/grayC5" />
@@ -297,7 +297,7 @@
 
                             <TextView
                                 android:text="FOLLOWERS"
-                                android:layout_marginStart="2dp"
+                                android:layout_marginStart="4dp"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/grayC5"
