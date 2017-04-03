@@ -1,14 +1,12 @@
 package com.everfox.aozoraforums.activities;
 
 import android.content.ActivityNotFoundException;
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -16,12 +14,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
-import com.everfox.aozoraforums.FirstActivity;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.utils.AoUtils;
-import com.parse.ParseException;
-import com.parse.ParseObject;
-import com.parse.ParseUser;
+import com.everfox.aozoraforums.utils.PurchaseUtils;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -69,6 +66,13 @@ public class SettingsActivity extends AozoraActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+        if (!PurchaseUtils.purchasedProduct(this, PurchaseUtils.PRODUCT_NO_ADS)) {
+            AdView mAdView = (AdView) findViewById(R.id.adView);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+        }
+
         ButterKnife.bind(this);
         setTitle("Settings");
         Typeface typeface = AozoraForumsApp.getAwesomeTypeface();

@@ -84,29 +84,6 @@
         >
 
         <RelativeLayout
-            android:id="@+id/rlFacebook"
-            android:background="@drawable/button_facebook_background"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="5dp">
-            <ImageView
-                android:layout_marginEnd="8dp"
-                android:layout_toStartOf="@+id/tvFacebookButtonMessage"
-                android:layout_width="wrap_content"
-                android:layout_height="30dp"
-                android:src="@drawable/facebook"/>
-            <TextView
-                android:id="@+id/tvFacebookButtonMessage"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:textColor="#FFFFFF"
-                android:text="Sign up or Login with Facebook"/>
-        </RelativeLayout>
-
-
-
-        <RelativeLayout
             android:id="@+id/rlMailSignUp"
             android:background="@drawable/button_white_rounded_corner"
             android:layout_width="match_parent"

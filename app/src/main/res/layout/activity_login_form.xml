@@ -60,4 +60,30 @@
             android:text="@string/activity_loginForm_btnLogin_Text"/>
     </LinearLayout>
 
+
+    <RelativeLayout
+        android:id="@+id/rlFacebook"
+        android:background="@drawable/button_facebook_background"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="20dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginBottom="40dp">
+        <ImageView
+            android:layout_marginEnd="8dp"
+            android:layout_toStartOf="@+id/tvFacebookButtonMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:src="@drawable/facebook"/>
+        <TextView
+            android:id="@+id/tvFacebookButtonMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:textColor="#FFFFFF"
+            android:text="Login with Facebook"/>
+    </RelativeLayout>
+
 </RelativeLayout>
