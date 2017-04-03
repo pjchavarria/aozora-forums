@@ -16,6 +16,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
@@ -26,7 +27,10 @@ import com.everfox.aozoraforums.fragments.NotificationsFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.fragments.UserListFragment;
 import com.everfox.aozoraforums.utils.AoUtils;
+import com.everfox.aozoraforums.utils.PurchaseUtils;
 import com.facebook.common.util.ExceptionWithNoStacktrace;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.AdView;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
 
@@ -47,6 +51,17 @@ public class MainActivity extends AozoraActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (!PurchaseUtils.purchasedProduct(this, PurchaseUtils.PRODUCT_NO_ADS)) {
+            AdView mAdView = (AdView) findViewById(R.id.adView);
+            AdRequest adRequest = new AdRequest.Builder().build();
+            mAdView.loadAd(adRequest);
+            flContent = (FrameLayout) findViewById(R.id.flContent);
+            RelativeLayout.LayoutParams llp = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.MATCH_PARENT, RelativeLayout.LayoutParams.MATCH_PARENT);
+            llp.setMargins(0,0,0,200);
+            flContent.setLayoutParams(llp);
+        }
+
         ParseInstallation installation = ParseInstallation.getCurrentInstallation();
         installation.put("user",ParseUser.getCurrentUser());
         installation.saveInBackground();

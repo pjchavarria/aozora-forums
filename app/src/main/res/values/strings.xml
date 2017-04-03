@@ -144,4 +144,8 @@
     <string name="aoart_desc">Post anime art \nIf the work is not yours, don\'t use tags like #MyFanart </string>
 
     <string name="aonews_desc">Post anime industry related news\nInclude the source (url/video) to make your article valid</string>
+
+
+    <string name="admob_main">ca-app-pub-3538998045407451/6861879925</string>
+
 </resources>

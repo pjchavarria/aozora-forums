@@ -9,6 +9,8 @@ import android.content.SharedPreferences;
 
 public class PurchaseUtils {
 
+    public static final String PRODUCT_NO_ADS = "no_ads";
+    public static final String PRODUCT_PRO = "unlock_all";
 
     public static void purchaseProduct(Context context, String productID) {
         SharedPreferences settings = context.getSharedPreferences(PreferencesUtils.PREFS_INAPP, 0);
@@ -21,4 +23,12 @@ public class PurchaseUtils {
         SharedPreferences settings = context.getSharedPreferences(PreferencesUtils.PREFS_INAPP, 0);
         settings.edit().clear().commit();
     }
+
+    public static boolean purchasedProduct(Context context, String productID) {
+        SharedPreferences settings = context.getSharedPreferences(PreferencesUtils.PREFS_INAPP, 0);
+        Boolean pro = settings.getBoolean(PRODUCT_PRO, false);
+        Boolean product =  settings.getBoolean(productID, false);
+        return (pro || product);
+    }
+
 }

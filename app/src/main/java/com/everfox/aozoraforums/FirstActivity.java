@@ -31,7 +31,6 @@ public class FirstActivity extends AppCompatActivity {
     TextView tvJapaneseName;
     RelativeLayout rlMailSignUp;
     TextView tvLogin;
-    RelativeLayout rlFacebook;
     Typeface typeface;
     Integer FacebookRequestCode = 334;
     VideoView vvIntro;
@@ -45,39 +44,7 @@ public class FirstActivity extends AppCompatActivity {
         tvJapaneseName = (TextView) findViewById(R.id.tvJapaneseName);
         rlMailSignUp = (RelativeLayout) findViewById(R.id.rlMailSignUp);
         tvLogin = (TextView) findViewById(R.id.tvLogin);
-        rlFacebook = (RelativeLayout) findViewById(R.id.rlFacebook);
         vvIntro = (VideoView) findViewById(R.id.vvIntro);
-        rlFacebook.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                final List<String> permissions = Arrays.asList("public_profile", "email", "user_friends");
-                ParseFacebookUtils.logInWithReadPermissionsInBackground(FirstActivity.this, permissions, new LogInCallback() {
-                    @Override
-                    public void done(ParseUser user, ParseException err) {
-                        if(err == null) {
-                            if (user == null) {
-                                //Nothing
-                            } else if (user.isNew()) {
-                                //SignUp
-                                Intent i = new Intent(FirstActivity.this, SignUpFormActivity.class);
-                                AozoraForumsApp.setParseFacebookNewUser(user);
-                                startActivity(i);
-
-                                finish();
-                            } else {
-                                //Enter app
-                                Intent i = new Intent(FirstActivity.this, MainActivity.class);
-                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(i);
-                            }
-                        } else {
-                            Toast.makeText(FirstActivity.this,err.getMessage(),Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
-            }
-        });
 
         typeface = AozoraForumsApp.getAwesomeTypeface();
         tvJapaneseName.setTypeface(typeface);
@@ -100,6 +67,7 @@ public class FirstActivity extends AppCompatActivity {
 
         Uri uri = Uri.parse("android.resource://"+getPackageName()+"/"+R.raw.intro);
         vvIntro.setVideoURI(uri);
+        vvIntro.start();
     }
 
     @Override

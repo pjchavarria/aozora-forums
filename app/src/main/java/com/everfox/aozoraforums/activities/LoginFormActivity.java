@@ -1,5 +1,6 @@
 package com.everfox.aozoraforums.activities;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -9,16 +10,22 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.everfox.aozoraforums.AozoraForumsApp;
+import com.everfox.aozoraforums.FirstActivity;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.dialogfragments.SimpleLoadingDialogFragment;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.everfox.aozoraforums.utils.PurchaseUtils;
 import com.parse.LogInCallback;
 import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
 import com.parse.ParseUser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+
+import java.util.Arrays;
+import java.util.List;
 
 public class LoginFormActivity extends AppCompatActivity {
 
@@ -26,7 +33,9 @@ public class LoginFormActivity extends AppCompatActivity {
     EditText etUsername;
     EditText etPassword;
     TextView tvForgotPassword;
+    View rlFacebook;
     SimpleLoadingDialogFragment simpleLoading  = new SimpleLoadingDialogFragment();
+    Integer FacebookRequestCode = 334;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +49,39 @@ public class LoginFormActivity extends AppCompatActivity {
         etPassword = (EditText) findViewById(R.id.etPassword);
         btnLogin = (Button) findViewById(R.id.btnLogin);
         tvForgotPassword = (TextView) findViewById(R.id.tvForgotPassword);
+        rlFacebook = findViewById(R.id.rlFacebook);
 
+        rlFacebook.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                final List<String> permissions = Arrays.asList("public_profile", "email", "user_friends");
+                ParseFacebookUtils.logInWithReadPermissionsInBackground(LoginFormActivity.this, permissions, new LogInCallback() {
+                    @Override
+                    public void done(ParseUser user, ParseException err) {
+                        if(err == null) {
+                            if (user == null) {
+                                //Nothing
+                            } else if (user.isNew()) {
+                                //SignUp
+                                Intent i = new Intent(LoginFormActivity.this, SignUpFormActivity.class);
+                                AozoraForumsApp.setParseFacebookNewUser(user);
+                                startActivity(i);
+
+                                finish();
+                            } else {
+                                //Enter app
+                                Intent i = new Intent(LoginFormActivity.this, MainActivity.class);
+                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(i);
+                            }
+                        } else {
+                            Toast.makeText(LoginFormActivity.this,err.getMessage(),Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+            }
+        });
 
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,4 +190,15 @@ public class LoginFormActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        ParseFacebookUtils.onActivityResult(requestCode, resultCode, data);
+        if (resultCode != Activity.RESULT_CANCELED) {
+            if (requestCode == FacebookRequestCode) {
+            }
+        }
+    }
+
 }
