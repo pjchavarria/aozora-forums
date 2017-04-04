@@ -1,6 +1,7 @@
 package com.everfox.aozoraforums.activities;
 
 import android.content.ActivityNotFoundException;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -8,6 +9,7 @@ import android.graphics.Typeface;
 import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -15,10 +17,16 @@ import android.widget.Toast;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.util.IabHelper;
+import com.everfox.aozoraforums.util.IabResult;
+import com.everfox.aozoraforums.util.Inventory;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.everfox.aozoraforums.utils.PurchaseUtils;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -31,6 +39,8 @@ public class SettingsActivity extends AozoraActivity {
     SharedPreferences sharedPreferences;
     public static String FACEBOOK_URL = "https://m.facebook.com/AozoraApp";
     public static String FACEBOOK_PAGE_ID = "713541968752502";
+
+    IabHelper mHelper;
 
     @BindView(R.id.tvVersion)
     TextView tvVersion;
@@ -66,6 +76,14 @@ public class SettingsActivity extends AozoraActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+        mHelper = new IabHelper(this, getString(R.string.bepk));
+        mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
+            public void onIabSetupFinished(IabResult result) {
+                if (!result.isSuccess()) {
+                }
+            }
+        });
 
         if (!PurchaseUtils.purchasedProduct(this, PurchaseUtils.PRODUCT_NO_ADS)) {
             AdView mAdView = (AdView) findViewById(R.id.adView);
@@ -193,6 +211,46 @@ public class SettingsActivity extends AozoraActivity {
     private void removeAdsClicked() {
 
         //#kvn93willdoit
+        List additionalSkuList = new ArrayList();
+        additionalSkuList.add(PurchaseUtils.PRODUCT_NO_ADS);
+
+        IabHelper.QueryInventoryFinishedListener
+                mQueryFinishedListener = new IabHelper.QueryInventoryFinishedListener() {
+            public void onQueryInventoryFinished(IabResult result, Inventory inventory)
+            {
+                if (result.isFailure()) {
+                    // handle error
+                    return;
+                }
+
+                String applePrice =
+                        inventory.getSkuDetails(PurchaseUtils.PRODUCT_NO_ADS).getPrice();
+
+                // update the UI
+                AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+                builder.setTitle("Buy No Ads");
+                builder.setMessage("Remove ads at " + applePrice);
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                });
+                builder.setPositiveButton("Buy", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                });
+            }
+        };
+
+        try {
+            mHelper.queryInventoryAsync(true, additionalSkuList, null,
+                    mQueryFinishedListener);
+        } catch (IabHelper.IabAsyncInProgressException e) {
+            e.printStackTrace();
+        }
     }
 
     private void showDialogWithText(String string) {
@@ -236,6 +294,17 @@ public class SettingsActivity extends AozoraActivity {
         Intent LaunchIntent = getPackageManager()
                 .getLaunchIntentForPackage(packageName);
         startActivity(LaunchIntent);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mHelper != null) try {
+            mHelper.dispose();
+        } catch (IabHelper.IabAsyncInProgressException e) {
+            e.printStackTrace();
+        }
+        mHelper = null;
     }
 
 }
