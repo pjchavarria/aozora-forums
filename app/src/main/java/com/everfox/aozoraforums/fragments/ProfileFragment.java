@@ -371,9 +371,15 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
                     if(isFollowing) {
                         tvFollow.setText(getString(R.string.fa_plus) + " Follow");
                         isFollowing = false;
+                        int followers = Integer.valueOf(tvFollowers.getText().toString());
+                        tvFollowers.setText(String.valueOf(followers-1));
+
                     } else {
                         tvFollow.setText(getString(R.string.fa_check) + " Following");
                         isFollowing = true;
+                        int followers = Integer.valueOf(tvFollowers.getText().toString());
+                        tvFollowers.setText(String.valueOf(followers+1));
+
                     }
                 }
             });

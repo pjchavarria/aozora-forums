@@ -64,5 +64,6 @@ public class AoThread extends ParseObject {
     public static final String VIEWS = "views";
     public static final String UPDATEDAT = "updatedAt";
     public static final String EDITED = "edited";
+    public static final String EPISODE = "episode";
     public static final String LOCKED = "locked";
 }

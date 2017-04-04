@@ -23,6 +23,7 @@ public class Post extends ParseObject {
         this.replies = replies;
     }
 
+    public static final String TABLE_NAME = "Post";
     public static final String THREAD = "thread";
     public static final String PARENTPOST = "parentPost";
     public static final String CREATEDAT = "createdAt";
