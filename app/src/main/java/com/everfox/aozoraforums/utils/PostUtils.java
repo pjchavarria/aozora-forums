@@ -71,7 +71,7 @@ public class PostUtils {
     public static void loadYoutubeImageIntoImageView(Context context, ParseObject post, ImageView imageView, ImageView ivPlayVideo) {
         String youtubeID = post.getString(TimelinePost.YOUTUBE_ID);
         String urlImage = URL_YOUTUBE_THUMBNAILS.replace("YOUTUBE_ID",youtubeID);
-        Glide.with(context).load(urlImage).crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+        Glide.with(context.getApplicationContext()).load(urlImage).crossFade().fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
         imageView.requestLayout();
         ivPlayVideo.setVisibility(View.VISIBLE);
         imageView.setVisibility(View.VISIBLE);
@@ -104,14 +104,14 @@ public class PostUtils {
                 if(  (  (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT ||
                         (jsonHeight> 1500 || jsonWidth > 1500) )
                         && !isComment && !fullscreen)
-                    Glide.with(context).load(urlImage).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                    Glide.with(context.getApplicationContext()).load(urlImage).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                 else {
                     int[] sizes =  AoUtils.getBitmapSizes(jsonHeight,jsonWidth);
                     if(sizes[0] > 0) {
-                        Glide.with(context).load(urlImage).crossFade().fitCenter().override(sizes[0], sizes[1])
+                        Glide.with(context.getApplicationContext()).load(urlImage).crossFade().fitCenter().override(sizes[0], sizes[1])
                                 .diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                     } else {
-                        Glide.with(context).load(urlImage).crossFade().fitCenter()
+                        Glide.with(context.getApplicationContext()).load(urlImage).crossFade().fitCenter()
                                 .diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                     }
 
@@ -185,16 +185,16 @@ public class PostUtils {
                             if(  (  (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT ||
                                     (jsonHeight> 1500 || jsonWidth > 1500) )
                                     && !fullscreen && !isComment)
-                                Glide.with(context).load(data).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                                Glide.with(context.getApplicationContext()).load(data).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                             else {
 
                                 int[] sizes =  AoUtils.getBitmapSizes(jsonHeight,jsonWidth);
                                     if (sizes[0] > 0) {
-                                        Glide.with(context).load(data).crossFade().fitCenter().
+                                        Glide.with(context.getApplicationContext()).load(data).crossFade().fitCenter().
                                                 override(sizes[0], sizes[1]).
                                                 diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                                     } else {
-                                        Glide.with(context).load(data).crossFade().fitCenter().
+                                        Glide.with(context.getApplicationContext()).load(data).crossFade().fitCenter().
                                                 diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                                     }
 

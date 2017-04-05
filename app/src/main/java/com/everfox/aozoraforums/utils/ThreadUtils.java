@@ -129,7 +129,7 @@ public class ThreadUtils {
 
             if(!isGif) {
 
-                Glide.with(context).load(urlImage).crossFade().centerCrop()
+                Glide.with(context.getApplicationContext()).load(urlImage).crossFade().centerCrop()
                         .diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                 imageView.setVisibility(View.VISIBLE);
                 imageView.requestLayout();
@@ -173,7 +173,7 @@ public class ThreadUtils {
                     if (e == null) {
                         if(!finalIsGif) {
 
-                            Glide.with(context).load(data).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                            Glide.with(context.getApplicationContext()).load(data).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                             imageView.setVisibility(View.VISIBLE);
                             imageView.requestLayout();
                         }
@@ -234,15 +234,15 @@ public class ThreadUtils {
                     if(  (  (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT ||
                             (jsonHeight> 1500 || jsonWidth > 1500) )
                             && !isComment && !fullscreen)
-                        Glide.with(context).load(urlImage).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                        Glide.with(context.getApplicationContext()).load(urlImage).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                     else {
 
                         int [] sizes = AoUtils.getBitmapSizes(jsonHeight,jsonWidth);
                             if (sizes[0] > 0) {
-                                Glide.with(context).load(urlImage).crossFade().override(sizes[0], sizes[1])
+                                Glide.with(context.getApplicationContext()).load(urlImage).crossFade().override(sizes[0], sizes[1])
                                         .fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                             } else {
-                                Glide.with(context).load(urlImage).crossFade()
+                                Glide.with(context.getApplicationContext()).load(urlImage).crossFade()
                                         .fitCenter().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                             }
 
@@ -327,15 +327,15 @@ public class ThreadUtils {
                                 if( (  (double) jsonHeight / (double) jsonWidth > MAX_DIFFERENCE_WIDTH_HEIGHT ||
                                         (jsonHeight> 1500 || jsonWidth > 1500) )
                                         && !fullscreen && !isComment)
-                                    Glide.with(context).load(data).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
+                                    Glide.with(context.getApplicationContext()).load(data).crossFade().centerCrop().diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                                 else {
 
                                     int [] sizes = AoUtils.getBitmapSizes(jsonHeight,jsonWidth);
                                         if (sizes[0] > 0) {
-                                            Glide.with(context).load(data).crossFade().fitCenter().override(sizes[0], sizes[1])
+                                            Glide.with(context.getApplicationContext()).load(data).crossFade().fitCenter().override(sizes[0], sizes[1])
                                                     .diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                                         } else {
-                                            Glide.with(context).load(data).crossFade().fitCenter()
+                                            Glide.with(context.getApplicationContext()).load(data).crossFade().fitCenter()
                                                     .diskCacheStrategy(DiskCacheStrategy.RESULT).into(imageView);
                                         }
 
