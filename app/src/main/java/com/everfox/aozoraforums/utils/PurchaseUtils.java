@@ -9,7 +9,7 @@ import android.content.SharedPreferences;
 
 public class PurchaseUtils {
 
-    public static final String PRODUCT_NO_ADS = "no_ads";
+    public static final String PRODUCT_NO_ADS = "no_ads_forum";
     public static final String PRODUCT_PRO = "unlock_all";
 
     public static void purchaseProduct(Context context, String productID) {
