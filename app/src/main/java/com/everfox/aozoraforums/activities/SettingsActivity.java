@@ -11,6 +11,7 @@ import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -212,13 +213,117 @@ public class SettingsActivity extends AozoraActivity {
 
 
     private void changeUsernameClicked() {
+        Log.d("Settings", "ChangeClick");
+        EditText editText;
 
-        //#kvn93willdoit
+        AlertDialog.Builder change = new AlertDialog.Builder(SettingsActivity.this);
+        editText = new EditText(SettingsActivity.this);
+        change.setTitle("Change Username");
+        change.setMessage("Enter your new username");
+        change.setView(editText);
+
+        final List additionalSkuList = new ArrayList();
+        additionalSkuList.add(PurchaseUtils.PRODUCT_CHANGE_USERNAME);
+
+        final EditText finalEditText = editText;
+        final IabHelper.QueryInventoryFinishedListener
+                mQueryFinishedListener = new IabHelper.QueryInventoryFinishedListener() {
+            public void onQueryInventoryFinished(IabResult result, final Inventory inventory)
+            {
+                if (result.isFailure()) {
+                    // handle error
+                    return;
+                }
+
+                String applePrice =
+                        inventory.getSkuDetails(PurchaseUtils.PRODUCT_CHANGE_USERNAME).getPrice();
+
+                // update the UI
+                AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+                //builder.setTitle("Buy No Ads");
+                builder.setMessage("Change Username at " + applePrice);
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+
+                    }
+                });
+                builder.setPositiveButton("Confirm", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener
+                                = new IabHelper.OnIabPurchaseFinishedListener() {
+                            public void onIabPurchaseFinished(IabResult result, Purchase purchase)
+                            {
+                                if (result.isFailure()) {
+                                    return;
+                                }
+                                else if (purchase.getSku().equals(PurchaseUtils.PRODUCT_CHANGE_USERNAME)) {
+                                    IabHelper.OnConsumeFinishedListener mConsumeFinishedListener =
+                                            new IabHelper.OnConsumeFinishedListener() {
+                                                public void onConsumeFinished(Purchase purchase, IabResult result) {
+                                                    if (result.isSuccess()) {
+                                                        // provision the in-app purchase to the user
+                                                        // (for example, credit 50 gold coins to player's character)
+                                                        ParseUser user = ParseUser.getCurrentUser();
+                                                        user.put("unlockContent", finalEditText.getText().toString());
+                                                        user.saveInBackground(new SaveCallback() {
+                                                            @Override
+                                                            public void done(ParseException e) {
+                                                                if (e != null) {
+                                                                    //Yey
+                                                                } else {
+                                                                    //Safe in local
+                                                                }
+                                                            }
+                                                        });
+                                                    }
+                                                    else {
+                                                        // handle error
+                                                    }
+                                                }
+                                            };
+                                    try {
+                                        mHelper.consumeAsync(inventory.getPurchase(PurchaseUtils.PRODUCT_CHANGE_USERNAME), mConsumeFinishedListener);
+                                    } catch (IabHelper.IabAsyncInProgressException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            }
+                        };
+                        try {
+                            mHelper.launchPurchaseFlow(SettingsActivity.this, PurchaseUtils.PRODUCT_CHANGE_USERNAME, 10001, mPurchaseFinishedListener, "");
+                        } catch (IabHelper.IabAsyncInProgressException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+                builder.show();
+            }
+        };
+
+
+        change.setPositiveButton("Update Username", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                try {
+                    mHelper.queryInventoryAsync(true, additionalSkuList, null,
+                            mQueryFinishedListener);
+                } catch (IabHelper.IabAsyncInProgressException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        change.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        change.show();
     }
 
     private void removeAdsClicked() {
-
-        //#kvn93willdoit
         List additionalSkuList = new ArrayList();
         additionalSkuList.add(PurchaseUtils.PRODUCT_NO_ADS);
 

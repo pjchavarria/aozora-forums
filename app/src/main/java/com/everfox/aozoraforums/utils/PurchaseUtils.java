@@ -11,6 +11,7 @@ public class PurchaseUtils {
 
     public static final String PRODUCT_NO_ADS = "no_ads_forum";
     public static final String PRODUCT_PRO = "unlock_all";
+    public static final String PRODUCT_CHANGE_USERNAME = "change_username";
 
     public static void purchaseProduct(Context context, String productID) {
         SharedPreferences settings = context.getSharedPreferences(PreferencesUtils.PREFS_INAPP, 0);

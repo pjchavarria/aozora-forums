@@ -13,7 +13,10 @@
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="com.android.vending.BILLING" />
     <uses-permission android:name="com.everfox.aozoraforums.permission.C2D_MESSAGE" />
-    <permission android:protectionLevel="signature" android:name="com.everfox.aozoraforums.permission.C2D_MESSAGE" />
+
+    <permission
+        android:name="com.everfox.aozoraforums.permission.C2D_MESSAGE"
+        android:protectionLevel="signature" />
 
     <application
         android:name=".AozoraForumsApp"
@@ -23,7 +26,9 @@
         android:largeHeap="true"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <meta-data android:name="com.parse.push.notification_icon" android:resource="@drawable/notification_icon"/>
+        <meta-data
+            android:name="com.parse.push.notification_icon"
+            android:resource="@drawable/notification_icon" />
         <meta-data
             android:name="com.everfox.aozoraforums.utils.MyGlideModule"
             android:value="MyGlideModule" />
@@ -108,11 +113,10 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".activities.postthread.SearchYoutubeActivity"
             android:configChanges="orientation"
-            android:screenOrientation="portrait"></activity>
+            android:screenOrientation="portrait" />
 
         <meta-data
             android:name="io.fabric.ApiKey"
@@ -123,15 +127,15 @@
                 <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
             </intent-filter>
         </service>
-        <service
-            android:name=".firebase.AoForumsMessagingService">
+        <service android:name=".firebase.AoForumsMessagingService">
             <intent-filter>
-                <action android:name="com.google.firebase.MESSAGING_EVENT"/>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
             </intent-filter>
         </service>
-
         <service android:name="com.parse.PushService" />
-        <receiver android:name="com.parse.ParsePushBroadcastReceiver"
+
+        <receiver
+            android:name="com.parse.ParsePushBroadcastReceiver"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.parse.push.intent.RECEIVE" />
@@ -139,22 +143,27 @@
                 <action android:name="com.parse.push.intent.OPEN" />
             </intent-filter>
         </receiver>
-        <receiver android:name="com.parse.GcmBroadcastReceiver"
+        <receiver
+            android:name="com.parse.GcmBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND">
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
                 <action android:name="com.google.android.c2dm.intent.REGISTRATION" />
+
                 <category android:name="com.everfox.aozoraforums" />
             </intent-filter>
         </receiver>
-        <meta-data android:name="com.parse.push.gcm_sender_id"
-            android:value="id:1004335320504" />;
 
+        <meta-data
+            android:name="com.parse.push.gcm_sender_id"
+            android:value="id:1004335320504" />
+        ;
         <activity
             android:name=".activities.postthread.SelectTagActivity"
             android:configChanges="orientation"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".activities.GoProActivity"></activity>
     </application>
 
 </manifest>
