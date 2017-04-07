@@ -78,6 +78,8 @@ public class SettingsActivity extends AozoraActivity {
     TextView tvLikeFacebook;
     @BindView(R.id.tvRestorePurchases)
     TextView tvRestorePurchases;
+    @BindView(R.id.tvGoPro)
+    TextView tvGoPro;
 
 
     @Override
@@ -180,6 +182,14 @@ public class SettingsActivity extends AozoraActivity {
             @Override
             public void onClick(View view) {
                 showDialogWithText(R.string.app_inconstruction);
+            }
+        });
+
+        tvGoPro.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(SettingsActivity.this, GoProActivity.class);
+                startActivity(intent);
             }
         });
 

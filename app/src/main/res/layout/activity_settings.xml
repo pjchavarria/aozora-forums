@@ -115,6 +115,16 @@
             android:textColor="@color/gray3C"
             />
 
+        <TextView
+            android:id="@+id/tvGoPro"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Unlock Features"
+            android:textSize="18sp"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:textColor="@color/gray3C"
+            />
 
         <TextView
             android:layout_width="wrap_content"

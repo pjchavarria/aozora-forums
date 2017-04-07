@@ -163,7 +163,8 @@
             android:configChanges="orientation"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".activities.GoProActivity"></activity>
+        <activity android:name=".activities.GoProActivity"
+            android:theme="@style/AppTheme.Transparent"></activity>
     </application>
 
 </manifest>
