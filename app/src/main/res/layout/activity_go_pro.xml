@@ -36,19 +36,21 @@
 
             <android.support.v4.view.ViewPager
                 android:layout_width="match_parent"
-                android:layout_height="200dp"></android.support.v4.view.ViewPager>
+                android:layout_height="250dp"
+                android:id="@+id/vpPro"></android.support.v4.view.ViewPager>
 
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/inapp_blue">
+                android:background="@color/inapp_blue"
+                android:id="@+id/gopro_view">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:id="@+id/tv_pro_price"
                     android:gravity="center"
-                    android:text="USD4.99"
+                    android:text="loading"
                     android:layout_centerHorizontal="true"
                     android:textColor="@color/colorWhite"
                     android:layout_margin="12dp"/>
@@ -70,13 +72,14 @@
         <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/inapp_blue_darker">
+            android:background="@color/inapp_blue_darker"
+            android:id="@+id/gopro_plus_view">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/tv_pro_plus_price"
-                android:text="USD5.99"
+                android:text="loading"
                 android:layout_centerHorizontal="true"
                 android:textColor="@color/colorWhite"
                 android:layout_margin="12dp"/>

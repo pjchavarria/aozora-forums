@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
+import com.everfox.aozoraforums.models.PUser;
 import com.everfox.aozoraforums.util.IabHelper;
 import com.everfox.aozoraforums.util.IabResult;
 import com.everfox.aozoraforums.util.Inventory;
@@ -26,7 +27,10 @@ import com.everfox.aozoraforums.utils.AoUtils;
 import com.everfox.aozoraforums.utils.PurchaseUtils;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.parse.FindCallback;
 import com.parse.ParseException;
+import com.parse.ParseFacebookUtils;
+import com.parse.ParseQuery;
 import com.parse.ParseUser;
 import com.parse.SaveCallback;
 
@@ -221,16 +225,32 @@ public class SettingsActivity extends AozoraActivity {
         }
     }
 
-
+    EditText editText;
     private void changeUsernameClicked() {
-        Log.d("Settings", "ChangeClick");
-        EditText editText;
+
 
         AlertDialog.Builder change = new AlertDialog.Builder(SettingsActivity.this);
         editText = new EditText(SettingsActivity.this);
         change.setTitle("Change Username");
         change.setMessage("Enter your new username");
         change.setView(editText);
+
+        change.setPositiveButton("Update Username", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+            CheckUserNameAvailability(editText.getText().toString());
+            }
+        });
+        change.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+
+            }
+        });
+        change.show();
+    }
+
+    private boolean CheckUserNameAvailability(String newUsername) {
 
         final List additionalSkuList = new ArrayList();
         additionalSkuList.add(PurchaseUtils.PRODUCT_CHANGE_USERNAME);
@@ -244,7 +264,11 @@ public class SettingsActivity extends AozoraActivity {
                     // handle error
                     return;
                 }
-
+                /*try {
+                    mHelper.consumeAsync(inventory.getPurchase(PurchaseUtils.PRODUCT_CHANGE_USERNAME), null);
+                } catch (IabHelper.IabAsyncInProgressException e) {
+                    e.printStackTrace();
+                }*/
                 String applePrice =
                         inventory.getSkuDetails(PurchaseUtils.PRODUCT_CHANGE_USERNAME).getPrice();
 
@@ -276,7 +300,10 @@ public class SettingsActivity extends AozoraActivity {
                                                         // provision the in-app purchase to the user
                                                         // (for example, credit 50 gold coins to player's character)
                                                         ParseUser user = ParseUser.getCurrentUser();
-                                                        user.put("unlockContent", finalEditText.getText().toString());
+                                                        user.put("aozoraUsername", finalEditText.getText().toString());
+                                                        if (!ParseFacebookUtils.isLinked(user)) {
+                                                            user.put("username", finalEditText.getText().toString().toLowerCase());
+                                                        }
                                                         user.saveInBackground(new SaveCallback() {
                                                             @Override
                                                             public void done(ParseException e) {
@@ -312,25 +339,42 @@ public class SettingsActivity extends AozoraActivity {
             }
         };
 
-
-        change.setPositiveButton("Update Username", new DialogInterface.OnClickListener() {
+        ParseQuery<PUser> query = ParseQuery.getQuery("User");
+        Log.d("Settigs", "Change " + newUsername);
+        query.whereEqualTo("username", newUsername);
+        query.findInBackground(new FindCallback<PUser>() {
             @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                try {
-                    mHelper.queryInventoryAsync(true, additionalSkuList, null,
-                            mQueryFinishedListener);
-                } catch (IabHelper.IabAsyncInProgressException e) {
-                    e.printStackTrace();
+            public void done(List<PUser> objects, ParseException e) {
+                if (e != null) {
+                    Log.d("Exception", e.getMessage());
                 }
-            }
-        });
-        change.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
+                if (objects != null && objects.size() != 0) {
+                    AlertDialog.Builder alert = new AlertDialog.Builder(SettingsActivity.this).setMessage("This username is not available.");
+                    alert.create().show();
+                } else {
+                    ParseQuery<PUser> query2 = ParseQuery.getQuery("User");
+                    query2.whereMatches("aozoraUsername", "^\\(newUsername)$");
+                    query2.findInBackground(new FindCallback<PUser>() {
+                        @Override
+                        public void done(List<PUser> objects, ParseException e) {
+                            if (objects != null && objects.size() != 0) {
+                                AlertDialog.Builder alert = new AlertDialog.Builder(SettingsActivity.this).setMessage("This username is not available.");
+                                alert.create().show();
+                            } else {
+                                try {
+                                    mHelper.queryInventoryAsync(true, additionalSkuList, null,
+                                            mQueryFinishedListener);
+                                } catch (IabHelper.IabAsyncInProgressException ex) {
+                                    ex.printStackTrace();
+                                }
+                            }
+                        }
+                    });
+                }
 
             }
         });
-        change.show();
+        return true;
     }
 
     private void removeAdsClicked() {
@@ -392,6 +436,10 @@ public class SettingsActivity extends AozoraActivity {
                                                 }
                                             }
                                         });
+                                        Intent i = new Intent(SettingsActivity.this, MainActivity.class);
+                                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                        startActivity(i);
                                     } catch (JSONException e) {
                                         e.printStackTrace();
                                     }
@@ -432,6 +480,10 @@ public class SettingsActivity extends AozoraActivity {
                     // update UI accordingly
                     if (inventory.hasPurchase(PurchaseUtils.PRODUCT_NO_ADS)) {
                         PurchaseUtils.purchaseProduct(SettingsActivity.this, PurchaseUtils.PRODUCT_NO_ADS);
+                    } else if (inventory.hasPurchase(PurchaseUtils.PRODUCT_PRO)) {
+                        PurchaseUtils.purchaseProduct(SettingsActivity.this, PurchaseUtils.PRODUCT_PRO);
+                    } else if (inventory.hasPurchase(PurchaseUtils.PRODUCT_PRO_PLUS)) {
+                        PurchaseUtils.purchaseProduct(SettingsActivity.this, PurchaseUtils.PRODUCT_PRO_PLUS);
                     }
                 }
             }
@@ -510,6 +562,19 @@ public class SettingsActivity extends AozoraActivity {
             e.printStackTrace();
         }
         mHelper = null;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (mHelper == null) return;
+
+        // Pass on the activity result to the helper for handling
+        if (!mHelper.handleActivityResult(requestCode, resultCode, data)) {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+        else {
+            Log.d("GoPro", "onActivityResult handled by IABUtil.");
+        }
     }
 
 }

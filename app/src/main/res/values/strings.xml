@@ -151,4 +151,7 @@
 
     <string name="pro_desc"><b><i>Remove all ads</i></b>, get a <b><i>PRO badge</i></b> showing the community your support and more importantly helps us! <b><i>take this app to the next level</i></b>!</string>
 
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+
 </resources>
