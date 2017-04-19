@@ -172,7 +172,7 @@
                                 android:layout_height="wrap_content"
                                 android:text="PRO+"
                                 android:layout_toEndOf="@+id/tvPopularity"
-                                android:background="@drawable/text_yellow_rounded_corner"
+                                android:background="@drawable/text_orange_rounded_corner"
                                 android:layout_marginStart="5dp"
                                 android:padding="5dp"
                                 android:textColor="@color/colorWhite"

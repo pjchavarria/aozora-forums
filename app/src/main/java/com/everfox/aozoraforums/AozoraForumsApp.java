@@ -14,6 +14,7 @@ import com.everfox.aozoraforums.models.Post;
 import com.everfox.aozoraforums.models.TimelinePost;
 import com.everfox.aozoraforums.models.UserDetails;
 import com.everfox.aozoraforums.utils.AoUtils;
+import com.everfox.aozoraforums.utils.PurchaseUtils;
 import com.facebook.drawee.backends.pipeline.Fresco;
 import com.facebook.imagepipeline.backends.okhttp3.OkHttpImagePipelineConfigFactory;
 import com.facebook.imagepipeline.core.ImagePipelineConfig;
@@ -247,6 +248,7 @@ public class AozoraForumsApp extends Application {
     }
 
     public static void cleanValues() {
+
         parseFacebookNewUser = null;
         timelinePostToPass = null;
         threadToPass = null;

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:ads="http://schemas.android.com/apk/res-auto"
     android:id="@+id/activity_settings"
@@ -9,6 +9,11 @@
     android:background="@color/colorWhite"
     tools:context="com.everfox.aozoraforums.activities.SettingsActivity">
 
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/adView"
+        >
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -160,7 +165,7 @@
                 android:layout_weight="0.9"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="Go to AoTracking"
+                android:text="Aozora Anime Tracker"
                 android:textSize="18sp"
                 android:paddingBottom="10dp"
                 android:paddingTop="10dp"
@@ -175,6 +180,7 @@
                 android:textSize="18sp"
                 android:paddingBottom="10dp"
                 android:paddingTop="10dp"
+                android:paddingLeft="10dp"
 
                 />
         </LinearLayout>
@@ -190,7 +196,7 @@
             android:layout_weight="0.9"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Go to AoDiscover"
+            android:text="Aozora Discover"
             android:textSize="18sp"
             android:paddingBottom="10dp"
             android:paddingTop="10dp"
@@ -206,6 +212,8 @@
             android:textSize="18sp"
             android:paddingBottom="10dp"
             android:paddingTop="10dp"
+            android:paddingLeft="10dp"
+
 
             />
     </LinearLayout>
@@ -221,7 +229,7 @@
             android:layout_weight="0.9"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Go to AoTalk"
+            android:text="Aozora Talk"
             android:textSize="18sp"
             android:paddingBottom="10dp"
             android:paddingTop="10dp"
@@ -237,6 +245,7 @@
             android:textSize="18sp"
             android:paddingBottom="10dp"
             android:paddingTop="10dp"
+            android:paddingLeft="10dp"
 
             />
     </LinearLayout>
@@ -264,14 +273,19 @@
             android:textColor="@color/gray3C"
             />
 
-        <com.google.android.gms.ads.AdView
-            android:id="@+id/adView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            ads:adSize="BANNER"
-            ads:adUnitId="@string/admob_main">
-        </com.google.android.gms.ads.AdView>
 
     </LinearLayout>
-</ScrollView>
+    </ScrollView>
+
+    <com.google.android.gms.ads.AdView
+        android:id="@+id/adView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_centerHorizontal="true"
+        ads:adSize="BANNER"
+        ads:adUnitId="@string/admob_main"
+        android:layout_alignParentBottom="true"
+        >
+    </com.google.android.gms.ads.AdView>
+</RelativeLayout>

@@ -111,7 +111,6 @@ SearchImageAdapter.OnItemClickListener{
             public void onClick(View view) {
                 if(!isSearching) {
                     if (selectedSearchIndex != 1) {
-                        isSearching = true;
                         selectedSearchIndex = 1;
                         tvSearchImages.setBackgroundColor(Color.BLACK);
                         tvSearchImages.setTextColor(Color.WHITE);

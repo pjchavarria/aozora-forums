@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -99,10 +100,12 @@ public class SettingsActivity extends AozoraActivity {
             }
         });
 
+        AdView mAdView = (AdView) findViewById(R.id.adView);
         if (!PurchaseUtils.purchasedProduct(this, PurchaseUtils.PRODUCT_NO_ADS)) {
-            AdView mAdView = (AdView) findViewById(R.id.adView);
             AdRequest adRequest = new AdRequest.Builder().build();
             mAdView.loadAd(adRequest);
+        } else {
+            mAdView.setVisibility(View.GONE);
         }
 
         ButterKnife.bind(this);
@@ -115,7 +118,6 @@ public class SettingsActivity extends AozoraActivity {
         tvLogout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
                 AoUtils.logout(SettingsActivity.this);
             }
         });
@@ -157,7 +159,7 @@ public class SettingsActivity extends AozoraActivity {
         tvAoTrackingWhat.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                showDialogWithText(R.string.aotracking_desc);
+                goToMarket(AOTRACKING_PACKAGE);
             }
         });
 
@@ -211,7 +213,6 @@ public class SettingsActivity extends AozoraActivity {
             @Override
             public void onClick(View view) {
                 restorePurchases();
-                showDialogWithText("#KvnWillDoIt");
             }
         });
     }
@@ -378,90 +379,94 @@ public class SettingsActivity extends AozoraActivity {
     }
 
     private void removeAdsClicked() {
-        List additionalSkuList = new ArrayList();
-        additionalSkuList.add(PurchaseUtils.PRODUCT_NO_ADS);
 
-        IabHelper.QueryInventoryFinishedListener
-                mQueryFinishedListener = new IabHelper.QueryInventoryFinishedListener() {
-            public void onQueryInventoryFinished(IabResult result, Inventory inventory)
-            {
-                if (result.isFailure()) {
-                    // handle error
-                    return;
-                }
+        if(!PurchaseUtils.purchasedProduct(this,PurchaseUtils.PRODUCT_NO_ADS)) {
 
-                String applePrice =
-                        inventory.getSkuDetails(PurchaseUtils.PRODUCT_NO_ADS).getPrice();
+            List additionalSkuList = new ArrayList();
+            additionalSkuList.add(PurchaseUtils.PRODUCT_NO_ADS);
 
-                // update the UI
-                AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
-                builder.setTitle("Buy No Ads");
-                builder.setMessage("Remove ads at " + applePrice);
-                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
+            IabHelper.QueryInventoryFinishedListener
+                    mQueryFinishedListener = new IabHelper.QueryInventoryFinishedListener() {
+                public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
+                    if (result.isFailure()) {
+                        // handle error
+                        return;
                     }
-                });
-                builder.setPositiveButton("Buy", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener
-                                = new IabHelper.OnIabPurchaseFinishedListener() {
-                            public void onIabPurchaseFinished(IabResult result, Purchase purchase)
-                            {
-                                if (result.isFailure()) {
-                                    return;
-                                }
-                                else if (purchase.getSku().equals(PurchaseUtils.PRODUCT_NO_ADS)) {
-                                    PurchaseUtils.purchaseProduct(SettingsActivity.this, PurchaseUtils.PRODUCT_NO_ADS);
-                                    try {
-                                        final ParseUser user = ParseUser.getCurrentUser();
-                                        JSONArray jsonArray;
-                                        String unlockContent = user.getString("unlockContent");
-                                        if (unlockContent != null) {
-                                            jsonArray = new JSONArray(unlockContent);
-                                        } else {
-                                            jsonArray = new JSONArray();
-                                        }
-                                        jsonArray.put(PurchaseUtils.PRODUCT_NO_ADS);
-                                        user.put("unlockContent", jsonArray.toString());
-                                        user.saveInBackground(new SaveCallback() {
-                                            @Override
-                                            public void done(ParseException e) {
-                                                if (e != null) {
-                                                    //Yey
-                                                } else {
-                                                    //Safe in local
-                                                }
+
+                    String applePrice =
+                            inventory.getSkuDetails(PurchaseUtils.PRODUCT_NO_ADS).getPrice();
+
+                    // update the UI
+                    AlertDialog.Builder builder = new AlertDialog.Builder(SettingsActivity.this);
+                    builder.setTitle("Buy No Ads");
+                    builder.setMessage("Remove ads at " + applePrice);
+                    builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+
+                        }
+                    });
+                    builder.setPositiveButton("Buy", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialogInterface, int i) {
+                            IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener
+                                    = new IabHelper.OnIabPurchaseFinishedListener() {
+                                public void onIabPurchaseFinished(IabResult result, Purchase purchase) {
+                                    if (result.isFailure()) {
+                                        return;
+                                    } else if (purchase.getSku().equals(PurchaseUtils.PRODUCT_NO_ADS)) {
+                                        PurchaseUtils.purchaseProduct(SettingsActivity.this, PurchaseUtils.PRODUCT_NO_ADS);
+                                        try {
+                                            final ParseUser user = ParseUser.getCurrentUser();
+                                            JSONArray jsonArray;
+                                            String unlockContent = user.getString("unlockContent");
+                                            if (unlockContent != null) {
+                                                jsonArray = new JSONArray(unlockContent);
+                                            } else {
+                                                jsonArray = new JSONArray();
                                             }
-                                        });
-                                        Intent i = new Intent(SettingsActivity.this, MainActivity.class);
-                                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                        startActivity(i);
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
+                                            jsonArray.put(PurchaseUtils.PRODUCT_NO_ADS);
+                                            user.put("unlockContent", jsonArray.toString());
+                                            user.saveInBackground(new SaveCallback() {
+                                                @Override
+                                                public void done(ParseException e) {
+                                                    if (e != null) {
+                                                        //Yey
+                                                    } else {
+                                                        //Safe in local
+                                                    }
+                                                }
+                                            });
+                                            Intent i = new Intent(SettingsActivity.this, MainActivity.class);
+                                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                            startActivity(i);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
                                     }
                                 }
+                            };
+                            try {
+                                mHelper.launchPurchaseFlow(SettingsActivity.this, PurchaseUtils.PRODUCT_NO_ADS, 10001, mPurchaseFinishedListener, "");
+                            } catch (IabHelper.IabAsyncInProgressException e) {
+                                e.printStackTrace();
                             }
-                        };
-                        try {
-                            mHelper.launchPurchaseFlow(SettingsActivity.this, PurchaseUtils.PRODUCT_NO_ADS, 10001, mPurchaseFinishedListener, "");
-                        } catch (IabHelper.IabAsyncInProgressException e) {
-                            e.printStackTrace();
                         }
-                    }
-                });
-                builder.show();
-            }
-        };
+                    });
+                    builder.show();
+                }
+            };
 
-        try {
-            mHelper.queryInventoryAsync(true, additionalSkuList, null,
-                    mQueryFinishedListener);
-        } catch (IabHelper.IabAsyncInProgressException e) {
-            e.printStackTrace();
+            try {
+                mHelper.queryInventoryAsync(true, additionalSkuList, null,
+                        mQueryFinishedListener);
+            } catch (IabHelper.IabAsyncInProgressException e) {
+                e.printStackTrace();
+            }
+        } else {
+
+            showDialogWithText("You have already purchased the product. If there is any problem try Restore Purchases");
         }
     }
 
@@ -475,16 +480,13 @@ public class SettingsActivity extends AozoraActivity {
                     // handle error here
                 }
                 else {
-                    // does the user have the premium upgrade?
-                    //mIsPremium = inventory.hasPurchase(SKU_PREMIUM);
-                    // update UI accordingly
-                    if (inventory.hasPurchase(PurchaseUtils.PRODUCT_NO_ADS)) {
+                    if (inventory.hasPurchase(PurchaseUtils.PRODUCT_NO_ADS))
                         PurchaseUtils.purchaseProduct(SettingsActivity.this, PurchaseUtils.PRODUCT_NO_ADS);
-                    } else if (inventory.hasPurchase(PurchaseUtils.PRODUCT_PRO)) {
+                    if (inventory.hasPurchase(PurchaseUtils.PRODUCT_PRO))
                         PurchaseUtils.purchaseProduct(SettingsActivity.this, PurchaseUtils.PRODUCT_PRO);
-                    } else if (inventory.hasPurchase(PurchaseUtils.PRODUCT_PRO_PLUS)) {
+                    if (inventory.hasPurchase(PurchaseUtils.PRODUCT_PRO_PLUS))
                         PurchaseUtils.purchaseProduct(SettingsActivity.this, PurchaseUtils.PRODUCT_PRO_PLUS);
-                    }
+
                 }
             }
         };
@@ -501,7 +503,41 @@ public class SettingsActivity extends AozoraActivity {
             for (int i = 0; i < jsonArray.length(); i++) {
                 PurchaseUtils.purchaseProduct(this, jsonArray.getString(i));
             }
-            showDialogWithText("Purchases have been restored");
+
+            if(PurchaseUtils.purchasedProduct(this,PurchaseUtils.PRODUCT_NO_ADS))
+                if(!jsonArray.toString().contains(PurchaseUtils.PRODUCT_NO_ADS))
+                    jsonArray.put(PurchaseUtils.PRODUCT_NO_ADS);
+            if(PurchaseUtils.purchasedProduct(this,PurchaseUtils.PRODUCT_PRO))
+                if(!jsonArray.toString().contains(PurchaseUtils.PRODUCT_PRO)) {
+                    jsonArray.put(PurchaseUtils.PRODUCT_PRO);
+                    //Badge
+                    JSONArray jsonBadges = user.getJSONArray("badges");
+                    if (jsonBadges == null) {
+                        jsonBadges = new JSONArray();
+                    }
+                    if(!jsonBadges.toString().contains("\"PRO\"")) {
+                        jsonBadges.put("PRO");
+                    }
+                    user.put("badges",jsonBadges);
+                }
+            if(PurchaseUtils.purchasedProduct(this,PurchaseUtils.PRODUCT_PRO_PLUS))
+                if(!jsonArray.toString().contains(PurchaseUtils.PRODUCT_PRO_PLUS)) {
+                    jsonArray.put(PurchaseUtils.PRODUCT_PRO_PLUS);
+                    //Badge
+                    JSONArray jsonBadges = user.getJSONArray("badges");
+                    if (jsonBadges == null) {
+                        jsonBadges = new JSONArray();
+                    }
+                    if(!jsonBadges.toString().contains("\"PRO+\"")) {
+                        jsonBadges.put("PRO+");
+                    }
+                    user.put("badges",jsonBadges);
+
+                }
+            user.put("unlockContent",jsonArray.toString());
+            user.saveInBackground();
+
+            showDialogWithTextAndRestartApp("Purchases have been restored, you might have to restart the app to see changes");
         } catch (IabHelper.IabAsyncInProgressException e) {
             e.printStackTrace();
         } catch (JSONException e) {
@@ -514,6 +550,23 @@ public class SettingsActivity extends AozoraActivity {
         AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
         builder1.setMessage(string);
         builder1.setCancelable(true);
+        builder1.create().show();
+    }
+
+
+    private void showDialogWithTextAndRestartApp(String string) {
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+        builder1.setMessage(string);
+        builder1.setCancelable(true);
+        builder1.setPositiveButton("Restart", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                Intent intent = new Intent(SettingsActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+        });
         builder1.create().show();
     }
 

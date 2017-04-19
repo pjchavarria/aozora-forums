@@ -3,6 +3,7 @@ package com.everfox.aozoraforums.activities;
 import android.content.Intent;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -119,62 +120,73 @@ public class GoProActivity extends AppCompatActivity {
     }
 
     public void GoPro() {
-        IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener
-                = new IabHelper.OnIabPurchaseFinishedListener() {
-            public void onIabPurchaseFinished(IabResult result, Purchase purchase)
-            {
-                if (result.isFailure()) {
-                    return;
-                }
-                else if (purchase.getSku().equals(PurchaseUtils.PRODUCT_PRO)) {
-                    PurchaseUtils.purchaseProduct(GoProActivity.this, PurchaseUtils.PRODUCT_PRO);
-                    try {
-                        final ParseUser user = ParseUser.getCurrentUser();
-                        JSONArray jsonArray;
-                        String unlockContent = user.getString("unlockContent");
-                        if (unlockContent != null && !unlockContent.equals("")) {
-                            jsonArray = new JSONArray(unlockContent);
-                        } else {
-                            jsonArray = new JSONArray();
-                        }
-                        jsonArray.put(PurchaseUtils.PRODUCT_PRO);
-                        JSONArray jsonBadges = user.getJSONArray("badges");
-                        if (jsonBadges == null) {
-                            jsonBadges = new JSONArray();
-                        }
-                        jsonBadges.put("PRO");
 
-                        user.put("unlockContent", jsonArray.toString());
-                        user.put("badges", jsonBadges);
 
-                        user.saveInBackground(new SaveCallback() {
-                            @Override
-                            public void done(ParseException e) {
-                                if (e != null) {
-                                    //Yey
-                                } else {
-                                    //Safe in local
-                                }
+        if(!PurchaseUtils.purchasedProduct(this,PurchaseUtils.PRODUCT_PRO)) {
+            IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener
+                    = new IabHelper.OnIabPurchaseFinishedListener() {
+                public void onIabPurchaseFinished(IabResult result, Purchase purchase) {
+                    if (result.isFailure()) {
+                        return;
+                    } else if (purchase.getSku().equals(PurchaseUtils.PRODUCT_PRO)) {
+                        PurchaseUtils.purchaseProduct(GoProActivity.this, PurchaseUtils.PRODUCT_NO_ADS);
+                        PurchaseUtils.purchaseProduct(GoProActivity.this, PurchaseUtils.PRODUCT_PRO);
+                        try {
+                            final ParseUser user = ParseUser.getCurrentUser();
+                            JSONArray jsonArray;
+                            String unlockContent = user.getString("unlockContent");
+                            if (unlockContent != null && !unlockContent.equals("")) {
+                                jsonArray = new JSONArray(unlockContent);
+                            } else {
+                                jsonArray = new JSONArray();
                             }
-                        });
-                        Intent i = new Intent(GoProActivity.this, MainActivity.class);
-                        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                        startActivity(i);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+                            if(!jsonArray.toString().contains(PurchaseUtils.PRODUCT_NO_ADS))
+                                jsonArray.put(PurchaseUtils.PRODUCT_NO_ADS);
+                            jsonArray.put(PurchaseUtils.PRODUCT_PRO);
+                            JSONArray jsonBadges = user.getJSONArray("badges");
+                            if (jsonBadges == null) {
+                                jsonBadges = new JSONArray();
+                            }
+                            jsonBadges.put("PRO");
+
+                            user.put("unlockContent", jsonArray.toString());
+                            user.put("badges", jsonBadges);
+
+                            user.saveInBackground(new SaveCallback() {
+                                @Override
+                                public void done(ParseException e) {
+                                    if (e != null) {
+                                        //Yey
+                                    } else {
+                                        //Safe in local
+                                    }
+                                }
+                            });
+                            Intent i = new Intent(GoProActivity.this, MainActivity.class);
+                            i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(i);
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
+            };
+            try {
+                mHelper.launchPurchaseFlow(GoProActivity.this, PurchaseUtils.PRODUCT_PRO, 10001, mPurchaseFinishedListener, "");
+            } catch (IabHelper.IabAsyncInProgressException e) {
+                e.printStackTrace();
             }
-        };
-        try {
-            mHelper.launchPurchaseFlow(GoProActivity.this, PurchaseUtils.PRODUCT_PRO, 10001, mPurchaseFinishedListener, "");
-        } catch (IabHelper.IabAsyncInProgressException e) {
-            e.printStackTrace();
+        } else {
+
+            showDialogWithText("You have already purchased the product. If there is any problem try Restore Purchases");
         }
+
     }
 
     public void GoProPlus() {
+
+        if(!PurchaseUtils.purchasedProduct(this,PurchaseUtils.PRODUCT_PRO_PLUS)) {
         IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener
                 = new IabHelper.OnIabPurchaseFinishedListener() {
             public void onIabPurchaseFinished(IabResult result, Purchase purchase)
@@ -183,6 +195,8 @@ public class GoProActivity extends AppCompatActivity {
                     return;
                 }
                 else if (purchase.getSku().equals(PurchaseUtils.PRODUCT_PRO_PLUS)) {
+                    PurchaseUtils.purchaseProduct(GoProActivity.this, PurchaseUtils.PRODUCT_NO_ADS);
+                    PurchaseUtils.purchaseProduct(GoProActivity.this, PurchaseUtils.PRODUCT_PRO);
                     PurchaseUtils.purchaseProduct(GoProActivity.this, PurchaseUtils.PRODUCT_PRO_PLUS);
                     try {
                         final ParseUser user = ParseUser.getCurrentUser();
@@ -193,6 +207,10 @@ public class GoProActivity extends AppCompatActivity {
                         } else {
                             jsonArray = new JSONArray();
                         }
+                        if(!jsonArray.toString().contains(PurchaseUtils.PRODUCT_NO_ADS))
+                            jsonArray.put(PurchaseUtils.PRODUCT_NO_ADS);
+                        if(!jsonArray.toString().contains(PurchaseUtils.PRODUCT_PRO))
+                            jsonArray.put(PurchaseUtils.PRODUCT_PRO);
                         jsonArray.put(PurchaseUtils.PRODUCT_PRO_PLUS);
                         JSONArray jsonBadges = user.getJSONArray("badges");
                         if (jsonBadges == null) {
@@ -221,10 +239,14 @@ public class GoProActivity extends AppCompatActivity {
                 }
             }
         };
-        try {
-            mHelper.launchPurchaseFlow(GoProActivity.this, PurchaseUtils.PRODUCT_PRO_PLUS, 10001, mPurchaseFinishedListener, "");
-        } catch (IabHelper.IabAsyncInProgressException e) {
-            e.printStackTrace();
+            try {
+                mHelper.launchPurchaseFlow(GoProActivity.this, PurchaseUtils.PRODUCT_PRO_PLUS, 10001, mPurchaseFinishedListener, "");
+            } catch (IabHelper.IabAsyncInProgressException e) {
+                e.printStackTrace();
+            }
+        } else {
+
+            showDialogWithText("You have already purchased the product. If there is any problem try Restore Purchases");
         }
     }
 
@@ -259,5 +281,13 @@ public class GoProActivity extends AppCompatActivity {
             Log.d("GoPro", "onActivityResult handled by IABUtil.");
         }
     }
+
+    private void showDialogWithText(String string) {
+        AlertDialog.Builder builder1 = new AlertDialog.Builder(this);
+        builder1.setMessage(string);
+        builder1.setCancelable(true);
+        builder1.create().show();
+    }
+
 
 }

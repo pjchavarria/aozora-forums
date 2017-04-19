@@ -70,10 +70,7 @@ public class LoginFormActivity extends AppCompatActivity {
                                 finish();
                             } else {
                                 //Enter app
-                                Intent i = new Intent(LoginFormActivity.this, MainActivity.class);
-                                i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(i);
+                                logInSuccesfull(user);
                             }
                         } else {
                             Toast.makeText(LoginFormActivity.this,err.getMessage(),Toast.LENGTH_SHORT).show();
