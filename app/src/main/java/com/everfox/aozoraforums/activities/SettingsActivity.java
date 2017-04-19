@@ -321,7 +321,7 @@ public class SettingsActivity extends AozoraActivity {
                                                 }
                                             };
                                     try {
-                                        mHelper.consumeAsync(inventory.getPurchase(PurchaseUtils.PRODUCT_CHANGE_USERNAME), mConsumeFinishedListener);
+                                        mHelper.consumeAsync(purchase, mConsumeFinishedListener);
                                     } catch (IabHelper.IabAsyncInProgressException e) {
                                         e.printStackTrace();
                                     }
@@ -339,7 +339,7 @@ public class SettingsActivity extends AozoraActivity {
             }
         };
 
-        ParseQuery<PUser> query = ParseQuery.getQuery("User");
+        ParseQuery<PUser> query = ParseQuery.getQuery("_User");
         Log.d("Settigs", "Change " + newUsername);
         query.whereEqualTo("username", newUsername);
         query.findInBackground(new FindCallback<PUser>() {
@@ -352,7 +352,7 @@ public class SettingsActivity extends AozoraActivity {
                     AlertDialog.Builder alert = new AlertDialog.Builder(SettingsActivity.this).setMessage("This username is not available.");
                     alert.create().show();
                 } else {
-                    ParseQuery<PUser> query2 = ParseQuery.getQuery("User");
+                    ParseQuery<PUser> query2 = ParseQuery.getQuery("_User");
                     query2.whereMatches("aozoraUsername", "^\\(newUsername)$");
                     query2.findInBackground(new FindCallback<PUser>() {
                         @Override
