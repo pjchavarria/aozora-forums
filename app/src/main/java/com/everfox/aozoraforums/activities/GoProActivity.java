@@ -6,6 +6,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
@@ -65,6 +66,8 @@ public class GoProActivity extends AppCompatActivity {
 
         ProductPurchasePagerAdapter mSectionsPagerAdapter = new ProductPurchasePagerAdapter(getSupportFragmentManager());
         vpPro.setAdapter(mSectionsPagerAdapter);
+        ((TextView)findViewById(R.id.tvProDesc)).setMovementMethod(LinkMovementMethod.getInstance());
+
 
         goProView.setOnClickListener(new View.OnClickListener() {
             @Override
