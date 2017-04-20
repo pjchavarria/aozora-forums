@@ -11,6 +11,7 @@ import android.util.Log;
 public class PurchaseUtils {
 
     public static final String PRODUCT_NO_ADS = "no_ads_f";
+    public static final String PRODUCT_NO_ADS_TRACKER = "no_ads";
     public static final String PRODUCT_PRO = "unlock_all";
     public static final String PRODUCT_PRO_PLUS = "unlock_all_plus";
     public static final String PRODUCT_CHANGE_USERNAME = "change_username";
@@ -20,6 +21,9 @@ public class PurchaseUtils {
         SharedPreferences.Editor edit= settings.edit();
         edit.putBoolean(productID, true);
         edit.commit();
+        if (productID.equals(PRODUCT_NO_ADS_TRACKER)) {
+            purchaseProduct(context, PRODUCT_NO_ADS);
+        }
     }
 
     public static void deletePurchases(Context context) {
