@@ -149,7 +149,7 @@
     <string name="admob_main">ca-app-pub-3538998045407451/6861879925</string>
     <string name="bepk">MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsIlJJXf1Hld7cSItdzTqiJm69hLoj+h3CZQ2tJWi9AN+JsWox0hVehwXMW9IOB+cxFwEY1XgbvBX1bSrFYhlVGRLGolajBIUF5JgO3Senck54BfHce9ADY4/sIDQNtorBs8b29aPCQbdmSDh2QLizfoh1N2oquk7gQwqtqVHsT7oJjjonx+GZH8z4LjKpEBFI3wQyHRiTQC40Dyd8263B332vL7DY8hMW+33F6Woi0tcyaWiUL8YrXXDt2+B4RWBLpNqgItmhH7UjabDGYW5Z9pB4oUS0bUn/yaBOnApkV8CtKooETgO2nVc5DZNMNvEwAfYKagdR6ju4RQVY/CuvwIDAQAB</string>
 
-    <string name="pro_desc"><b><i>Remove all ads</i></b>, get a <b><i>PRO badge</i></b> showing the community your support and more importantly helps us! <b><i>take this app to the next level</i></b>!</string>
+    <string name="pro_desc"><b><i>Remove all ads</i></b>, get a <b><i>PRO badge</i></b> showing the community your support and more importantly helps us! <b><i>take this app to the next level</i></b>!\nYou will unlock features for Aozora Anime Tracker App.</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>

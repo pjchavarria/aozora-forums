@@ -251,7 +251,7 @@ public class SettingsActivity extends AozoraActivity {
         change.show();
     }
 
-    private boolean CheckUserNameAvailability(String newUsername) {
+    private boolean CheckUserNameAvailability(final String newUsername) {
 
         final List additionalSkuList = new ArrayList();
         additionalSkuList.add(PurchaseUtils.PRODUCT_CHANGE_USERNAME);
@@ -342,7 +342,7 @@ public class SettingsActivity extends AozoraActivity {
 
         ParseQuery<PUser> query = ParseQuery.getQuery("_User");
         Log.d("Settigs", "Change " + newUsername);
-        query.whereEqualTo("username", newUsername);
+        query.whereEqualTo("username", newUsername.toLowerCase());
         query.findInBackground(new FindCallback<PUser>() {
             @Override
             public void done(List<PUser> objects, ParseException e) {
@@ -354,7 +354,7 @@ public class SettingsActivity extends AozoraActivity {
                     alert.create().show();
                 } else {
                     ParseQuery<PUser> query2 = ParseQuery.getQuery("_User");
-                    query2.whereMatches("aozoraUsername", "^\\(newUsername)$");
+                    query2.whereMatches("aozoraUsername", "^\\(" + newUsername + ")$");
                     query2.findInBackground(new FindCallback<PUser>() {
                         @Override
                         public void done(List<PUser> objects, ParseException e) {

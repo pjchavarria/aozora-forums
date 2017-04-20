@@ -148,7 +148,14 @@ public class LoginFormActivity extends AppCompatActivity {
 
     private void logInSuccesfull(ParseUser user) {
         PurchaseUtils.deletePurchases(LoginFormActivity.this);
-        JSONArray purchased = user.getJSONArray("unlockContent");
+        JSONArray purchased = null;
+        if (user.getString("unlockContent") != null) {
+            try {
+                purchased = new JSONArray(user.getString("unlockContent"));
+            } catch (JSONException e) {
+
+            }
+        }
         if(purchased != null ) {
             for (int i = 0; i < purchased.length(); i++) {
                 try {
