@@ -44,6 +44,8 @@ public class PostParseHelper {
 
     public void GetTimelinePostComments(TimelinePost timelinePost, int skip, int limit) {
 
+        if (timelinePost == null) {return;}
+
         ParseQuery<TimelinePost> query = ParseQuery.getQuery(TimelinePost.class);
         query.setSkip(skip);
         query.setLimit(limit);

@@ -189,7 +189,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:weightSum="1"
-        >
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/tvAoDiscover"
@@ -223,7 +223,7 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:weightSum="1"
-        >
+        android:visibility="gone">
         <TextView
             android:id="@+id/tvAoTalk"
             android:layout_weight="0.9"

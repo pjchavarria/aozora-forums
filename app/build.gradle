@@ -17,12 +17,12 @@ repositories {
 
 android {
     signingConfigs {
-        debug {
+        /*debug {
             keyAlias 'aozora'
             keyPassword 'aozora'
             storeFile file('C:/Users/kevin/Desktop/AozoraForums/key.jks')
             storePassword 'aozora'
-        }
+        }*/
     }
     compileSdkVersion 25
     buildToolsVersion "24.0.2"
@@ -30,8 +30,8 @@ android {
         applicationId "com.everfox.aozoraforums"
         minSdkVersion 19
         targetSdkVersion 25
-        versionCode 5
-        versionName "1.0.13"
+        versionCode 6
+        versionName "1.1.00"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
