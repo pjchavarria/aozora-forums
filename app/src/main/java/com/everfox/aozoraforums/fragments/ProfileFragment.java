@@ -464,7 +464,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     }
 
     private void updatePost() {
-        int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost, selectedPost);
+        int position = AoUtils.getPositionOfTimelinePost(lstTimelinePost,selectedPost.getRepostFather() == null ? selectedPost : selectedPost.getRepostFather());
         if (position != -1) {
             lstTimelinePost.set(position, selectedPost);
             timelineAdapter.notifyItemChanged(position, selectedPost);

@@ -229,7 +229,6 @@ public class SignUpFormActivity extends AppCompatActivity {
                     userDetails.put("avatarRegular",file);
                 }
             });
-            bitmap.recycle();
         }
 
         if(isFacebook) {
@@ -246,6 +245,7 @@ public class SignUpFormActivity extends AppCompatActivity {
                 @Override
                 public void done(ParseException e) {
                     if(e != null) {
+                        simpleLoading.dismissAllowingStateLoss();
                         Toast.makeText(SignUpFormActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                     } else {
                         EnterApp(user, userDetails);
@@ -289,6 +289,7 @@ public class SignUpFormActivity extends AppCompatActivity {
                         ParseUser.logInInBackground(user.getUsername(), etPassword.getText().toString(), new LogInCallback() {
                             public void done(ParseUser user, ParseException e) {
                                 if (e != null) {
+                                    simpleLoading.dismissAllowingStateLoss();
                                     Toast.makeText(SignUpFormActivity.this, e.getLocalizedMessage(), Toast.LENGTH_SHORT).show();
                                 } else {
 

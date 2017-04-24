@@ -492,12 +492,25 @@ public class AoUtils {
 
     public static int getPositionOfTimelinePost(ArrayList<TimelinePost> posts, TimelinePost post) {
 
-        int position = posts.indexOf(post);
+        int position = -1;
+        for(int i=0;i<posts.size();i++) {
+                if(post.getObjectId().equals(posts.get(i).getObjectId())) {
+                    position = i;
+                }
+        }
         if(position == -1) {
             for(int i=0;i<posts.size();i++) {
                 if(posts.get(i).has(TimelinePost.REPOST_SOURCE))
                     if(post.getObjectId().equals(posts.get(i).getParseObject(TimelinePost.REPOST_SOURCE).getObjectId())) {
-                        return i;
+                        position = i;
+                    }
+            }
+        }
+        if(position == -1) {
+            for(int i=0;i<posts.size();i++) {
+                if(post.has(TimelinePost.REPOST_SOURCE))
+                    if(posts.get(i).getObjectId().equals(post.getParseObject(TimelinePost.REPOST_SOURCE).getObjectId())) {
+                        position = i;
                     }
             }
         }
