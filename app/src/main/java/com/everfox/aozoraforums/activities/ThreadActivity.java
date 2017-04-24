@@ -407,6 +407,7 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
 
     @Override
     public void onAddPostTapped() {
+        if (parentThread == null) {return;}
         if(parentThread.has(AoThread.LOCKED) && parentThread.getBoolean(AoThread.LOCKED)) {
             Toast.makeText(this,"Thread is locked",Toast.LENGTH_SHORT).show();
         } else {

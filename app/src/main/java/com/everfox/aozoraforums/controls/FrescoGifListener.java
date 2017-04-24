@@ -50,6 +50,7 @@ public class FrescoGifListener extends BaseControllerListener {
         simpleDraweeView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                if (animatable == null) { return; }
                 if(animatable.isRunning()) {
                     animatable.stop();
                     handler.removeCallbacks(runnable);

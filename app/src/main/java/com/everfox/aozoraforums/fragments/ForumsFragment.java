@@ -503,7 +503,15 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, For
             newPost = PostUtils.likePost(thread);
         else
             newPost = PostUtils.unlikeThread(thread);
+        if (newPost == null) {return;}
         int position = lstThreads.indexOf(newPost);
+        if (position == -1) {
+            for (int i = 0; i < lstThreads.size(); i++) {
+                if (newPost.getObjectId().equals(lstThreads.get(i).getObjectId())) {
+                    position = i;
+                }
+            }
+        }
         lstThreads.set(position,(AoThread) newPost);
         forumsAdapter.notifyItemChanged(position,newPost);
     }
