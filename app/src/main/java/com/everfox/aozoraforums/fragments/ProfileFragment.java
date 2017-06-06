@@ -32,6 +32,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.everfox.aozoraforums.AozoraForumsApp;
 import com.everfox.aozoraforums.R;
 import com.everfox.aozoraforums.activities.EditProfileActivity;
@@ -355,12 +356,14 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
             relation.getQuery().whereEqualTo(ParseUserColumns.OBJECT_ID, user.getObjectId()).countInBackground(new CountCallback() {
                 @Override
                 public void done(int count, ParseException e) {
-                    if (count > 0) {
-                        tvFollow.setText(getString(R.string.fa_check) + " Following");
-                        isFollowing = true;
-                    } else {
-                        tvFollow.setText(getString(R.string.fa_plus) + " Follow");
-                        isFollowing = false;
+                    if(getActivity() != null) {
+                        if (count > 0) {
+                            tvFollow.setText(getString(R.string.fa_check) + " Following");
+                            isFollowing = true;
+                        } else {
+                            tvFollow.setText(getString(R.string.fa_plus) + " Follow");
+                            isFollowing = false;
+                        }
                     }
                 }
             });
@@ -409,7 +412,9 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
                 String title = user.getString(ParseUserColumns.AOZORA_USERNAME);
                 Date joinDate = user.getDate(ParseUserColumns.JOIN_DATE);
                 DateFormat df = new SimpleDateFormat("MMM dd,yyyy");
-                String subtitle1 = "Member since: " + df.format(joinDate) ;
+                String subtitle1 = "";
+                if(joinDate != null)
+                    subtitle1 = "Member since: " + df.format(joinDate) ;
                 String subtitle2 = "Posts: " + postCount;
                 OptionListDialogFragment fragment;
                 if(isCurrentUser)
@@ -487,6 +492,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
             queryDetails.findInBackground(new FindCallback<UserDetails>() {
                 @Override
                 public void done(List<UserDetails> objects, ParseException e) {
+
                     if (objects != null && e == null && objects.size() > 0) {
                         userDetails = objects.get(0);
                         loadUserDetails();
@@ -559,9 +565,11 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
                 @Override
                 public void done(byte[] data, com.parse.ParseException e) {
                     if (e == null) {
-                        Bitmap bmp = BitmapFactory
-                                .decodeByteArray(data, 0, data.length);
-                        ivAvatar.setImageBitmap(bmp);
+
+                        Glide.with(getActivity())
+                                .load(data)
+                                .asBitmap()
+                                .into(ivAvatar);
                     }
                 }
             });
@@ -572,9 +580,11 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
                 @Override
                 public void done(byte[] data, com.parse.ParseException e) {
                     if (e == null) {
-                        Bitmap bmp = BitmapFactory
-                                .decodeByteArray(data, 0, data.length);
-                        ivProfileBanner.setImageBitmap(bmp);
+
+                        Glide.with(getActivity())
+                                .load(data)
+                                .asBitmap()
+                                .into(ivProfileBanner);
                     }
                 }
             });

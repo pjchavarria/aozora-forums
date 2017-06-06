@@ -222,13 +222,16 @@ public class SignUpFormActivity extends AppCompatActivity {
             bitmap.compress(Bitmap.CompressFormat.JPEG, 100, stream);
             byte[] bitMapData = stream.toByteArray();
             final ParseFile file = new ParseFile(avatarFileName, bitMapData);
+            bitmap.recycle();
             file.saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {
                     user.put("avatarThumb",file);
                     userDetails.put("avatarRegular",file);
+
                 }
             });
+
         }
 
         if(isFacebook) {

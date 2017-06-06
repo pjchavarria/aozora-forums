@@ -378,8 +378,9 @@ public class AoUtils {
             public void done(ParseException e) {
                 if(e== null) {
                     try {
-                        if(ParseUser.getCurrentUser() != null)
+                        if(ParseUser.getCurrentUser() != null) {
                             ParseUser.logOut();
+                        }
                         ParseObject.unpinAll();
                     } catch (ParseException pEx) {
                     }
@@ -391,6 +392,9 @@ public class AoUtils {
                     Intent intent = new Intent(context, FirstActivity.class);
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     context.startActivity(intent);
+                    while (ParseUser.getCurrentUser() != null) {
+                        ParseUser.logOut();
+                    }
                 }
             }
         });
@@ -468,6 +472,7 @@ public class AoUtils {
         share.setType("image/*");
         share.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(sdImageMainDirectory));
         context.startActivity(Intent.createChooser(share, "Share via"));
+        bitmap.recycle();
     }
 
     static double watermarkScale = 90.0/260.0;
@@ -487,6 +492,7 @@ public class AoUtils {
         int newHeight = (int)(newWidth * watermarkScale);
         Bitmap watermark = Bitmap.createScaledBitmap(BitmapFactory.decodeResource(context.getResources(),R.drawable.aozora_watermark),newWidth,newHeight,false);
         canvas.drawBitmap(watermark,view.getMeasuredWidth()-watermark.getWidth()-10,  view.getMeasuredHeight()-newHeight-15,null);
+        watermark.recycle();
         return returnedBitmap;
     }
 
@@ -569,6 +575,7 @@ public class AoUtils {
             imageData.setImageFile(stream.toByteArray());
             imageData.setUrl("");
             imageData.setImageName(fileName);
+            resizedBitmap.recycle();
             return imageData;
 
         } catch (Exception ex ){

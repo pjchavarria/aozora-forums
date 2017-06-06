@@ -123,6 +123,8 @@ public class AddPostThreadHelper {
 
     public void performTimelinePost(final String content, String spoilers, Boolean hasSpoilers, Boolean isEditing, ImageData imageGallery, ImageData imageDataWeb, String youtubeID, LinkData selectedLinkData) {
 
+        if(postedBy == null)
+            postedBy = ParseUser.getCurrentUser();
         if(postToUpdate == null)
             timelinePost = TimelinePost.create(TimelinePost.class);
         else
@@ -135,6 +137,7 @@ public class AddPostThreadHelper {
         }
 
         if(!isEditing) {
+            if(postedBy == null) return;
             timelinePost.put(TimelinePost.POSTED_BY,postedBy);
             timelinePost.put(TimelinePost.EDITED,false);
         } else {
@@ -288,6 +291,10 @@ public class AddPostThreadHelper {
 
     public void performNewThread(final String content, String title, boolean isEditing,  ImageData imageGallery,
                               ImageData imageDataWeb, String youtubeID, LinkData selectedLinkData, ParseObject tag) {
+
+        if(postedBy == null)
+            postedBy = ParseUser.getCurrentUser();
+
         if(postToUpdate == null)
             aoThread = AoThread.create(AoThread.class);
         else

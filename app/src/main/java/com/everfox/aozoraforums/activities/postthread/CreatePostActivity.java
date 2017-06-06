@@ -367,33 +367,37 @@ public class CreatePostActivity extends AozoraActivity implements AddPostThreadH
                 @Override
                 public void afterTextChanged(Editable editable) {
 
-                    if (selectedLinkUrl == null) {
-                        List<String> lstUrls = AoUtils.extractLinks(etComment.getText().toString());
-                        if (lstUrls != null && lstUrls.size() > 0) {
-                            String link = lstUrls.get(0);
-                            Uri linkUri = Uri.parse(link);
-                            String host = linkUri.getHost();
-                            if (host != null && (host.contains("youtube.com") || host.contains("youtu.be"))   ) {
-                                //Video
-                                if (host.contains("youtube.com")) {
-                                    clearAttachments();
-                                    youtubeID = linkUri.getQueryParameter("v");
-                                } else if (host.contains("youtu.be")) {
-                                    youtubeID = linkUri.getPathSegments().get(1);
+                    try {
+                        if (selectedLinkUrl == null) {
+                            List<String> lstUrls = AoUtils.extractLinks(etComment.getText().toString());
+                            if (lstUrls != null && lstUrls.size() > 0) {
+                                String link = lstUrls.get(0);
+                                Uri linkUri = Uri.parse(link);
+                                String host = linkUri.getHost();
+                                if (host != null && (host.contains("youtube.com") || host.contains("youtu.be"))) {
+                                    //Video
+                                    if (host.contains("youtube.com")) {
+                                        clearAttachments();
+                                        youtubeID = linkUri.getQueryParameter("v");
+                                    } else if (host.contains("youtu.be")) {
+                                        youtubeID = linkUri.getPathSegments().get(1);
+                                    }
+                                    ivAddVideo.setColorFilter(ContextCompat.getColor(CreatePostActivity.this, R.color.red_airing));
+                                    return;
                                 }
-                                ivAddVideo.setColorFilter(ContextCompat.getColor(CreatePostActivity.this, R.color.red_airing));
-                                return;
-                            }
-                            if (link.toLowerCase().endsWith(".png") || link.toLowerCase().endsWith(".jpeg")
-                                    || link.toLowerCase().endsWith("jpg") || link.toLowerCase().endsWith(".gif")) {
-                                scrapeImageWithURL(link);
-                                return;
-                            }
+                                if (link.toLowerCase().endsWith(".png") || link.toLowerCase().endsWith(".jpeg")
+                                        || link.toLowerCase().endsWith("jpg") || link.toLowerCase().endsWith(".gif")) {
+                                    scrapeImageWithURL(link);
+                                    return;
+                                }
 
-                            selectedLinkUrl = link;
-                            scrapeLinkWithURL(link);
-                            return;
+                                selectedLinkUrl = link;
+                                scrapeLinkWithURL(link);
+                                return;
+                            }
                         }
+                    } catch (IndexOutOfBoundsException ioob) {
+
                     }
 
                 }

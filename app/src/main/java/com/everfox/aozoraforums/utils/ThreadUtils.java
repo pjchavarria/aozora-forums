@@ -428,6 +428,7 @@ public class ThreadUtils {
                                                      final CommentPostAdapter.OnUsernameTappedListener mCommentCallback) {
 
         final ParseUser userComment = (ParseUser)comment.getParseObject(TimelinePost.POSTED_BY);
+        if(userComment == null || userComment.getString(ParseUserColumns.AOZORA_USERNAME) == null) return;
         Spannable username = new SpannableString(userComment.getString(ParseUserColumns.AOZORA_USERNAME));
         username.setSpan(new ClickableSpan() {
             @Override
@@ -454,6 +455,7 @@ public class ThreadUtils {
                                                        final AoThreadAdapter.OnCommentTappedListener mThreadCallback
     ) {
         final ParseUser userComment = (ParseUser)comment.getParseObject(TimelinePost.POSTED_BY);
+        if(userComment == null || userComment.getString(ParseUserColumns.AOZORA_USERNAME) == null) return;
         Spannable username = new SpannableString(userComment.getString(ParseUserColumns.AOZORA_USERNAME));
         username.setSpan(new ClickableSpan() {
             @Override

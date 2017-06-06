@@ -427,9 +427,10 @@ public class PostUtils {
                 @Override
                 public void done(byte[] data, com.parse.ParseException e) {
                     if (e == null) {
-                        Bitmap bmp = BitmapFactory
-                                .decodeByteArray(data, 0, data.length);
-                        ivAvatar.setImageBitmap(bmp);
+                        Glide.with(ivAvatar.getContext())
+                                .load(data)
+                                .asBitmap()
+                                .into(ivAvatar);
                     }
                 }
             });
@@ -445,9 +446,11 @@ public class PostUtils {
                 @Override
                 public void done(byte[] data, com.parse.ParseException e) {
                     if (e == null) {
-                        Bitmap bmp = BitmapFactory
-                                .decodeByteArray(data, 0, data.length);
-                        ivAvatar.setImageBitmap(bmp);
+
+                        Glide.with(ivAvatar.getContext())
+                                .load(data)
+                                .asBitmap()
+                                .into(ivAvatar);
                     }
                 }
             });

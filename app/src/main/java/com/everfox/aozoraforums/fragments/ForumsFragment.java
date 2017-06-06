@@ -83,6 +83,7 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, For
     ForumsHelper forumsHelper;
     ArrayList<AoThread> lstThreads = new ArrayList<>();
     Boolean hasMenu = true;
+    Boolean reloadActivity = false;
 
 
     @BindView(R.id.rlAoArt)
@@ -128,6 +129,11 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, For
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         View view = inflater.inflate(R.layout.fragment_forums, container, false);
+        if(isLoading == null || ParseUser.getCurrentUser() == null) {
+            AoUtils.startMainActivity(getActivity());
+            reloadActivity = true;
+            return view;
+        }
         ButterKnife.bind(this,view);
         setHasOptionsMenu(true);
         forumsHelper = new ForumsHelper(getActivity(),this,null);
@@ -144,7 +150,6 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, For
         lstThreads.clear();
         forumsHelper.GetThreads(selectedList,selectedSort,0,ForumsHelper.THREADS_FETCH_LIMIT);
 
-        int a = 5;
         lstThreads.clear();
         isLoading = true;
         fetchCount = 1;
@@ -154,6 +159,8 @@ ForumsAdapter.OnItemLongClickListener, ForumsHelper.OnBanDeletePostCallback, For
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        if(reloadActivity) return;
         swipeRefreshForums.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {

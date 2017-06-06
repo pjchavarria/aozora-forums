@@ -28,10 +28,10 @@ android {
     buildToolsVersion "24.0.2"
     defaultConfig {
         applicationId "com.everfox.aozoraforums"
-        minSdkVersion 19
+        minSdkVersion 21
         targetSdkVersion 25
-        versionCode 7
-        versionName "1.1.01"
+        versionCode 8
+        versionName "1.1.02"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }
@@ -58,7 +58,7 @@ dependencies {
     }
     compile 'com.android.support:appcompat-v7:25.1.0'
     compile 'com.github.JakeWharton:ViewPagerIndicator:2.4.1'
-    compile 'com.parse:parse-android:1.13.1'
+    compile 'com.parse:parse-android:1.15.7'
     compile 'com.facebook.android:facebook-android-sdk:4.9.0'
     compile 'com.parse:parsefacebookutils-v4-android:1.10.4@aar'
     compile 'com.android.support:recyclerview-v7:25.1.0'
