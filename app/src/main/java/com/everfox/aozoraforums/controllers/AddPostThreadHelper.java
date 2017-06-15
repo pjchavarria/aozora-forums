@@ -487,9 +487,6 @@ public class AddPostThreadHelper {
                         HashMap<String, String> parametersNoti = new HashMap<String, String>();
                         parameters.put("postId", post.getObjectId());
                         parameters.put("threadName", post.getParseObject(Post.THREAD).getString("title"));
-                        if (post.getParseObject(Post.THREAD).has(AoThread.STARTEDBY)) {
-                            parameters.put("toUserId", post.getParseObject(Post.THREAD).getParseUser(AoThread.STARTEDBY).getObjectId());
-                        }
                         ParseCloud.callFunctionInBackground("sendNewPostPushNotification", parametersNoti);
                     }
                 }

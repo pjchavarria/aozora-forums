@@ -267,7 +267,6 @@ public class SignUpFormActivity extends AppCompatActivity {
     private void EnterApp(final ParseUser user, final UserDetails userDetails) {
 
         if(isFacebook) {
-            userDetails.put("details",user);
             userDetails.saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {
@@ -282,7 +281,6 @@ public class SignUpFormActivity extends AppCompatActivity {
             });
         }
          else {
-            userDetails.put("details", user);
             userDetails.saveInBackground(new SaveCallback() {
                 @Override
                 public void done(ParseException e) {

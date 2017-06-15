@@ -154,7 +154,6 @@ PostUtils.OnDeletePostCallback, ForumsHelper.OnBanDeletePostCallback, AoThreadAd
             postParseQuery.whereEqualTo(TimelinePost.OBJECT_ID,postID);
             postParseQuery.include(Post.THREAD);
             postParseQuery.include(Post.THREAD+"."+AoThread.TAGS);
-            postParseQuery.include(Post.THREAD+"."+AoThread.STARTEDBY);
             postParseQuery.include(Post.THREAD+"."+AoThread.POSTEDBY);
             postParseQuery.include(Post.THREAD+"."+AoThread.LASTPOSTEDBY);
             postParseQuery.include(Post.THREAD+"."+AoThread.EPISODE);

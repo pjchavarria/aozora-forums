@@ -143,50 +143,15 @@ public class EditProfileActivity extends AozoraActivity {
 
     private void loadDetails() {
         ParseObject details =currentUser.getParseObject(ParseUserColumns.DETAILS);
-        if(details == null) {
+        details.fetchIfNeededInBackground(new GetCallback<UserDetails>() {
+            @Override
+            public void done(UserDetails object, ParseException e) {
+                userDetails = object;
+                tvAbout.setText(userDetails.getString(UserDetails.ABOUT));
+                tvAbout.addTextChangedListener(aboutTextWatcher);
+            }
+        });
 
-            ParseQuery<UserDetails> queryDetails = ParseQuery.getQuery(UserDetails.class);
-            queryDetails.setLimit(1);
-            queryDetails.whereEqualTo(UserDetails.DETAILS_USER, currentUser);
-            queryDetails.findInBackground(new FindCallback<UserDetails>() {
-                @Override
-                public void done(List<UserDetails> objects, ParseException e) {
-                    if (objects != null && e == null && objects.size() > 0) {
-                        userDetails = objects.get(0);
-                        tvAbout.setText(userDetails.getString(UserDetails.ABOUT));
-                        tvAbout.addTextChangedListener(aboutTextWatcher);
-                    }
-                }
-            });
-
-        } else {
-            details.fetchIfNeededInBackground(new GetCallback<UserDetails>() {
-                @Override
-                public void done(UserDetails object, ParseException e) {
-
-                    if (object == null) {
-                        ParseQuery<UserDetails> queryDetails = ParseQuery.getQuery(UserDetails.class);
-                        queryDetails.setLimit(1);
-                        queryDetails.whereEqualTo(UserDetails.DETAILS_USER, currentUser);
-                        queryDetails.findInBackground(new FindCallback<UserDetails>() {
-                            @Override
-                            public void done(List<UserDetails> objects, ParseException e) {
-                                if (objects != null && e == null && objects.size() > 0) {
-                                    userDetails = objects.get(0);
-                                    tvAbout.setText(userDetails.getString(UserDetails.ABOUT));
-                                    tvAbout.addTextChangedListener(aboutTextWatcher);
-                                }
-                            }
-                        });
-                    } else {
-                        userDetails = object;
-                        tvAbout.setText(userDetails.getString(UserDetails.ABOUT));
-                        tvAbout.addTextChangedListener(aboutTextWatcher);
-
-                    }
-                }
-            });
-        }
     }
 
     @Override

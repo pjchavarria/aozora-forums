@@ -30,8 +30,8 @@ android {
         applicationId "com.everfox.aozoraforums"
         minSdkVersion 21
         targetSdkVersion 25
-        versionCode 8
-        versionName "1.1.02"
+        versionCode 9
+        versionName "1.1.03"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         multiDexEnabled true
     }

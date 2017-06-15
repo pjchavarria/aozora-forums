@@ -484,47 +484,14 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
 
     private void getUserDetails() {
         ParseObject details =user.getParseObject(ParseUserColumns.DETAILS);
-        if(details == null) {
-
-            ParseQuery<UserDetails> queryDetails = ParseQuery.getQuery(UserDetails.class);
-            queryDetails.setLimit(1);
-            queryDetails.whereEqualTo(UserDetails.DETAILS_USER, user);
-            queryDetails.findInBackground(new FindCallback<UserDetails>() {
-                @Override
-                public void done(List<UserDetails> objects, ParseException e) {
-
-                    if (objects != null && e == null && objects.size() > 0) {
-                        userDetails = objects.get(0);
-                        loadUserDetails();
-                    }
-                }
-            });
-
-        } else {
-            details.fetchInBackground(new GetCallback<UserDetails>() {
+        details.fetchInBackground(new GetCallback<UserDetails>() {
                 @Override
                 public void done(UserDetails object, ParseException e) {
-
-                    if (object == null) {
-                        ParseQuery<UserDetails> queryDetails = ParseQuery.getQuery(UserDetails.class);
-                        queryDetails.setLimit(1);
-                        queryDetails.whereEqualTo(UserDetails.DETAILS_USER, user);
-                        queryDetails.findInBackground(new FindCallback<UserDetails>() {
-                            @Override
-                            public void done(List<UserDetails> objects, ParseException e) {
-                                if (objects != null && e == null && objects.size() > 0) {
-                                    userDetails = objects.get(0);
-                                    loadUserDetails();
-                                }
-                            }
-                        });
-                    } else {
-                        userDetails = object;
-                        loadUserDetails();
-                    }
+                    userDetails = object;
+                    loadUserDetails();
                 }
             });
-        }
+
     }
 
     private void loadUserDetails() {

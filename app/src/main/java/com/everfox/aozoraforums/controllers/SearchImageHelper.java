@@ -129,7 +129,7 @@ public class SearchImageHelper {
 
             ArrayList<ImageData> lst = new ArrayList<>();
             while (true) {
-                int indexItem = html.indexOf("<div class=\"rg_meta\">");
+                int indexItem = html.indexOf("<div class=\"rg_meta notranslate\">");
                 if(indexItem <1)
                     break;
                 String item =html.substring(indexItem);

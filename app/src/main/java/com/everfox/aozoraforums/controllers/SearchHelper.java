@@ -72,7 +72,6 @@ public class SearchHelper {
         query.whereEqualTo(AoThread.VISIBILITY, AoConstants.VISIBLE);
         query.orderByAscending(AoThread.UPDATEDAT);
         query.include(AoThread.TAGS);
-        query.include(AoThread.STARTEDBY);
         query.include(AoThread.POSTEDBY);
         query.include(AoThread.LASTPOSTEDBY);
         query.findInBackground(new FindCallback<AoThread>() {
@@ -93,7 +92,6 @@ public class SearchHelper {
         query.whereGreaterThan(AoThread.REPLIES_COUNT, RESULT_MAX);
         query.orderByDescending(AoThread.CREATED_AT);
         query.include(AoThread.TAGS);
-        query.include(AoThread.STARTEDBY);
         query.include(AoThread.POSTEDBY);
         query.include(AoThread.LASTPOSTEDBY);
         query.findInBackground(new FindCallback<AoThread>() {

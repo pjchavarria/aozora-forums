@@ -74,7 +74,6 @@ public class ForumsHelper {
         query.whereEqualTo(AoThread.PIN_TYPE, AoConstants.PINTYPE_GLOBAL);
         query.orderByDescending(AoThread.HOTRANKING);
         query.include(AoThread.TAGS);
-        query.include(AoThread.STARTEDBY);
         query.include(AoThread.POSTEDBY);
         query.include(AoThread.LASTPOSTEDBY);
         query.findInBackground(new FindCallback<AoThread>() {
@@ -107,7 +106,6 @@ public class ForumsHelper {
         query.setLimit(limit);
         // FILTERING FAVORITES
         query.include(AoThread.TAGS);
-        query.include(AoThread.STARTEDBY);
         query.include(AoThread.POSTEDBY);
         query.include(AoThread.LASTPOSTEDBY);
 
@@ -144,7 +142,6 @@ public class ForumsHelper {
         query.orderByDescending(AoThread.CREATED_AT);
         // FILTERING FAVORITES
         query.include(AoThread.TAGS);
-        query.include(AoThread.STARTEDBY);
         query.include(AoThread.POSTEDBY);
         query.include(AoThread.LASTPOSTEDBY);
 
