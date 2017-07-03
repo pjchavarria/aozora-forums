@@ -26,13 +26,18 @@ import com.everfox.aozoraforums.fragments.ForumsFragment;
 import com.everfox.aozoraforums.fragments.NotificationsFragment;
 import com.everfox.aozoraforums.fragments.ProfileFragment;
 import com.everfox.aozoraforums.fragments.UserListFragment;
+import com.everfox.aozoraforums.models.UserDetails;
 import com.everfox.aozoraforums.utils.AoUtils;
 import com.everfox.aozoraforums.utils.PurchaseUtils;
 import com.facebook.common.util.ExceptionWithNoStacktrace;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
+import com.parse.ParseException;
 import com.parse.ParseInstallation;
 import com.parse.ParseUser;
+import com.parse.SaveCallback;
+
+import java.util.Date;
 
 public class MainActivity extends AozoraActivity {
 
@@ -143,6 +148,34 @@ public class MainActivity extends AozoraActivity {
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         AozoraForumsApp.setScreenWidth(metrics.widthPixels);
         AozoraForumsApp.setDensity(metrics.density);
+
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        createUserDetailsIfMissing();
+    }
+
+    private void createUserDetailsIfMissing() {
+
+        if(ParseUser.getCurrentUser().getParseObject("details") == null) {
+
+            final UserDetails userDetails = UserDetails.create(UserDetails.class);
+            userDetails.put("joinDate",new Date());
+            userDetails.put("gender","Not specified");
+            userDetails.saveInBackground(new SaveCallback() {
+                @Override
+                public void done(ParseException e) {
+                    if(e==null) {
+                        ParseUser currentUser = ParseUser.getCurrentUser();
+                        currentUser.put("details",userDetails);
+                        currentUser.saveInBackground();
+                    }
+                }
+            });
+        }
     }
 
     private void markMenuAsUnselected() {
