@@ -92,7 +92,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
     private static final int REQUEST_NEW_TIMELINEPOST = 401;
     private static final int REQUEST_WRITE_STORAGE = 100;
     View viewToShare;
-    Boolean isFollowing;
+    boolean isFollowing;
     ParseUser user;
     UserDetails userDetails;
     Boolean isProfile;
@@ -548,7 +548,7 @@ PostUtils.OnDeletePostCallback, ProfileTimelineAdapter.OnItemTappedListener, Pro
                 public void done(byte[] data, com.parse.ParseException e) {
                     if (e == null) {
 
-                        Glide.with(getActivity())
+                        Glide.with(getContext())
                                 .load(data)
                                 .asBitmap()
                                 .into(ivProfileBanner);

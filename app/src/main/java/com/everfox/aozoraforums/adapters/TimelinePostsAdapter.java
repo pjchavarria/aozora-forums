@@ -224,7 +224,7 @@ public class TimelinePostsAdapter extends RecyclerView.Adapter<RecyclerView.View
     private void loadPicOriginalPoster(ViewHolderFirstPost holder, ParseUser user) {
         ParseFile profilePic = user.getParseFile(ParseUserColumns.AVATAR_THUMB);
         PostUtils.loadAvatarPic(profilePic, holder.ivAvatar);
-        if (user.getBoolean(ParseUserColumns.ACTIVE)) {
+        if (user.has(ParseUserColumns.ACTIVE) && user.getBoolean(ParseUserColumns.ACTIVE)) {
             holder.tvUserActive.setVisibility(View.VISIBLE);
         }
     }
